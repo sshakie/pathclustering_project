@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %} Добавление заказов {% endblock %}
+
+{% block content %}
+<div style="display: flex; justify-content: center; align-items: center; height: 100vh">
+<div style="width: 100%; max-width: 400px">
+  <h2 align="center">Добавление заказов</h2>
+    <form action="" method="post">
+        {{ form.hidden_tag() }}
+        <p>
+            {{ form.address.label }}<br>
+            {{ form.address(class="form-control", type="address") }}<br>
+            {% for error in form.address.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.city.label }}<br>
+            {{ form.city(class="form-control", type="city") }}<br>
+            {% for error in form.city.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.goods.label }}<br>
+            {{ form.goods(class="form-control", type="goods") }}<br>
+            {% for error in form.goods.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>
+            {{ form.scheduled_date.label }}<br>
+            {{ form.scheduled_date(class="form-control", type="scheduled_date") }}<br>
+            {% for error in form.scheduled_date.errors %}
+                <div class="alert alert-danger" role="alert">
+                    {{ error }}
+                </div>
+            {% endfor %}
+        </p>
+        <p>{{ form.is_delivered() }} {{ form.is_delivered.label }}</p>
+        <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
+        <div>{{ message }}</div>
+    </form>
+</div>
+</div>
+{% endblock %}
