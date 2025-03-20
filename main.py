@@ -6,6 +6,8 @@ from blanks.loginform import LoginForm
 from blanks.registerform import RegisterForm
 from blanks.orderform import OrderForm
 from data.db_session import *
+from datetime import *
+from dateutil.relativedelta import *
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my_promises'
@@ -27,14 +29,13 @@ if not db_sess.query(User).filter(User.name == 'admin').first():
 
 @lm.user_loader
 def load_user(user_id):
-    db_sess = create_session()
-    return db_sess.query(User).get(user_id)
+    return create_session().query(User).get(user_id)
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect('/')
+        return redirect('/orders')
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -42,7 +43,7 @@ def login():
         user = db_sess.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            return redirect('/')
+            return redirect('/orders')
         return render_template('login.html', message='Неправильный логин или пароль', form=form)
     return render_template('login.html', title='Авторизация', form=form)
 
@@ -50,9 +51,43 @@ def login():
 @app.route('/')
 def homepage():
     if current_user.is_authenticated:
-        db_sess = create_session()
-        return render_template('homepage.html', sql=db_sess.query(Orders).all(), name=current_user.name)
+        return redirect('/orders')
     return redirect('/login')
+
+
+@app.route('/orders', methods=['GET', 'POST'])
+def orders():
+    if current_user.is_authenticated:
+        form = OrderForm()
+        db_sess = create_session()
+        form.goods.choices = get_goods()
+        time_min = (datetime.now() + timedelta(minutes=30)).strftime('%Y-%m-%dT%H:%M')
+        date_max = (datetime.now() + relativedelta(months=2)).strftime('%Y-%m-%dT23:59')
+
+        if form.validate_on_submit():
+            db_sess = create_session()
+            if db_sess.query(Orders).filter(Orders.phone == form.phone.data).first():
+                flash("Заказ по данному номеру телефона уже составлен", "success")
+                return render_template('orders.html', sql=db_sess.query(Orders).all(), form=form, time_min=time_min,
+                                       date_max=date_max)
+            elif len(form.phone.data.replace('+7', '8')) != 11:
+                flash("Данный номер телефона неверен/не из России", "success")
+                return render_template('orders.html', sql=db_sess.query(Orders).all(), form=form, time_min=time_min,
+                                       date_max=date_max)
+
+            order = Orders()
+            order.address = form.address.data
+            order.city = form.city.data
+            order.phone = form.phone.data
+            order.goods = ', '.join(form.goods.data)
+            order.scheduled_date = form.scheduled_date.data.strftime('%Y-%m-%d %H:%M')
+            order.is_delivered = form.is_delivered.data
+            db_sess.add(order)
+            db_sess.commit()
+        return render_template('orders.html', sql=db_sess.query(Orders).all(), form=form, time_min=time_min,
+                               date_max=date_max)
+    else:
+        return redirect('/login')
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -77,39 +112,13 @@ def register():
             db_sess.commit()
 
             login_user(user, remember=form.remember_me.data)
-            return redirect('/')
+            return redirect('/orders')
     return render_template('register.html', title='Регистрация', form=form)
 
 
 def get_goods():
     goods = ['Пицца-пепперони', 'Суши филадельфия', 'Игровой стул']
     return goods
-
-
-@app.route('/add_job', methods=['GET', 'POST'])
-def add_job():
-    if current_user.is_authenticated:
-        form = OrderForm()
-        form.goods.choices = get_goods()
-        if form.validate_on_submit():
-            db_sess = create_session()
-            order = db_sess.query(Orders).filter(Orders.address == form.address.data).first()
-            if order:
-                return render_template('add_order.html', title='Данному адресу уже доставляют', form=form)
-
-            db_sess = create_session()
-            order = Orders()
-            order.address = form.address.data
-            order.city = form.city.data
-            order.goods = ', '.join(form.goods.data)
-            order.scheduled_date = form.scheduled_date.data
-            order.is_delivered = form.is_delivered.data
-            db_sess.add(order)
-            db_sess.commit()
-            return redirect('/')
-        return render_template('add_order.html', title='Добавление заказа', form=form)
-    else:
-        return redirect('/login')
 
 
 @app.route('/logout')
