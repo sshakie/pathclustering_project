@@ -1,0 +1,159 @@
+body {
+  font-family: 'Courier New', monospace;
+  margin: 0;
+  padding: 0;
+}
+
+.main-wrapper {
+  display: flex;
+  height: 100vh;
+}
+
+/* Левая панель */
+.orders-panel {
+  width: 20%;
+  padding: 10px;
+  border-right: 1px solid #ccc;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.order-item {
+  border: 1px solid black;
+  padding: 5px;
+  background: #f9f9f9;
+  cursor: pointer;
+}
+
+.order-item.active {
+  background: #ffe2cc;
+}
+
+/* Центральная панель */
+.map-block {
+  width: 80%;
+  padding: 10px;
+}
+
+.map-wrapper {
+  border: 4px solid black;
+  height: 600px;
+}
+
+.map {
+  width: 100%;
+  height: 100%;
+}
+
+.courier-filter-wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+#courier-search {
+  padding: 5px;
+  margin-bottom: 5px;
+  border: 1px solid #ccc;
+}
+
+.courier-filters-scroll {
+  display: flex;
+  overflow-x: auto;
+  gap: 5px;
+  scrollbar-width: thin;
+   flex-direction: column;
+}
+
+.courier-btn.active {
+  background: black;
+  color: white;
+}
+
+/* Вся панель курьеров */
+.courier-panel {
+    width: 300px;
+  background-color: #f9f9f9;
+  padding: 15px;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Обёртка над фильтрами и поиском */
+.courier-filter-wrapper {
+  margin-bottom: 20px;
+}
+
+/* Поле поиска курьера */
+#courier-search {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
+/* Контейнер с кнопками курьеров и прокруткой */
+.courier-filters-scroll {
+  max-height: 200px;
+  overflow-y: auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding-right: 5px;
+}
+
+/* Панель с курьерами */
+.courier-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Поле поиска */
+#courier-search {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+}
+
+/* Список курьеров с прокруткой */
+.courier-list-scroll {
+  max-height: 500px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Один курьер */
+.courier-btn {
+  padding: 12px;
+  border-radius: 6px;
+  background-color: #e6e6e6;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.2s ease;
+  user-select: none;
+  width: 100%;
+  line-height: 0.5;
+  border: none;
+}
+
+.courier-btn:hover {
+  background-color: #dcdcdc;
+}
+
+.courier-btn.active {
+  background-color: #2196f3;
+  color: white;
+}
+

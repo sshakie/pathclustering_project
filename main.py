@@ -50,9 +50,10 @@ def login():
 
 @app.route('/')
 def homepage():
-    if current_user.is_authenticated:
-        return redirect('/orders')
-    return redirect('/login')
+    # if current_user.is_authenticated:
+    #     return redirect('/orders')
+    # return redirect('/login')
+    return render_template('main_window.html')
 
 
 @app.route('/orders', methods=['GET', 'POST'])
