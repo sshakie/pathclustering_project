@@ -1,4 +1,3 @@
-// TODO: Добавить поле поиска (быстрый просмотр локации) над картой (с геосаджест)
 const courierData = { // TODO: Сделать автоматическое получение данных курьеров через AJAX
   courier_1: { name: 'Иван Иванов', phone: '+79991234567', whatsapp: '@ivan_w', telegram: '@ivan_t' },
   courier_2: { name: 'Мария Смирнова', phone: '+79997654321', whatsapp: '@maria_w', telegram: '@maria_t' }
@@ -155,4 +154,38 @@ function init() {
       section.style.display = match ? 'block' : 'none';
     });
   });
+const addressInput = document.getElementById('address-search');
+const addressBtn = document.getElementById('address-search-btn');
+
+addressBtn.addEventListener('click', () => {
+  searchAddress(addressInput.value);
+});
+
+addressInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    searchAddress(addressInput.value);
+  }
+});
+
+function searchAddress(address) {
+  if (!address.trim()) return;
+
+  ymaps.geocode(address).then(result => {
+    const firstGeoObject = result.geoObjects.get(0);
+
+    if (firstGeoObject) {
+      const coords = firstGeoObject.geometry.getCoordinates();
+      const name = firstGeoObject.getAddressLine();
+
+      map.setCenter(coords, 16);
+
+      map.balloon.open(coords, name, {
+        closeButton: true
+      });
+    } else {
+      alert("Адрес не найден.");
+    }
+  });
+}
+
 }
