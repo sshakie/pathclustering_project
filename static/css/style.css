@@ -66,12 +66,18 @@ body {
 #address-search-btn {
   padding: 8px 12px;
   font-size: 14px;
-  background-color: #2196f3;
+  background-color:#e6e6e6;
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  transition: background-color 0.2s ease;
 }
+
+#address-search-btn:hover {
+  background-color: #dcdcdc;
+}
+
 
 .courier-filter-wrapper {
   display: flex;
@@ -92,10 +98,6 @@ body {
    flex-direction: column;
 }
 
-.courier-btn.active {
-  background: black;
-  color: white;
-}
 
 /* Вся панель курьеров */
 .courier-panel {
