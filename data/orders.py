@@ -1,9 +1,10 @@
+from sqlalchemy_serializer import SerializerMixin
 from data.db_session import SqlAlchemyBase
 import sqlalchemy
 import datetime
 
 
-class Orders(SqlAlchemyBase):
+class Orders(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'orders'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     address = sqlalchemy.Column(sqlalchemy.String, sqlalchemy.ForeignKey('users.id'))

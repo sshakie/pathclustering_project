@@ -18,7 +18,7 @@ def global_init(db_file):
     engine = sqlalchemy.create_engine(conn_str, echo=False)
     factory = sessionmaker(bind=engine)
 
-    from data.all_modules import User, Orders
+    from data.all_modules import Users, Orders
     SqlAlchemyBase.metadata.create_all(engine)
 
 

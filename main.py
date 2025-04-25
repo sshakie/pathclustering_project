@@ -1,6 +1,6 @@
 from flask import *
 from flask_login import *
-from data.users import User
+from data.users import Users
 from data.orders import Orders
 from blanks.loginform import LoginForm
 from blanks.registerform import RegisterForm
@@ -17,8 +17,8 @@ lm.init_app(app)
 global_init('db/sql.db')
 
 db_sess = create_session()
-if not db_sess.query(User).filter(User.name == 'admin').first():
-    user = User()
+if not db_sess.query(Users).filter(Users.name == 'admin').first():
+    user = Users()
     user.name = 'admin'
     user.email = 'admin@admin.py'
     user.status = 'admin'
@@ -29,7 +29,7 @@ if not db_sess.query(User).filter(User.name == 'admin').first():
 
 @lm.user_loader
 def load_user(user_id):
-    return create_session().query(User).get(user_id)
+    return create_session().query(Users).get(user_id)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -40,7 +40,7 @@ def login():
     form = LoginForm()
     if form.validate_on_submit():
         db_sess = create_session()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        user = db_sess.query(Users).filter(Users.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             return redirect('/orders')
@@ -99,13 +99,13 @@ def register():
     form = RegisterForm()
     if form.validate_on_submit():
         db_sess = create_session()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        user = db_sess.query(Users).filter(Users.email == form.email.data).first()
         if user:
             return render_template('register.html', message='Данная почта уже зарегистрирована. Попробуйте войти.',
                                    form=form)
         else:
             db_sess = create_session()
-            user = User()
+            user = Users()
             user.name = form.name.data
             user.email = form.email.data
             user.set_password(form.password.data)

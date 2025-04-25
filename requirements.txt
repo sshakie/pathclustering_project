@@ -4,3 +4,4 @@ Werkzeug~=3.1.3
 WTForms~=3.2.1
 Flask~=3.1.0
 python-dateutil~=2.9.0.post0
+Flask-RESTful~=0.3.10

@@ -1,2 +1,2 @@
-from data.users import User
+from data.users import Users
 from data.orders import Orders
