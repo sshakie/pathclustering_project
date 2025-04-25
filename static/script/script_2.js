@@ -80,13 +80,8 @@ function init() {
       item.className = 'order-item';
       item.dataset.id = order.id;
       item.dataset.courier = courierId;
-      item.innerHTML = `№${order.id}<br>${order.address}<br><span style="color: orangered">${order.price}</span>`;
+      item.innerHTML = `№${order.id}<br>${order.address}<br><span style="color: orangered; font-weight: 700">${order.price}</span>`;
       ordersList.appendChild(item);
-
-      const blur = new ymaps.Circle([order.coords, 200], {}, {
-        fillColor: color + '33',
-        strokeWidth: 0
-      });
 
       const mark = new ymaps.Placemark(order.coords, {
         balloonContent: order.address,
@@ -96,11 +91,10 @@ function init() {
         iconColor: color
       });
 
-      map.geoObjects.add(blur);
       map.geoObjects.add(mark);
 
-      courierPlacemarks[courierId].push({ mark, blur });
-      allPlacemarks.push({ mark, blur });
+      courierPlacemarks[courierId].push({ mark });
+      allPlacemarks.push({ mark });
 
       mark.events.add('click', () => highlightOrder(order.id));
       item.addEventListener('click', () => {
