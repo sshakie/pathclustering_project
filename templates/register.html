@@ -4,33 +4,17 @@
 {% block content %}
 <div style="display: flex; justify-content: center; align-items: center; height: 100vh">
 <div style="width: 100%; max-width: 400px">
-  <h2 align="center">Регистрация курьера</h2>
+    <h2 align="center">Регистрация курьера</h2>
     <form action="" method="post">
         <p> {{ form.name.label }}<br> </p>
-        {{ form.name(class="form-control", type="name") }}<br>
-            {% for error in form.email.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
         {{ form.hidden_tag() }}
         <p>
             {{ form.email.label }}<br>
             {{ form.email(class="form-control", type="email") }}<br>
-            {% for error in form.email.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
         </p>
         <p>
             {{ form.password.label }}<br>
             {{ form.password(class="form-control", type="password") }}<br>
-            {% for error in form.password.errors %}
-                <div class="alert alert-danger" role="alert">
-                    {{ error }}
-                </div>
-            {% endfor %}
         </p>
         <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
         <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>

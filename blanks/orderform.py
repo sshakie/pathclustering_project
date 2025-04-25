@@ -1,13 +1,13 @@
+from wtforms import StringField, IntegerField, BooleanField, SubmitField
+from wtforms.validators import DataRequired
 from flask_wtf import FlaskForm
-from wtforms import *
-from wtforms.validators import *
 
 
 class OrderForm(FlaskForm):
-    address = StringField('Адрес отправления', validators=[DataRequired()])
-    city = StringField('Город', validators=[DataRequired()])
+    name = StringField('Имя получателя', validators=[DataRequired()])
     phone = StringField('Номер телефона', validators=[DataRequired()])
-    goods = SelectMultipleField('Доставляемые товары', validators=[DataRequired()])
-    scheduled_date = DateTimeField('Назначить дату и время доставки', format='%Y-%m-%dT%H:%M')
+    address = StringField('Адрес отправления', validators=[DataRequired()])
+    analytics_id = StringField('Айди заказа (если есть)')
+    price = IntegerField('Стоимость')
     is_delivered = BooleanField('Доставлено')
-    submit = SubmitField('Добавить')
+    submit = SubmitField('Создать')

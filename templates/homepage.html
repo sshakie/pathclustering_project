@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %} Доступные заказы {% endblock %}
+
+{% block content %}
+<head>
+  <script src="https://api-maps.yandex.ru/2.1/?apikey=048dcdc9-7eb0-4ab1-aee9-f00f7bd7547f&lang=ru_RU"></script>
+  <script src="/static/script/script_2.js" defer></script>
+</head>
+
+<div class="main-wrapper">
+  <div class="orders-panel">
+    <h2>Orders <span>Count <span id="orders-count">0</span></span></h2>
+    <div id="orders-list" class="orders-list"></div>
+  </div>
+
+  <div class="map-block">
+    <div class="address-search-wrapper">
+      <input type="text" id="address-search" placeholder="Введите адрес..." />
+      <button id="address-search-btn">🔍</button>
+    </div>
+
+    <div class="map-wrapper">
+      <div id="map" class="map"></div>
+    </div>
+  </div>
+
+  <div class="courier-panel">
+    <div class="courier-filter-wrapper">
+      <input type="text" id="courier-search" placeholder="Найти курьера..." />
+      <div id="courier-filter-buttons" class="courier-filters-scroll">
+        <button class="courier-btn active" data-courier="all">Все</button>
+      </div>
+    </div>
+  </div>
+{% endblock %}
