@@ -1,23 +1,32 @@
 from flask_login import LoginManager, logout_user, current_user, login_user
+from api.users_api import UsersResource, UsersListResource
 from data.db_session import create_session, global_init
 from flask import Flask, render_template, redirect
 from blanks.registerform import RegisterForm
 from blanks.loginform import LoginForm
+from flask_restful import Api
 from data.user import User
 
 app = Flask(__name__)
-lm = LoginManager()
-
 app.config['SECRET_KEY'] = 'my_promises'
-
-lm.init_app(app)
 global_init('static/sql.db')
 
-db_sess = create_session()
-if not db_sess.query(User).filter(User.name == 'admin').first():
-    # api создание
-    pass
-db_sess.close()
+lm = LoginManager()
+lm.init_app(app)
+
+api = Api(app)
+api.add_resource(UsersListResource, '/api/users')
+api.add_resource(UsersResource, '/api/users/<int:user_id>')
+
+session = create_session()
+if not session.query(User).filter(User.name == 'admin').first():
+    user = User()
+    user.name = 'admin'
+    user.email = 'admin@admin.py'
+    user.set_password('admin')
+    session.add(user)
+    session.commit()
+session.close()
 
 
 @lm.user_loader
@@ -39,13 +48,13 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        db_sess = create_session()
-        user = db_sess.query(User).filter(User.email == form.email.data).first()
+        session = create_session()
+        user = session.query(User).filter(User.email == form.email.data).first()
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
-            db_sess.close()
+            session.close()
             return redirect('/orders')
-        db_sess.close()
+        session.close()
         return render_template('login.html', message='Неправильные данные', form=form)
     return render_template('login.html', title='Вход в аккаунт', form=form)
 
@@ -57,9 +66,9 @@ def register():
 
     form = RegisterForm()
     if form.validate_on_submit():
-        db_sess = create_session()
-        if db_sess.query(User).filter(User.email == form.email.data).first():
-            db_sess.close()
+        session = create_session()
+        if session.query(User).filter(User.email == form.email.data).first():
+            session.close()
             return render_template('register.html', message='Данная почта уже зарегистрирована, попробуйте войти.',
                                    form=form)
 
@@ -67,10 +76,10 @@ def register():
         user.name = form.name.data
         user.email = form.email.data
         user.set_password(form.password.data)
-        db_sess.add(user)
-        db_sess.commit()
+        session.add(user)
+        session.commit()
         login_user(user, remember=form.remember_me.data)
-        db_sess.close()
+        session.close()
         return redirect('/')
     return render_template('register.html', title='Регистрация', form=form)
 
