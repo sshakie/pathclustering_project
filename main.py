@@ -53,7 +53,7 @@ def login():
         if user and user.check_password(form.password.data):
             login_user(user, remember=form.remember_me.data)
             session.close()
-            return redirect('/orders')
+            return redirect('/')
         session.close()
         return render_template('login.html', message='Неправильные данные', form=form)
     return render_template('login.html', title='Вход в аккаунт', form=form)
