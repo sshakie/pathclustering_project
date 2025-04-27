@@ -9,9 +9,9 @@
 <body>
   <nav class="navbar navbar-light bg-light" style="position: fixed; top: 0; width: 100%">
     {% if current_user.status == "admin" %}
-      <a class="navbar-brand" href="/orders">Панель управления</a>
+      <a class="navbar-brand" href="/">Панель управления</a>
     {% else %}
-      <a class="navbar-brand" href="/orders">Доставка</a>
+      <a class="navbar-brand" href="/">Доставка</a>
     {% endif %}
 
     {% if current_user.is_authenticated %}
