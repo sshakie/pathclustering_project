@@ -116,9 +116,8 @@ function init() {
 
   function setActiveCourier(id) {
     if (id === 'all') {
-      allPlacemarks.forEach(({ mark, blur }) => {
+      allPlacemarks.forEach(({ mark }) => {
         mark.options.set('visible', true);
-        blur.options.set('visible', true);
       });
       document.querySelectorAll('.order-item').forEach(el =>
         el.style.display = 'block'
@@ -127,10 +126,9 @@ function init() {
     }
 
     for (const [courier, items] of Object.entries(courierPlacemarks)) {
-      items.forEach(({ mark, blur }) => {
+      items.forEach(({ mark }) => {
         const visible = courier === id;
         mark.options.set('visible', visible);
-        blur.options.set('visible', visible);
       });
     }
 
