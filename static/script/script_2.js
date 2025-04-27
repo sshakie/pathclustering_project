@@ -5,11 +5,11 @@ const courierData = { // TODO: Сделать автоматическое по�
 
 const courierOrders = {  // TODO: Сделать автоматическое получение данных заказов через AJAX
   courier_1: [
-    { id: 1, address: "ул. Пушкина д.111", price: "1537 руб.", coords: [55.750, 37.610] },
-    { id: 2, address: "ул. Космонавтов д.84", price: "17 руб.", coords: [55.751, 37.612] }
+    { id: 1, address: "ул. Пушкина д.111", price: "1537 руб.", coords: [55.750, 37.610], analytics_id: "arf137" },
+    { id: 2, address: "ул. Космонавтов д.84", price: "17 руб.", coords: [55.751, 37.612], analytics_id: "bhg036" }
   ],
   courier_2: [
-    { id: 3, address: "ул. Вершишева д.51", price: "191 руб.", coords: [55.752, 37.608] }
+    { id: 3, address: "ул. Вершишева д.51", price: "191 руб.", coords: [55.752, 37.608], analytics_id: "abc012" }
   ]
 };
 
@@ -80,7 +80,7 @@ function init() {
       item.className = 'order-item';
       item.dataset.id = order.id;
       item.dataset.courier = courierId;
-      item.innerHTML = `№${order.id}<br>${order.address}<br><span style="color: orangered; font-weight: 700">${order.price}</span>`;
+      item.innerHTML = `№${order.analytics_id}<br>${order.address}<br><span style="color: orangered; font-weight: 700; float: right; ">${order.price}</span>`;
       ordersList.appendChild(item);
 
       const mark = new ymaps.Placemark(order.coords, {
