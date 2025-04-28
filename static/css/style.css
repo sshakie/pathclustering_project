@@ -10,8 +10,10 @@ body {
 
 .orders-panel {
   width: 20%;
-  padding: 10px;
-  border-right: 1px solid #ccc;
+  background-color: #f9f9f9;
+  padding: 15px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
 }
 
 .orders-list {
@@ -30,7 +32,6 @@ body {
   user-select: none;
   width: 100%;
   line-height: 1.2;
-  border: none;
 }
 
 .order-item:hover {
@@ -38,10 +39,20 @@ body {
 }
 
 .order-item.active {
-  background-color: #2196f3;
+  background-color: #2196f3; /* Надо что-то придумать с цветом  */
   color: white;
 }
 
+.add-order-btn {
+  display: block;
+  margin: 20px auto;
+  background-color: #dcdcdc;
+  border: None;
+}
+
+.add-order-btn:hover {
+    background-color: #dcdcdc;
+}
 
 .map-block {
   width: 80%;
