@@ -38,7 +38,12 @@ session.close()
 
 @lm.user_loader
 def load_user(user_id):
-    return create_session().query(User).get(user_id)
+    session = create_session()
+    try:
+        return session.query(User).get(user_id)
+    finally:
+        session.close()
+
 
 
 @app.route('/', methods=['GET', 'POST'])
