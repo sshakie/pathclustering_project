@@ -83,8 +83,7 @@ function init() {
       item.innerHTML = `
   <div style="font-weight: bold;">№ ${order.analytics_id}</div>
   <div>${order.address}</div>
-  <div style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>
-`;
+  <div style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>`;
       ordersList.appendChild(item);
 
       const mark = new ymaps.Placemark(order.coords, {
