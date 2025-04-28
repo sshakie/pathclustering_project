@@ -1,8 +1,11 @@
 from flask_login import LoginManager, logout_user, current_user, login_user
+from pymupdf import message
+
 from api.orders_api import OrdersResource, OrdersListResource
 from api.users_api import UsersResource, UsersListResource
+from blanks.orderform import OrderForm
 from data.db_session import create_session, global_init
-from flask import Flask, render_template, redirect
+from flask import Flask, render_template, redirect, request
 from blanks.registerform import RegisterForm
 from blanks.loginform import LoginForm
 from flask_restful import Api
@@ -38,10 +41,15 @@ def load_user(user_id):
     return create_session().query(User).get(user_id)
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def homepage():
     if current_user.is_authenticated:
-        return render_template('homepage.html')
+        form = OrderForm()
+        if request.method == 'GET':
+            return render_template('homepage.html', add_order_form=form)
+        if form.validate_on_submit():
+            print(form.data)
+            return render_template('homepage.html', add_order_form=form)
     return redirect('/login')
 
 

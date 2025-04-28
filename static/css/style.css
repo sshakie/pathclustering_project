@@ -202,7 +202,8 @@ body {
 .export-btn {
     background: #66FF9F;
     border: None;
-    border-radius: 6px
+    border-radius: 6px;
+    color: #FFFFFF
 }
 
 .export-btn:focus {
@@ -214,8 +215,14 @@ body {
     border: None;
     border-radius: 6px;
     margin-bottom: 10px;
+    color: #FFFFFF
 }
 
 .clustering-btn:focus {
+    outline: None
+}
+
+.btn-close {
+    border: None;
     outline: None
 }
