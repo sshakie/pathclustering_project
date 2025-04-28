@@ -73,18 +73,16 @@ class UsersListResource(Resource):
         abort(404, message=f"You're not logged in")
 
     def post(self):
-        if current_user.is_authenticated:
-            if current_user.status == 'admin':
-                args = user_parser.parse_args()
-                session = create_session()
-                user = User(name=args['name'], email=args['email'], status=args['status'])
-                user.set_password(args['password'])
-                session.add(user)
-                session.commit()
-                session.close()
-                return jsonify({'success': 'created!'})
-            abort(404, message=f"You're not admin")
-        abort(404, message=f"You're not logged in")
+        if not current_user.is_authenticated or current_user.status == 'admin':
+            args = user_parser.parse_args()
+            session = create_session()
+            user = User(name=args['name'], email=args['email'], status=args['status'])
+            user.set_password(args['password'])
+            session.add(user)
+            session.commit()
+            session.close()
+            return jsonify({'success': 'created!'})
+        abort(404, message=f"You have already created an account")
 
 
 def abort_if_user_not_found(user_id):

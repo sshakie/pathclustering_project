@@ -30,7 +30,7 @@ body {
   user-select: none;
   width: 100%;
   line-height: 1.2;
-  border: none; /* Убираем обводку */
+  border: none;
 }
 
 .order-item:hover {
