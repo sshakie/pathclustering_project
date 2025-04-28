@@ -5,11 +5,11 @@ const courierData = { // TODO: Сделать автоматическое по�
 
 const courierOrders = {  // TODO: Сделать автоматическое получение данных заказов через AJAX
   courier_1: [
-    { id: 1, address: "ул. Пушкина д.111", price: "1537 руб.", coords: [55.750, 37.610] },
-    { id: 2, address: "ул. Космонавтов д.84", price: "17 руб.", coords: [55.751, 37.612] }
+    { id: 1, address: "ул. Пушкина д.111", price: "1537 руб.", coords: [55.750, 37.610], analytics_id: "arf137" },
+    { id: 2, address: "ул. Космонавтов д.84", price: "17 руб.", coords: [55.751, 37.612], analytics_id: "bhg036" }
   ],
   courier_2: [
-    { id: 3, address: "ул. Вершишева д.51", price: "191 руб.", coords: [55.752, 37.608] }
+    { id: 3, address: "ул. Вершишева д.51", price: "191 руб.", coords: [55.752, 37.608], analytics_id: "abc012" }
   ]
 };
 
@@ -80,13 +80,12 @@ function init() {
       item.className = 'order-item';
       item.dataset.id = order.id;
       item.dataset.courier = courierId;
-      item.innerHTML = `№${order.id}<br>${order.address}<br><span style="color: orangered">${order.price}</span>`;
+      item.innerHTML = `
+  <div style="font-weight: bold;">№${order.analytics_id}</div>
+  <div>${order.address}</div>
+  <div style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>
+`;
       ordersList.appendChild(item);
-
-      const blur = new ymaps.Circle([order.coords, 200], {}, {
-        fillColor: color + '33',
-        strokeWidth: 0
-      });
 
       const mark = new ymaps.Placemark(order.coords, {
         balloonContent: order.address,
@@ -96,11 +95,10 @@ function init() {
         iconColor: color
       });
 
-      map.geoObjects.add(blur);
       map.geoObjects.add(mark);
 
-      courierPlacemarks[courierId].push({ mark, blur });
-      allPlacemarks.push({ mark, blur });
+      courierPlacemarks[courierId].push({ mark });
+      allPlacemarks.push({ mark });
 
       mark.events.add('click', () => highlightOrder(order.id));
       item.addEventListener('click', () => {
@@ -122,9 +120,8 @@ function init() {
 
   function setActiveCourier(id) {
     if (id === 'all') {
-      allPlacemarks.forEach(({ mark, blur }) => {
+      allPlacemarks.forEach(({ mark }) => {
         mark.options.set('visible', true);
-        blur.options.set('visible', true);
       });
       document.querySelectorAll('.order-item').forEach(el =>
         el.style.display = 'block'
@@ -133,10 +130,9 @@ function init() {
     }
 
     for (const [courier, items] of Object.entries(courierPlacemarks)) {
-      items.forEach(({ mark, blur }) => {
+      items.forEach(({ mark }) => {
         const visible = courier === id;
         mark.options.set('visible', visible);
-        blur.options.set('visible', visible);
       });
     }
 

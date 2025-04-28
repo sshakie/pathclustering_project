@@ -21,15 +21,27 @@ body {
 }
 
 .order-item {
-  border: 1px solid black;
-  padding: 5px;
-  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 6px;
+  background-color: #e6e6e6;
   cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.2s ease;
+  user-select: none;
+  width: 100%;
+  line-height: 1.2;
+  border: none; /* Убираем обводку */
+}
+
+.order-item:hover {
+  background-color: #dcdcdc;
 }
 
 .order-item.active {
-  background: #ffe2cc;
+  background-color: #2196f3;
+  color: white;
 }
+
 
 .map-block {
   width: 80%;

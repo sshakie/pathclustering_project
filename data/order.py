@@ -7,7 +7,7 @@ import sqlalchemy, datetime
 class Order(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'orders'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
-    phone = sqlalchemy.Column(sqlalchemy.String)
+    phone = sqlalchemy.Column(sqlalchemy.String, index=True)
     name = sqlalchemy.Column(sqlalchemy.String)
     address = sqlalchemy.Column(sqlalchemy.String)
     price = sqlalchemy.Column(sqlalchemy.Integer)
