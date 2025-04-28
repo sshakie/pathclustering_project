@@ -1,4 +1,5 @@
 from flask_login import LoginManager, logout_user, current_user, login_user
+from api.orders_api import OrdersResource, OrdersListResource
 from api.users_api import UsersResource, UsersListResource
 from data.db_session import create_session, global_init
 from flask import Flask, render_template, redirect
@@ -17,6 +18,8 @@ lm.init_app(app)
 api = Api(app)
 api.add_resource(UsersListResource, '/api/users')
 api.add_resource(UsersResource, '/api/users/<int:user_id>')
+api.add_resource(OrdersListResource, '/api/orders')
+api.add_resource(OrdersResource, '/api/orders/<order_id>')
 
 session = create_session()
 if not session.query(User).filter(User.name == 'admin').first():
@@ -24,6 +27,7 @@ if not session.query(User).filter(User.name == 'admin').first():
     user.name = 'admin'
     user.email = 'admin@admin.py'
     user.set_password('admin')
+    user.status = 'admin'
     session.add(user)
     session.commit()
 session.close()
