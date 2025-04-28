@@ -80,7 +80,11 @@ function init() {
       item.className = 'order-item';
       item.dataset.id = order.id;
       item.dataset.courier = courierId;
-      item.innerHTML = `№${order.analytics_id}<br>${order.address}<br><span style="color: orangered; font-weight: 700; float: right; ">${order.price}</span>`;
+      item.innerHTML = `
+  <div style="font-weight: bold;">№${order.analytics_id}</div>
+  <div>${order.address}</div>
+  <div style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>
+`;
       ordersList.appendChild(item);
 
       const mark = new ymaps.Placemark(order.coords, {
