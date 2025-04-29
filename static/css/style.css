@@ -25,8 +25,7 @@ body {
 .order-item {
   padding: 12px;
   border-radius: 6px;
-  outline: 1px solid #000000;
-  background-color: #FFFFFF;
+  background-color: #e6e6e6;
   cursor: pointer;
   font-size: 15px;
   transition: background-color 0.2s ease;
@@ -36,11 +35,12 @@ body {
 }
 
 .order-item:hover {
-  background-color: #FFE2CC;
+  background-color: #dcdcdc;
 }
 
 .order-item.active {
-  background-color: #FFD2B7; /* Надо что-то придумать с цветом  */
+  background-color: #2196f3; /* Надо что-то придумать с цветом  */
+  color: white;
 }
 
 .add-order-btn {
