@@ -4,8 +4,9 @@ body {
 }
 
 .main-wrapper {
+  margin-top: 50px; /* Adds space below the fixed navbar */
   display: flex;
-  height: 100vh;
+  height: calc(100vh - 50px); /* Adjusts the height to account for the navbar */
 }
 
 .orders-panel {
@@ -20,6 +21,26 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.orders-header {
+  display: flex;
+  align-items: center; /* Vertically centers the content */
+  margin: 0; /* Ensures no extra margins interfere */
+  gap: 5px; /* Adds a small, controlled gap between "Orders" and "Count" */
+}
+
+.orders-text {
+  text-align: left; /* Align "Orders" to the left */
+}
+
+.orders-count-wrapper {
+  margin-left: auto; /* Pushes "Count {n}" to the right */
+  text-align: right; /* Align "Count {n}" to the right */
+}
+
+#orders-count {
+  font-weight: bold; /* Makes the number bold */
 }
 
 .order-item {
@@ -46,16 +67,12 @@ body {
 .add-order-btn {
   display: block;
   margin: 20px auto;
-  background-color: #FFFFFF;
+  background-color: #dcdcdc;
   border: None;
 }
 
 .add-order-btn:hover {
     background-color: #dcdcdc;
-}
-
-.add-order-btn:focus {
-    outline: None
 }
 
 .map-block {
@@ -75,28 +92,44 @@ body {
 
 .address-search-wrapper {
   display: flex;
+  flex-grow: 1;
   gap: 5px;
-  margin-bottom: 10px;
+  max-width: calc(100% - 190px); /* Already good */
+  transition: all 0.3s ease;
+  order: 1;
+}
+
+.address-search-wrapper.hidden {
+  visibility: hidden;
+  width: 0;
+  opacity: 0;
+  flex-grow: 0;
+  max-width: 0;
+  margin: 0;
+  padding: 0;
 }
 
 #address-search {
   flex: 1;
-  padding: 8px;
-  font-size: 14px;
+  padding: 6px; /* Reduced padding for a smaller height */
+  font-size: 15px; /* Smaller font size */
   border: 1px solid #ccc;
   border-radius: 4px;
+  min-width: 200px; /* Reduced min-width to make it narrower */
+  max-width: 400px; /* Added max-width to constrain it further */
 }
 
 #address-search-btn {
-  padding: 8px 12px;
-  font-size: 14px;
-  background-color:#e6e6e6;
-  color: white;
+  padding: 6px 10px; /* Adjusted padding to match the smaller input */
+  font-size: 12px; /* Smaller font size for the button */
+  background-color: #e6e6e6;
+  color: black; /* Adjusted color to match the image */
   border: none;
   border-radius: 4px;
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
+
 
 #address-search-btn:hover {
   background-color: #dcdcdc;
@@ -110,12 +143,7 @@ body {
 
 #courier-search {
   padding: 5px;
-  border: 1px solid #ccc;
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 15px;
-  font-size: 14px;
-  border-radius: 4px;
+  margin-bottom: 5px;
   border: 1px solid #ccc;
 }
 
@@ -140,6 +168,15 @@ body {
 
 .courier-filter-wrapper {
   margin-bottom: 20px;
+}
+
+#courier-search {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 10px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
 }
 
 .courier-filters-scroll {
@@ -195,27 +232,43 @@ body {
   color: white;
 }
 
-.courier-btn:focus {
-    outline: None
+.tab-switch {
+  display: inline-flex;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  overflow: hidden;
+  font-family: sans-serif;
+  margin-left: auto;
+  order: 2;
 }
 
-.export-btn {
-    background: #66FF9F;
-    border: None;
-    border-radius: 6px
+.top-controls {
+  display: flex;
+  justify-content: space-between; /* Распределяем пространство */
+  align-items: center;
+  margin-bottom: 10px;
 }
 
-.export-btn:focus {
-    outline: None
+.search-and-tabs {
+  display: flex;
+  gap: 10px;
+  align-items: center;
 }
 
-.clustering-btn {
-    background: #4B95AF;
-    border: None;
-    border-radius: 6px;
-    margin-bottom: 10px;
+.tab {
+  padding: 6px 20px; /* Reduced padding from 8px 20px to 6px 20px for less height */
+  cursor: pointer;
+  background: #f0f0f0;
+  color: #888;
+  font-size: 16px; /* Reduced font size from 18px to 16px to make it more compact */
+  font-weight: bold;
 }
 
-.clustering-btn:focus {
-    outline: None
+.tab.active {
+  background: #ddd;
+  color: #000;
+}
+
+.hidden {
+  display: none !important;
 }
