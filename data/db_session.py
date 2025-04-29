@@ -1,13 +1,13 @@
-import sqlalchemy
-from sqlalchemy.orm import *
+from sqlalchemy.orm import sessionmaker, Session, declarative_base
+from sqlalchemy import create_engine
 
 SqlAlchemyBase = declarative_base()
-factory = None
+__factory = None
 
 
 def global_init(db_file):
-    global factory
-    if factory:
+    global __factory
+    if __factory:
         return
 
     if not db_file or not db_file.strip():
@@ -15,13 +15,13 @@ def global_init(db_file):
 
     conn_str = f'sqlite:///{db_file.strip()}?check_same_thread=False'
 
-    engine = sqlalchemy.create_engine(conn_str, echo=False)
-    factory = sessionmaker(bind=engine)
+    engine = create_engine(conn_str, echo=False)
+    __factory = sessionmaker(bind=engine)
 
-    from data.all_modules import User, Orders
+    from data.__all_models import User, Order
     SqlAlchemyBase.metadata.create_all(engine)
 
 
 def create_session() -> Session:
-    global factory
-    return factory()
+    global __factory
+    return __factory()
