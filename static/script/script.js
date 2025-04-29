@@ -23,6 +23,8 @@ document.addEventListener("DOMContentLoaded", function () {
   const addressWrapper = document.getElementById("address-search-wrapper");
   const mapWrapper = document.getElementById("map-wrapper");
   const couriers = document.getElementById("couriers");
+  const exportbtn = document.getElementById("exportbtn");
+  const clusteringbtn = document.getElementById("clusteringbtn");
 
   function activateTab(tab) {
     document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
@@ -34,6 +36,8 @@ document.addEventListener("DOMContentLoaded", function () {
   addressWrapper.classList.remove("hidden");
   mapWrapper.classList.remove("hidden");
   couriers.classList.add("hidden");
+  exportbtn.classList.remove("hidden");
+  clusteringbtn.classList.remove("hidden");
 });
 
 tabCouriers.addEventListener("click", () => {
@@ -41,6 +45,8 @@ tabCouriers.addEventListener("click", () => {
   addressWrapper.classList.add("hidden");
   mapWrapper.classList.add("hidden");
   couriers.classList.remove("hidden");
+  exportbtn.classList.add("hidden");
+  clusteringbtn.classList.add("hidden");
 });
 
   // === ИНИЦИАЛИЗАЦИЯ КАРТЫ ===
