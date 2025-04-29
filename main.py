@@ -1,14 +1,13 @@
+from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, logout_user, current_user, login_user
-from pymupdf import message
+from flask_restful import Api
 
 from api.orders_api import OrdersResource, OrdersListResource
 from api.users_api import UsersResource, UsersListResource
-from blanks.orderform import OrderForm
-from data.db_session import create_session, global_init
-from flask import Flask, render_template, redirect, request
-from blanks.registerform import RegisterForm
 from blanks.loginform import LoginForm
-from flask_restful import Api
+from blanks.orderform import OrderForm
+from blanks.registerform import RegisterForm
+from data.db_session import create_session, global_init
 from data.user import User
 
 app = Flask(__name__)
@@ -43,7 +42,6 @@ def load_user(user_id):
         return session.query(User).get(user_id)
     finally:
         session.close()
-
 
 
 @app.route('/', methods=['GET', 'POST'])
