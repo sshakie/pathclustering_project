@@ -103,17 +103,16 @@ tabCouriers.addEventListener("click", () => {
 
       courierPlacemarks[courierId] = [];
 
-      orders.forEach(order => {
-        const item = document.createElement('div');
-        item.className = 'order-item';
-        item.dataset.id = order.id;
-        item.dataset.courier = courierId;
-        item.innerHTML = `
-          <div style="font-weight: bold;">№ ${order.analytics_id}</div>
-          <div>${order.address}</div>
-          <div style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>
-        `;
-        ordersList.appendChild(item);
+    orders.forEach(order => {
+      const item = document.createElement('div');
+      item.className = 'order-item';
+      item.dataset.id = order.id;
+      item.dataset.courier = courierId;
+      item.innerHTML = `
+  <div style="font-weight: bold;">№ ${order.analytics_id}</div>
+  <div>${order.address}</div>
+  <div style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>`;
+      ordersList.appendChild(item);
 
         const mark = new ymaps.Placemark(order.coords, {
           balloonContent: order.address,

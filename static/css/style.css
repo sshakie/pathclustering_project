@@ -46,7 +46,8 @@ body {
 .order-item {
   padding: 12px;
   border-radius: 6px;
-  background-color: #e6e6e6;
+  outline: 1px solid #000000;
+  background-color: #FFFFFF;
   cursor: pointer;
   font-size: 15px;
   transition: background-color 0.2s ease;
@@ -56,23 +57,26 @@ body {
 }
 
 .order-item:hover {
-  background-color: #dcdcdc;
+  background-color: #FFE2CC;
 }
 
 .order-item.active {
-  background-color: #2196f3; /* Надо что-то придумать с цветом  */
-  color: white;
+  background-color: #FFD2B7; /* Надо что-то придумать с цветом  */
 }
 
 .add-order-btn {
   display: block;
   margin: 20px auto;
-  background-color: #dcdcdc;
+  background-color: #FFFFFF;
   border: None;
 }
 
 .add-order-btn:hover {
     background-color: #dcdcdc;
+}
+
+.add-order-btn:focus {
+    outline: None
 }
 
 .map-block {
@@ -143,7 +147,12 @@ body {
 
 #courier-search {
   padding: 5px;
-  margin-bottom: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  border-radius: 4px;
   border: 1px solid #ccc;
 }
 
@@ -168,15 +177,6 @@ body {
 
 .courier-filter-wrapper {
   margin-bottom: 20px;
-}
-
-#courier-search {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 10px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
 }
 
 .courier-filters-scroll {
@@ -232,6 +232,30 @@ body {
   color: white;
 }
 
+.courier-btn:focus {
+    outline: None
+}
+
+.export-btn {
+    background: #66FF9F;
+    border: none;
+    border-radius: 6px;
+    color: #FFFFFF;
+    box-shadow: inset 0 0 0 2px #32FF7D;
+}
+
+.export-btn:focus {
+    outline: None
+}
+
+.clustering-btn {
+    background: #4B95AF;
+    border: none;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    color: #FFFFFF;
+    box-shadow: inset 0 0 0 2px #448399;
+}
 .tab-switch {
   display: inline-flex;
   border: 1px solid #ccc;
@@ -271,4 +295,12 @@ body {
 
 .hidden {
   display: none !important;
+}
+.clustering-btn:focus {
+    outline: None
+}
+
+.btn-close {
+    border: None;
+    outline: None
 }

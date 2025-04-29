@@ -1,11 +1,13 @@
+from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, logout_user, current_user, login_user
+from flask_restful import Api
+
 from api.orders_api import OrdersResource, OrdersListResource
 from api.users_api import UsersResource, UsersListResource
-from data.db_session import create_session, global_init
-from flask import Flask, render_template, redirect
-from blanks.registerform import RegisterForm
 from blanks.loginform import LoginForm
-from flask_restful import Api
+from blanks.orderform import OrderForm
+from blanks.registerform import RegisterForm
+from data.db_session import create_session, global_init
 from data.user import User
 
 app = Flask(__name__)
@@ -35,13 +37,22 @@ session.close()
 
 @lm.user_loader
 def load_user(user_id):
-    return create_session().query(User).get(user_id)
+    session = create_session()
+    try:
+        return session.query(User).get(user_id)
+    finally:
+        session.close()
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def homepage():
     if current_user.is_authenticated:
-        return render_template('homepage.html')
+        form = OrderForm()
+        if request.method == 'GET':
+            return render_template('homepage.html', add_order_form=form)
+        if form.validate_on_submit():
+            print(form.data)
+            return render_template('homepage.html', add_order_form=form)
     return redirect('/login')
 
 
