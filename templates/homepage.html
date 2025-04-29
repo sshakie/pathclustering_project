@@ -7,40 +7,16 @@
   <script src="/static/script/script_2.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
 
+</head>
 <!--Модальное окно создания заказа-->
 <div class="modal fade" id="addOrderModal" tabindex="-1" aria-labelledby="addOrderModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="addOrderModalLabel">Добавить заказ</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть">✖</button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <div class="modal-body">
-        <form action="" method="post">
-      {{ add_order_form.hidden_tag() }}
-        <p>
-          {{  add_order_form.name.label }}<br>
-          {{ add_order_form.name(class="form-control") }}<br>
-        </p>
-        <p>
-          {{  add_order_form.address.label }}<br>
-          {{ add_order_form.address(class="form-control") }}<br>
-        </p>
-        <p>
-          {{  add_order_form.phone.label }}<br>
-          {{ add_order_form.phone(class="form-control") }}<br>
-        </p>
-        <p>
-          {{  add_order_form.price.label }}<br>
-          {{ add_order_form.price(class="form-control") }}<br>
-        </p>
-        <p>
-          {{  add_order_form.analytics_id.label }}<br>
-          {{ add_order_form.analytics_id(class="form-control") }}<br>
-        </p>
-        <p>{{ add_order_form.submit(type="submit", class="btn btn-primary") }}</p>
-        <div align="center" style="color: #FF5C51">{{ message }}</div>
-        </form>
       </div>
     </div>
   </div>
@@ -51,7 +27,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="ExportModalLabel">Экспорт</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть">✖</button>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
       </div>
       <div class="modal-body">
       </div>
