@@ -1,14 +1,14 @@
-from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, logout_user, current_user, login_user
-from flask_restful import Api
-
 from api.orders_api import OrdersResource, OrdersListResource
+from flask import Flask, render_template, redirect, request
 from api.users_api import UsersResource, UsersListResource
+from data.db_session import create_session, global_init
+from blanks.registerform import RegisterForm
 from blanks.loginform import LoginForm
 from blanks.orderform import OrderForm
-from blanks.registerform import RegisterForm
-from data.db_session import create_session, global_init
+from flask_restful import Api
 from data.user import User
+import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my_promises'
@@ -39,7 +39,7 @@ session.close()
 def load_user(user_id):
     session = create_session()
     try:
-        return session.query(User).get(user_id)
+        return session.get(User, user_id)
     finally:
         session.close()
 
@@ -106,4 +106,5 @@ def logout():
 
 
 if __name__ == '__main__':
-    app.run()
+    port = os.environ.get('PORT', 5000)
+    app.run(host='0.0.0.0', port=port)
