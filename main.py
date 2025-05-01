@@ -1,18 +1,19 @@
+from flask import Flask, render_template, redirect, request, flash, url_for
 from flask_login import LoginManager, logout_user, current_user, login_user
-from api.orders_api import OrdersResource, OrdersListResource
-from flask import Flask, render_template, redirect, request
-from api.users_api import UsersResource, UsersListResource
-from data.db_session import create_session, global_init
-from blanks.registerform import RegisterForm
-from blanks.loginform import LoginForm
-from blanks.orderform import OrderForm
+from data.api.orders_api import OrdersResource, OrdersListResource
+from data.api.users_api import UsersResource, UsersListResource
+from data.blanks.orderform import OrderForm, OrderImportForm
+from data.sql.db_session import create_session, global_init
+from data.blanks.registerform import RegisterForm
+from data.xls.serialize import unpack_orders_xls
+from data.blanks.loginform import LoginForm
+from data.sql.user import User
 from flask_restful import Api
-from data.user import User
-import os
+import requests, os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my_promises'
-global_init('static/sql.db')
+global_init('data/sql/pathclustering.db')
 
 lm = LoginManager()
 lm.init_app(app)
@@ -47,12 +48,48 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
     if current_user.is_authenticated:
-        form = OrderForm()
-        if request.method == 'GET':
-            return render_template('homepage.html', add_order_form=form)
-        if form.validate_on_submit():
-            print(form.data)
-            return render_template('homepage.html', add_order_form=form)
+        courier_data = {'courier_1': {'name': 'Иван Иванов', 'phone': '+79991234567'},
+                        'courier_2': {'name': 'Мария Смирнова', 'phone': '+79997654321'}}
+        courier_orders = {
+            'courier_1': [
+                {'id': 1, 'address': "ул. Катукова, вл51", 'price': "1537 руб.", 'coords': [52.592348, 39.504789],
+                 'analytics_id': "arf137"},
+                {'id': 2, 'address': "пр. Сержанта Кувшинова, 5", 'price': "17 руб.", 'coords': [52.599012, 39.517621],
+                 'analytics_id': "bhg036"}],
+            'courier_2': [
+                {'id': 3, 'address': "ул. Вершишева д.51", 'price': "191 руб.", 'coords': [52.605003, 39.535107],
+                 'analytics_id': "abc012"}]}
+
+        add_order_form = OrderForm()
+        import_order_form = OrderImportForm()
+        if request.method == 'POST':
+            form_name = request.form.get('form_name')
+
+            if form_name == 'add_order' and add_order_form.validate_on_submit():
+                data = {
+                    'phone': add_order_form.phone.data,
+                    'name': add_order_form.name.data,
+                    'address': add_order_form.address.data,
+                    'analytics_id': add_order_form.analytics_id.data,
+                    'price': add_order_form.price.data
+                }
+
+                response = requests.post('http://127.0.0.1:5000/api/orders', json=data, cookies=request.cookies)
+                if not response:
+                    raise Exception('REQUEST FAILED', response.reason, response.url, response.content)
+
+                flash('Заказ успешно добавлен!', 'success')
+                return redirect(url_for('homepage'))
+            elif form_name == 'import_orders' and import_order_form.validate_on_submit():
+                xls = import_order_form.xls_file.data
+                unpack_orders_xls(xls)
+
+        else:
+            return render_template('homepage.html',
+                                   add_order_form=add_order_form,
+                                   import_order_form=import_order_form,
+                                   courier_data=courier_data,
+                                   courier_orders=courier_orders)
     return redirect('/login')
 
 

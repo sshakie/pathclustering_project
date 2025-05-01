@@ -19,6 +19,10 @@
                 {{ form.password.label }}<br>
                 {{ form.password(class="form-control") }}<br>
             </p>
+            <p>
+                {{ form.telegram_tag.label }}<br>
+                {{ form.telegram_tag(class="form-control") }}<br>
+            </p>
             <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
             <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
             <div>{{ message }}</div>

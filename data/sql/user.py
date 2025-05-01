@@ -1,6 +1,6 @@
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy_serializer import SerializerMixin
-from data.db_session import SqlAlchemyBase
+from data.sql.db_session import SqlAlchemyBase
 from flask_login import UserMixin
 from sqlalchemy import orm
 import sqlalchemy
@@ -14,6 +14,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     email = sqlalchemy.Column(sqlalchemy.String, index=True, unique=True)
     hashed_password = sqlalchemy.Column(sqlalchemy.String)
 
+    telegram_tag = sqlalchemy.Column(sqlalchemy.String)
     order = orm.relationship('Order', back_populates='delivery_man', lazy='joined')
     status = sqlalchemy.Column(sqlalchemy.String, default='delivery')
 

@@ -1,3 +1,5 @@
 .idea
+.venv
 __pycache__/
+data/sql/pathclustering.db
 *.pyc
