@@ -1,19 +1,4 @@
-const courierData = { // TODO: Сделать автоматическое получение данных курьеров через AJAX
-  courier_1: { name: 'Иван Иванов', phone: '+79991234567', whatsapp: '@ivan_w', telegram: '@ivan_t' },
-  courier_2: { name: 'Мария Смирнова', phone: '+79997654321', whatsapp: '@maria_w', telegram: '@maria_t' }
-};
-
-const courierOrders = {  // TODO: Сделать автоматическое получение данных заказов через AJAX
-  courier_1: [
-    { id: 1, address: "ул. Пушкина д.111", price: "1537 руб.", coords: [55.750, 37.610], analytics_id: "arf137" },
-    { id: 2, address: "ул. Космонавтов д.84", price: "17 руб.", coords: [55.751, 37.612], analytics_id: "bhg036" }
-  ],
-  courier_2: [
-    { id: 3, address: "ул. Вершишева д.51", price: "191 руб.", coords: [55.752, 37.608], analytics_id: "abc012" }
-  ]
-};
-
-const courierColors = ['#ff4d4d', '#4dd2ff', '#85e085', '#ffcc66', '#cc99ff', '#9966cc', '#ff9966']; // TODO: Сделать автоматическую генерацию цветов
+ ['#ff4d4d', '#4dd2ff', '#85e085', '#ffcc66', '#cc99ff', '#9966cc', '#ff9966'];
 
 ymaps.ready(init);
 

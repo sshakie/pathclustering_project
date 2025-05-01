@@ -1,3 +1,5 @@
+import json
+
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, logout_user, current_user, login_user
 from flask_restful import Api
@@ -48,11 +50,40 @@ def load_user(user_id):
 def homepage():
     if current_user.is_authenticated:
         form = OrderForm()
+        courier_data = {
+            'courier_1': {'name': 'Иван Иванов', 'phone': '+79991234567', 'whatsapp': '@ivan_w', 'telegram': '@ivan_t'},
+            'courier_2': {'name': 'Мария Смирнова', 'phone': '+79997654321', 'whatsapp': '@maria_w',
+                          'telegram': '@maria_t'}
+        }
+
+        courier_colors = ['#ff4d4d', '#4dd2ff', '#85e085', '#ffcc66', '#cc99ff', '#9966cc', '#ff9966']
+
+        courier_orders = {
+            'courier_1': [
+                {'id': 1, 'address': "ул. Катукова, вл51", 'price': "1537 руб.", 'coords': [52.592348, 39.504789],
+                 'analytics_id': "arf137"},
+                {'id': 2, 'address': "пр. Сержанта Кувшинова, 5", 'price': "17 руб.", 'coords': [52.599012, 39.517621],
+                 'analytics_id': "bhg036"}
+            ],
+            'courier_2': [
+                {'id': 3, 'address': "ул. Вершишева д.51", 'price': "191 руб.", 'coords': [52.605003, 39.535107],
+                 'analytics_id': "abc012"}
+            ]
+        }
+
         if request.method == 'GET':
-            return render_template('homepage.html', add_order_form=form)
+            return render_template('homepage.html',
+                                   add_order_form=form,
+                                   courier_data_json=courier_data,
+                                   courier_orders_json=courier_orders)
+
         if form.validate_on_submit():
             print(form.data)
-            return render_template('homepage.html', add_order_form=form)
+            return render_template('homepage.html',
+                                   add_order_form=form,
+                                   courier_data=json.dumps(courier_data),
+                                   courier_orders=json.dumps(courier_orders),
+                                   courier_colors=courier_colors)
     return redirect('/login')
 
 
