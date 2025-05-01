@@ -6,10 +6,11 @@ from flask_restful import Api
 from api.orders_api import OrdersResource, OrdersListResource
 from api.users_api import UsersResource, UsersListResource
 from blanks.loginform import LoginForm
-from blanks.orderform import OrderForm
+from blanks.orderform import OrderForm, OrderImportForm
 from blanks.registerform import RegisterForm
 from data.db_session import create_session, global_init
 from data.user import User
+from work_with_excel.excel import unpack_orders_xls
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'my_promises'
@@ -67,15 +68,15 @@ def homepage():
             ]
         }
 
-        form = OrderForm()
-
-        if request.method == 'POST' and form.validate_on_submit():
+        add_order_form = OrderForm()
+        import_order_form = OrderImportForm()
+        if request.method == 'POST' and add_order_form.validate_on_submit():
             data = {
-                'phone': form.phone.data,
-                'name': form.name.data,
-                'address': form.address.data,
-                'analytics_id': form.analytics_id.data,
-                'price': form.price.data
+                'phone': add_order_form.phone.data,
+                'name': add_order_form.name.data,
+                'address': add_order_form.address.data,
+                'analytics_id': add_order_form.analytics_id.data,
+                'price': add_order_form.price.data
             }
             response = requests.post('http://127.0.0.1:5000/api/orders', json=data, cookies=request.cookies)
             if not response:
@@ -83,10 +84,14 @@ def homepage():
 
             flash('Заказ успешно добавлен!', 'success')
             return redirect(url_for('homepage'))
+        elif request.method == 'POST' and import_order_form.validate_on_submit():
+            xls = import_order_form.xls_file.data
+            unpack_orders_xls(xls)
 
         else:
             return render_template('homepage.html',
-                                   add_order_form=form,
+                                   add_order_form=add_order_form,
+                                   import_order_form=import_order_form,
                                    courier_data=courier_data,
                                    courier_orders=courier_orders)
 

@@ -1,8 +1,9 @@
-from flask_restful import abort, Resource, reqparse
-from flask_login import current_user
-from data.db_session import create_session
-from data.__all_models import Order
 from flask import jsonify
+from flask_login import current_user
+from flask_restful import abort, Resource, reqparse
+
+from data.__all_models import Order
+from data.db_session import create_session
 
 order_parser = reqparse.RequestParser()
 order_parser.add_argument('phone', required=True, type=str)
@@ -11,6 +12,7 @@ order_parser.add_argument('address', required=True, type=str)
 order_parser.add_argument('price', type=str)
 order_parser.add_argument('analytics_id', type=str)
 order_parser.add_argument('who_delivers', type=int)
+order_parser.add_argument('apikey', type=str)
 
 put_order_parser = reqparse.RequestParser()
 put_order_parser.add_argument('phone', type=str)
@@ -34,7 +36,7 @@ class OrdersResource(Resource):
             return jsonify(
                 {'order': order.to_dict(
                     only=('id', 'phone', 'name', 'address', 'price', 'analytics_id', 'who_delivers'))})
-        abort(404, message=f"You're not logged in")
+        abort(401, message=f"You're not logged in")
 
     def delete(self, order_id):
         if current_user.is_authenticated:
@@ -45,8 +47,8 @@ class OrdersResource(Resource):
                 session.commit()
                 session.close()
                 return jsonify({'success': 'deleted!'})
-            abort(404, message=f"You're not admin")
-        abort(404, message=f"You're not logged in")
+            abort(403, message=f"You're not admin")
+        abort(401, message=f"You're not logged in")
 
     def put(self, order_id):
         if current_user.is_authenticated:
@@ -69,8 +71,8 @@ class OrdersResource(Resource):
                     order.who_delivers = args.who_delivers
                 session.close()
                 return jsonify({'success': 'edited!'})
-            abort(404, message=f"You're not admin")
-        abort(404, message=f"You're not logged in")
+            abort(403, message=f"You're not admin")
+        abort(401, message=f"You're not logged in")
 
 
 class OrdersListResource(Resource):
@@ -83,7 +85,7 @@ class OrdersListResource(Resource):
                 [i.to_dict(
                     only=('id', 'phone', 'name', 'address', 'price', 'analytics_id', 'who_delivers'))
                     for i in orders]})
-        abort(404, message=f"You're not logged in")
+        abort(401, message=f"You're not logged in")
 
     def post(self):
         if current_user.is_authenticated:
@@ -101,8 +103,27 @@ class OrdersListResource(Resource):
                 session.commit()
                 session.close()
                 return jsonify({'success': 'created!'})
-            abort(404, message=f"You're not admin")
-        abort(404, message=f"You're not logged in")
+
+            abort(403, message=f"You're not admin")
+
+        else:  # TODO: Переделать апи
+            args = order_parser.parse_args()
+            if 'apikey' in args:
+                if args['apikey'] == '123':
+                    session = create_session()
+                    order = Order(phone=args['phone'], name=args['name'], address=args['address'])
+                    if 'price' in args:
+                        order.price = args['price']
+                    if 'analytics_id' in args:
+                        order.analytics_id = args['analytics_id']
+                    if 'who_delivers' in args:
+                        order.who_delivers = args['who_delivers']
+                    session.add(order)
+                    session.commit()
+                    session.close()
+                    return jsonify({'success': 'created!'})
+
+        abort(401, message=f"You're not logged in")
 
 
 def abort_if_order_not_found(order_id):
