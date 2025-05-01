@@ -1,4 +1,5 @@
-from flask import Flask, render_template, redirect, request
+import requests
+from flask import Flask, render_template, redirect, request, flash, url_for
 from flask_login import LoginManager, logout_user, current_user, login_user
 from flask_restful import Api
 
@@ -47,14 +48,11 @@ def load_user(user_id):
 @app.route('/', methods=['GET', 'POST'])
 def homepage():
     if current_user.is_authenticated:
-        form = OrderForm()
         courier_data = {
             'courier_1': {'name': 'Иван Иванов', 'phone': '+79991234567', 'whatsapp': '@ivan_w', 'telegram': '@ivan_t'},
             'courier_2': {'name': 'Мария Смирнова', 'phone': '+79997654321', 'whatsapp': '@maria_w',
                           'telegram': '@maria_t'}
         }
-
-
 
         courier_orders = {
             'courier_1': [
@@ -69,18 +67,29 @@ def homepage():
             ]
         }
 
-        if request.method == 'GET':
+        form = OrderForm()
+
+        if request.method == 'POST' and form.validate_on_submit():
+            data = {
+                'phone': form.phone.data,
+                'name': form.name.data,
+                'address': form.address.data,
+                'analytics_id': form.analytics_id.data,
+                'price': form.price.data
+            }
+            response = requests.post('http://127.0.0.1:5000/api/orders', json=data, cookies=request.cookies)
+            if not response:
+                raise Exception('REQUEST FAILED', response.reason, response.url, response.content)
+
+            flash('Заказ успешно добавлен!', 'success')
+            return redirect(url_for('homepage'))
+
+        else:
             return render_template('homepage.html',
                                    add_order_form=form,
                                    courier_data=courier_data,
                                    courier_orders=courier_orders)
 
-        if form.validate_on_submit():
-            print(form.data)
-            return render_template('homepage.html',
-                                   add_order_form=form,
-                                   courier_data=courier_data,
-                                   courier_orders=courier_orders)
     return redirect('/login')
 
 

@@ -3,7 +3,6 @@ import requests
 
 
 def unpack_orders_xls(table):  # TODO: Доделать функцию, которая вытягивает данные с xls таблицы и кидает их в бд
-    server = 'http://localhost:5000/api/orders'
 
     df = pd.read_excel(table)
     data_tuples = [tuple(x) for x in df.values]
@@ -15,6 +14,6 @@ def unpack_orders_xls(table):  # TODO: Доделать функцию, кото
             'analytics_id': analytics_id,
             'price': price
         }
-        response = requests.get(server, params=data)
+        response = requests.post('http://127.0.0.1:5000/api/orders', json=json.dumps(data))
         if not response:
             raise Exception('REQUEST FAILED')
