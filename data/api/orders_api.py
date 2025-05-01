@@ -1,3 +1,4 @@
+from data.api.geocoder_api import get_coords_from_geocoder
 from flask_restful import abort, Resource, reqparse
 from data.sql.db_session import create_session
 from data.sql.__all_models import Order
@@ -62,6 +63,7 @@ class OrdersResource(Resource):
                     order.name = args.name
                 if 'address' in args:
                     order.address = args.address
+                    order.set_coords(get_coords_from_geocoder(args.address))
                 if 'price' in args:
                     order.price = args.price
                 if 'analytics_id' in args:
@@ -92,6 +94,7 @@ class OrdersListResource(Resource):
                 args = order_parser.parse_args()
                 session = create_session()
                 order = Order(phone=args['phone'], name=args['name'], address=args['address'])
+                order.set_coords(get_coords_from_geocoder(args['address']))
                 if 'price' in args:
                     order.price = args['price']
                 if 'analytics_id' in args:

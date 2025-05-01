@@ -6,7 +6,7 @@ from wtforms.validators import DataRequired
 
 class OrderForm(FlaskForm):
     name = StringField('Имя получателя', validators=[DataRequired()])
-    phone = TelField('Номер телефона', validators=[DataRequired()]) # TODO: Подумать над валидацией номера телефонв
+    phone = StringField('Номер телефона', validators=[DataRequired()])  # TODO: Подумать над валидацией номера телефонв
     address = StringField('Адрес отправления', validators=[DataRequired()])
     analytics_id = StringField('Айди заказа (если есть)')
     price = IntegerField('Стоимость')
