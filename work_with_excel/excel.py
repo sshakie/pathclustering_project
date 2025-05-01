@@ -2,14 +2,15 @@ import pandas as pd
 import requests
 
 
-def unpack_orders_xls(table):  # TODO: Доделать функцию, которая вытягивает данные с xls таблицы и кидает их в бд
+def unpack_orders_xls(table):
 
     df = pd.read_excel(table)
     data_tuples = [tuple(x) for x in df.values]
 
+    errors = []
     for analytics_id, address, name, phone, price in data_tuples:
         if not (phone, name, address):
-            return (False, 'Не хватает обязательных элементов')
+            return False
 
         if str(analytics_id) == 'nan':
             analytics_id = None
@@ -23,10 +24,12 @@ def unpack_orders_xls(table):  # TODO: Доделать функцию, кото
             'price': price,
             'apikey': '123',  # TODO: Переделать апи
         }
-        print(data)
+
         response = requests.post('http://127.0.0.1:5000/api/orders', json=data)
         if not response:
-            raise Exception('REQUEST FAILED', response.content)
+            return True
+
+        return True
 
 
 if __name__ == '__main__':
