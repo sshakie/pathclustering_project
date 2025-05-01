@@ -1,7 +1,9 @@
-from sqlalchemy_serializer import SerializerMixin
-from data.db_session import SqlAlchemyBase
+import datetime
+import sqlalchemy
 from sqlalchemy import orm
-import sqlalchemy, datetime
+from sqlalchemy_serializer import SerializerMixin
+
+from data.db_session import SqlAlchemyBase
 
 
 class Order(SqlAlchemyBase, SerializerMixin):
@@ -12,7 +14,7 @@ class Order(SqlAlchemyBase, SerializerMixin):
     address = sqlalchemy.Column(sqlalchemy.String)
     price = sqlalchemy.Column(sqlalchemy.Integer)
     who_delivers = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
-    analytics_id = sqlalchemy.Column(sqlalchemy.String, unique=True)
+    analytics_id = sqlalchemy.Column(sqlalchemy.String)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
     delivery_man = orm.relationship('User', back_populates='order', lazy='joined')
