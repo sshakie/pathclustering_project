@@ -1,10 +1,10 @@
- ['#ff4d4d', '#4dd2ff', '#85e085', '#ffcc66', '#cc99ff', '#9966cc', '#ff9966'];
+const courierColors = ['#ff4d4d', '#4dd2ff', '#85e085', '#ffcc66', '#cc99ff', '#9966cc', '#ff9966'];
 
 ymaps.ready(init);
 
 function init() {
   const map = new ymaps.Map("map", {
-    center: [55.751, 37.61],
+    center: [52.605003, 39.535107],
     zoom: 14,
     controls: [],
     suppressMapOpenBlock: true

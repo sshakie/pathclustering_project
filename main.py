@@ -1,5 +1,3 @@
-import json
-
 from flask import Flask, render_template, redirect, request
 from flask_login import LoginManager, logout_user, current_user, login_user
 from flask_restful import Api
@@ -56,7 +54,7 @@ def homepage():
                           'telegram': '@maria_t'}
         }
 
-        courier_colors = ['#ff4d4d', '#4dd2ff', '#85e085', '#ffcc66', '#cc99ff', '#9966cc', '#ff9966']
+
 
         courier_orders = {
             'courier_1': [
@@ -74,16 +72,15 @@ def homepage():
         if request.method == 'GET':
             return render_template('homepage.html',
                                    add_order_form=form,
-                                   courier_data_json=courier_data,
-                                   courier_orders_json=courier_orders)
+                                   courier_data=courier_data,
+                                   courier_orders=courier_orders)
 
         if form.validate_on_submit():
             print(form.data)
             return render_template('homepage.html',
                                    add_order_form=form,
-                                   courier_data=json.dumps(courier_data),
-                                   courier_orders=json.dumps(courier_orders),
-                                   courier_colors=courier_colors)
+                                   courier_data=courier_data,
+                                   courier_orders=courier_orders)
     return redirect('/login')
 
 
