@@ -17,8 +17,6 @@ class Order(SqlAlchemyBase, SerializerMixin):
     analytics_id = sqlalchemy.Column(sqlalchemy.String)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
-    delivery_man = orm.relationship('User', back_populates='order', lazy='joined')
-
     def set_coords(self, data):
         if isinstance(data, str):
             data = list(reversed(list(map(float, data.split(',')))))

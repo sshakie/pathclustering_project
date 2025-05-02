@@ -1,5 +1,6 @@
 from flask import Flask, render_template, redirect, request, flash, url_for
 from flask_login import LoginManager, logout_user, current_user, login_user
+from data.api.projects_api import ProjectsResource, ProjectsListResource
 from data.api.orders_api import OrdersResource, OrdersListResource
 from data.api.users_api import UsersResource, UsersListResource
 from data.blanks.orderform import OrderForm, OrderImportForm
@@ -7,7 +8,7 @@ from data.sql.db_session import create_session, global_init
 from data.blanks.registerform import RegisterForm
 from data.xls.serialize import unpack_orders_xls
 from data.blanks.loginform import LoginForm
-from data.sql.user import User
+from data.sql.models.user import User
 from flask_restful import Api
 import requests, os
 
@@ -23,6 +24,8 @@ api.add_resource(UsersListResource, '/api/users')
 api.add_resource(UsersResource, '/api/users/<int:user_id>')
 api.add_resource(OrdersListResource, '/api/orders')
 api.add_resource(OrdersResource, '/api/orders/<order_id>')
+api.add_resource(ProjectsListResource, '/api/projects')
+api.add_resource(ProjectsResource, '/api/projects/<project_id>')
 
 session = create_session()
 if not session.query(User).filter(User.name == 'admin').first():

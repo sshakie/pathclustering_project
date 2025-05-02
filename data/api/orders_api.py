@@ -131,7 +131,7 @@ class OrdersListResource(Resource):
 def abort_if_order_not_found(order_id):
     session = create_session()
     if order_id.isdigit():
-        order = session.query(Order).get(order_id)
+        order = session.get(Order, order_id)
     else:
         order = session.query(Order).filter(Order.analytics_id == order_id).first()
     if not order:

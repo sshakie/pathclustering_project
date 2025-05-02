@@ -15,7 +15,6 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     hashed_password = sqlalchemy.Column(sqlalchemy.String)
 
     telegram_tag = sqlalchemy.Column(sqlalchemy.String)
-    order = orm.relationship('Order', back_populates='delivery_man', lazy='joined')
     status = sqlalchemy.Column(sqlalchemy.String, default='delivery')
 
     def set_password(self, password):
