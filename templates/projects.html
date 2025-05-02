@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %} Выбор проекта {% endblock %}
+
+{% block content %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+<link rel="stylesheet" href="/static/css/projects_style.css">
+<script defer src="/static/script/projects_script.js"></script>
+
+<div class="project-wrapper" align="center">
+    <h2>Выбрать проект</h2>
+    <div class="project-list" id="projects"></div>
+    <button class="add-project-btn" id="add-project-btn">➕</button>
+</div>
+
+<script>
+    const data = {{ projects | tojson | safe }};
+    const current_user_id = {{ current_user.id | tojson | safe }};
+</script>
+{% endblock %}
