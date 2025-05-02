@@ -1,9 +1,9 @@
 const container = document.getElementById('projects');
 
-// Оригинальный код отрисовки существующих проектов (без изменений)
 data.forEach((project, index) => {
     const panel = document.createElement('div');
     panel.className = 'panel';
+    panel.dataset.projectId = project.id;
 
     const iconWrapper = document.createElement('div');
     iconWrapper.className = 'icon-wrapper';
@@ -35,6 +35,18 @@ data.forEach((project, index) => {
     panel.appendChild(close);
     container.appendChild(panel);
 
+    container.addEventListener('click', (e) => {
+    const panel = e.target.closest('.panel');
+    if (!panel) return;
+
+    if (e.target.classList.contains('close-btn')) return;
+
+    const projectId = panel.dataset.projectId;
+    if (projectId) {
+        window.location.href = `/projects/${projectId}`;
+    }
+});
+
     close.onclick = (e) => {
         e.stopPropagation();
         fetch(`/api/projects/${project.id}`, {
@@ -59,13 +71,10 @@ function updateProjectIndices() {
     });
 }
 
-// Исправленный код для добавления проекта
 document.getElementById('add-project-btn').addEventListener('click', () => {
-    // Создаем временную панель для ввода
     const tempPanel = document.createElement('div');
     tempPanel.className = 'panel';
 
-    // Иконка (случайная от 1 до 5)
     const iconNumber = Math.floor(Math.random() * 4) + 1;
     const iconWrapper = document.createElement('div');
     iconWrapper.className = 'icon-wrapper';
@@ -73,7 +82,6 @@ document.getElementById('add-project-btn').addEventListener('click', () => {
     icon.src = `/static/icon/${iconNumber}.png`;
     iconWrapper.appendChild(icon);
 
-    // Поле ввода
     const input = document.createElement('input');
     input.type = 'text';
     input.placeholder = 'Введите название';
@@ -82,19 +90,16 @@ document.getElementById('add-project-btn').addEventListener('click', () => {
     input.style.outline = 'none';
     input.style.background = 'transparent';
 
-    // Левая часть (иконка + input)
     const left = document.createElement('div');
     left.style.display = 'flex';
     left.style.alignItems = 'center';
     left.appendChild(iconWrapper);
     left.appendChild(input);
 
-    // Номер проекта
     const projectIndex = document.createElement('span');
     projectIndex.className = 'panel-number';
     projectIndex.textContent = container.children.length + 1;
 
-    // Кнопка закрыть
     const close = document.createElement('span');
     close.innerHTML = '&times;';
     close.className = 'close-btn';
@@ -103,23 +108,19 @@ document.getElementById('add-project-btn').addEventListener('click', () => {
         tempPanel.remove();
     };
 
-    // Собираем панель
     tempPanel.appendChild(left);
     tempPanel.appendChild(projectIndex);
     tempPanel.appendChild(close);
     container.appendChild(tempPanel);
 
-    // Фокус на поле ввода
     input.focus();
 
-    // Обработчик нажатия Enter
     input.addEventListener('keydown', async (e) => {
         if (e.key === 'Enter') {
             const name = input.value.trim();
             if (!name) return;
 
             try {
-                // Отправляем запрос на сервер
                 const response = await fetch('/api/projects', {
                     method: 'POST',
                     headers: {
@@ -137,10 +138,8 @@ document.getElementById('add-project-btn').addEventListener('click', () => {
 
                 const data = await response.json();
 
-                // Удаляем временную панель
                 tempPanel.remove();
 
-                // Создаем постоянную панель с данными от сервера
                 const panel = document.createElement('div');
                 panel.className = 'panel';
 
@@ -173,10 +172,8 @@ document.getElementById('add-project-btn').addEventListener('click', () => {
                 panel.appendChild(close);
                 container.appendChild(panel);
 
-                // Обновляем нумерацию
                 updateProjectIndices();
 
-                // Обработчик удаления для новой панели
                 close.onclick = (e) => {
                     e.stopPropagation();
                     fetch(`/api/projects/${data.id}`, {
