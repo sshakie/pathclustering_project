@@ -48,7 +48,7 @@ def load_user(user_id):
         session.close()
 
 
-@app.route('/current_project', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def homepage():
     if current_user.is_authenticated:
         courier_data = {'courier_1': {'name': 'Иван Иванов', 'phone': '+79991234567'},
