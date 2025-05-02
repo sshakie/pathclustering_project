@@ -85,26 +85,24 @@ def homepage():
         import_order_form = OrderImportForm()
         if request.method == 'POST':
             form_name = request.form.get('form_name')
-
-            if form_name == 'add_order' and add_order_form.validate_on_submit():
-                data = {
-                    'phone': add_order_form.phone.data,
-                    'name': add_order_form.name.data,
-                    'address': add_order_form.address.data,
-                    'analytics_id': add_order_form.analytics_id.data,
-                    'price': add_order_form.price.data
-                }
-
-                response = requests.post('http://127.0.0.1:5000/api/orders', json=data, cookies=request.cookies)
-                if not response:
-                    raise Exception('REQUEST FAILED', response.reason, response.url, response.content)
-
-                flash('Заказ успешно добавлен!', 'success')
-                return redirect(url_for('homepage'))
+            if form_name == 'add_order':
+                if add_order_form.validate_on_submit():
+                    data = {'phone': add_order_form.phone.data,
+                            'name': add_order_form.name.data,
+                            'address': add_order_form.address.data,
+                            'analytics_id': add_order_form.analytics_id.data,
+                            'price': add_order_form.price.data}
+                    requests.post('http://127.0.0.1:5000/api/orders', json=data, cookies=request.cookies)
+                    return redirect(url_for('homepage'))
+                else:
+                    return render_template('homepage.html',
+                                           add_order_form=add_order_form,
+                                           import_order_form=import_order_form,
+                                           courier_data=courier_data,
+                                           courier_orders=courier_orders)
             elif form_name == 'import_orders' and import_order_form.validate_on_submit():
                 xls = import_order_form.xls_file.data
                 unpack_orders_xls(xls)
-
         else:
             return render_template('homepage.html',
                                    add_order_form=add_order_form,
