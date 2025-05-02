@@ -48,7 +48,7 @@ def load_user(user_id):
         session.close()
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/current_project', methods=['GET', 'POST'])
 def homepage():
     if current_user.is_authenticated:
         courier_data = {'courier_1': {'name': 'Иван Иванов', 'phone': '+79991234567'},
@@ -65,6 +65,21 @@ def homepage():
             'courier_2': [
                 {'id': 3, 'address': "ул. Вершишева д.51", 'price': "191 руб.", 'coords': [52.605003, 39.535107],
                  'analytics_id': "abc012"}]}
+
+        # project = requests.get('http://127.0.0.1:5000/api/projects/' + str(project_id), cookies=request.cookies).json()
+        #
+        # courier_orders = {}
+        # courier_data = {}
+        #
+        # for order_id in project['orders']:
+        #     order = requests.get('http://127.0.0.1:5000/api/orders/<order_id>' + str(order_id), cookies=request.cookies).json()
+        #     order_dict = order.to_dict(only=('id', 'address', 'price', 'analytics_id'))
+        #     order_dict['coords'] = order.get_coords()
+        #     courier_orders[order['who_delivers']] = courier_orders.get(order['who_delivers'], []) + [order_dict]
+        #
+        # for courier_id in project['couriers']:
+        #     courier = requests.get('http://127.0.0.1:5000/api/users/' + str(courier_id), cookies=request.cookies).json()
+        #     courier_data[courier_id] = courier.to_dict(only=('id', 'name'))
 
         add_order_form = OrderForm()
         import_order_form = OrderImportForm()
