@@ -105,7 +105,6 @@ class OrdersListResource(Resource):
                 session.commit()
                 session.close()
                 return jsonify({'success': 'created!'})
-
             abort(403, message=f"You're not admin")
 
         else:  # TODO: Переделать апи
