@@ -65,6 +65,18 @@ body {
   background-color: #FFD2B7;
 }
 
+.order-item.unassigned {
+  background-color: #E8E8E8
+}
+
+.order-item.unassigned:hover {
+  background-color: #CFCFCF
+}
+
+.order-item.unassigned.active {
+    background-color: #D4D4D4
+}
+
 .add-order-btn {
   display: block;
   margin: 20px auto;

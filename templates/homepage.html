@@ -67,18 +67,17 @@
           {{ add_order_form.analytics_id(class="form-control") }}<br>
         </p>
           <p>
-            {{ add_order_form.submit(type="submit", class="btn btn-primary") }}
-            <div align="center" style="color: #FF5C51">{{ message }}</div>
-              <button class="btn btn-success" onclick="document.getElementById('xls-input').click()" type="button">
+            {{ add_order_form.submit(type="submit", class="btn btn-primary") }} <button class="btn btn-success" onclick="document.getElementById('xls-input').click()" type="button">
               Импорт
             </button>
+            <div align="center" style="color: #FF5C51">{{ message }}</div>
+
           </p>
         </form>
 
         <!-- Скрытая форма для импорта -->
         <form action="" enctype="multipart/form-data" id="import-form" method="post" style="display: none;">
-          {{ import_order_form.hidden_tag() }}
-          {{ import_order_form.xls_file(id="xls-input") }}
+          {{ import_order_form.hidden_tag() }} {{ import_order_form.xls_file(id="xls-input") }}
             <input type="hidden" name="form_name" value="import_orders">
           <button id="hidden-submit" type="submit"></button>
         </form>

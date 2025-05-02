@@ -50,7 +50,10 @@ def homepage():
     if current_user.is_authenticated:
         courier_data = {'courier_1': {'name': 'Иван Иванов', 'phone': '+79991234567'},
                         'courier_2': {'name': 'Мария Смирнова', 'phone': '+79997654321'}}
+
         courier_orders = {
+            'no_courier': [{'id': 4, 'address': "Адресс_тест", 'price': "1537 руб.", 'coords': [52.592398, 39.504709],
+                            'analytics_id': "arf137 Заказ без курьера"}],
             'courier_1': [
                 {'id': 1, 'address': "ул. Катукова, вл51", 'price': "1537 руб.", 'coords': [52.592348, 39.504789],
                  'analytics_id': "arf137"},

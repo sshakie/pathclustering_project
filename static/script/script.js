@@ -1,21 +1,21 @@
 const courierColors = ['#ff4d4d', '#4dd2ff', '#85e085', '#ffcc66', '#cc99ff', '#9966cc', '#ff9966'];
 
-  // === TAB переключатели ===
-  const tabMap = document.getElementById("tab-map");
-  const tabCouriers = document.getElementById("tab-couriers");
+// === TAB переключатели ===
+const tabMap = document.getElementById("tab-map");
+const tabCouriers = document.getElementById("tab-couriers");
 
-  const addressWrapper = document.getElementById("address-search-wrapper");
-  const mapWrapper = document.getElementById("map-wrapper");
-  const couriers = document.getElementById("couriers");
-  const exportbtn = document.getElementById("exportbtn");
-  const clusteringbtn = document.getElementById("clusteringbtn");
+const addressWrapper = document.getElementById("address-search-wrapper");
+const mapWrapper = document.getElementById("map-wrapper");
+const couriers = document.getElementById("couriers");
+const exportbtn = document.getElementById("exportbtn");
+const clusteringbtn = document.getElementById("clusteringbtn");
 
-  function activateTab(tab) {
-    document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
-    tab.classList.add("active");
-  }
+function activateTab(tab) {
+  document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+  tab.classList.add("active");
+}
 
-  tabMap.addEventListener("click", () => {
+tabMap.addEventListener("click", () => {
   activateTab(tabMap);
   addressWrapper.classList.remove("hidden");
   mapWrapper.classList.remove("hidden");
@@ -33,8 +33,8 @@ tabCouriers.addEventListener("click", () => {
   clusteringbtn.classList.add("hidden");
 });
 
-  // === ИНИЦИАЛИЗАЦИЯ КАРТЫ ===
-  ymaps.ready(init);
+// === ИНИЦИАЛИЗАЦИЯ КАРТЫ ===
+ymaps.ready(init);
 
 function init() {
   const map = new ymaps.Map("map", {
@@ -59,18 +59,48 @@ function init() {
     document.querySelectorAll('.courier-btn').forEach(btn =>
       btn.classList.toggle('active', btn.dataset.courier === 'all')
     );
-    document.querySelectorAll('.courier-section').forEach(sec =>
-      sec.classList.remove('expanded')
-    );
     setActiveCourier('all');
   });
 
+  // Сначала добавляем нераспределенные заказы (no_courier)
+  if (courierOrders['no_courier']) {
+    courierOrders['no_courier'].forEach(order => {
+      const item = document.createElement('div');
+      item.className = 'order-item unassigned';
+      item.dataset.id = order.id;
+      item.dataset.courier = 'no_courier';
+      item.innerHTML = `
+        <div style="font-weight: bold;">№ ${order.analytics_id}</div>
+        <div>${order.address}</div>
+        <div style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>`;
+      ordersList.prepend(item); // Добавляем в начало списка
+
+      const mark = new ymaps.Placemark(order.coords, {
+        balloonContent: order.address,
+        hintContent: 'Не назначен'
+      }, {
+        preset: 'islands#circleIcon',
+        iconColor: '#808080' // Серый цвет для нераспределенных
+      });
+
+      map.geoObjects.add(mark);
+      allPlacemarks.push({ mark });
+
+      mark.events.add('click', () => highlightOrder(order.id));
+      item.addEventListener('click', () => {
+        map.setCenter(order.coords);
+        mark.balloon.open();
+        highlightOrder(order.id);
+      });
+    });
+  }
+
+  // Затем добавляем заказы с курьерами
   for (const [courierId, orders] of Object.entries(courierOrders)) {
+    if (courierId === 'no_courier') continue; // Пропускаем нераспределенные
+
     const data = courierData[courierId] || {};
     const color = courierColors[colorIndex++ % courierColors.length];
-
-    const section = document.createElement('div');
-    section.className = 'courier-section';
 
     const btn = document.createElement('button');
     btn.className = 'courier-btn';
@@ -78,20 +108,14 @@ function init() {
     btn.dataset.courier = courierId;
 
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.courier-section').forEach(sec =>
-        sec.classList.remove('expanded')
-      );
       document.querySelectorAll('.courier-btn').forEach(b =>
         b.classList.remove('active')
       );
       btn.classList.add('active');
-      section.classList.add('expanded');
       setActiveCourier(courierId);
     });
 
-    section.appendChild(btn);
-    filterBlock.appendChild(section);
-
+    filterBlock.appendChild(btn);
     courierPlacemarks[courierId] = [];
 
     orders.forEach(order => {
@@ -100,9 +124,9 @@ function init() {
       item.dataset.id = order.id;
       item.dataset.courier = courierId;
       item.innerHTML = `
-  <div style="font-weight: bold;">№ ${order.analytics_id}</div>
-  <div>${order.address}</div>
-  <div style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>`;
+        <div style="font-weight: bold;">№ ${order.analytics_id}</div>
+        <div>${order.address}</div>
+        <div style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>`;
       ordersList.appendChild(item);
 
       const mark = new ymaps.Placemark(order.coords, {
@@ -114,7 +138,6 @@ function init() {
       });
 
       map.geoObjects.add(mark);
-
       courierPlacemarks[courierId].push({ mark });
       allPlacemarks.push({ mark });
 
@@ -137,69 +160,69 @@ function init() {
   }
 
   function setActiveCourier(id) {
+    // Управление видимостью на карте
     if (id === 'all') {
       allPlacemarks.forEach(({ mark }) => {
         mark.options.set('visible', true);
       });
-      document.querySelectorAll('.order-item').forEach(el =>
-        el.style.display = 'block'
-      );
-      return;
-    }
-
-    for (const [courier, items] of Object.entries(courierPlacemarks)) {
-      items.forEach(({ mark }) => {
-        const visible = courier === id;
-        mark.options.set('visible', visible);
+    } else {
+      allPlacemarks.forEach(({ mark }) => {
+        const courierId = mark.properties.get('courierId');
+        mark.options.set('visible', courierId === id || courierId === 'no_courier');
       });
     }
 
+    // Управление видимостью в списке
     document.querySelectorAll('.order-item').forEach(el => {
-      el.style.display = el.dataset.courier === id ? 'block' : 'none';
+      if (id === 'all') {
+        el.style.display = 'block';
+      } else {
+        el.style.display = (el.dataset.courier === id || el.dataset.courier === 'no_courier')
+          ? 'block'
+          : 'none';
+      }
     });
   }
 
   courierSearch.addEventListener('input', () => {
     const val = courierSearch.value.toLowerCase();
-    document.querySelectorAll('.courier-section').forEach(section => {
-      const name = section.querySelector('.courier-btn')?.textContent.toLowerCase() || '';
-      const infoText = section.querySelector('.courier-info')?.textContent.toLowerCase() || '';
-      const match = name.includes(val) || infoText.includes(val);
-      section.style.display = match ? 'block' : 'none';
+    document.querySelectorAll('.courier-btn').forEach(btn => {
+      const name = btn.textContent.toLowerCase();
+      btn.style.display = name.includes(val) ? 'block' : 'none';
     });
   });
-const addressInput = document.getElementById('address-search');
-const addressBtn = document.getElementById('address-search-btn');
 
-addressBtn.addEventListener('click', () => {
-  searchAddress(addressInput.value);
-});
+  const addressInput = document.getElementById('address-search');
+  const addressBtn = document.getElementById('address-search-btn');
 
-addressInput.addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') {
+  addressBtn.addEventListener('click', () => {
     searchAddress(addressInput.value);
-  }
-});
+  });
 
-function searchAddress(address) {
-  if (!address.trim()) return;
-
-  ymaps.geocode(address).then(result => {
-    const firstGeoObject = result.geoObjects.get(0);
-
-    if (firstGeoObject) {
-      const coords = firstGeoObject.geometry.getCoordinates();
-      const name = firstGeoObject.getAddressLine();
-
-      map.setCenter(coords, 16);
-
-      map.balloon.open(coords, name, {
-        closeButton: true
-      });
-    } else {
-      alert("Адрес не найден.");
+  addressInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      searchAddress(addressInput.value);
     }
   });
-}
 
+  function searchAddress(address) {
+    if (!address.trim()) return;
+
+    ymaps.geocode(address).then(result => {
+      const firstGeoObject = result.geoObjects.get(0);
+
+      if (firstGeoObject) {
+        const coords = firstGeoObject.geometry.getCoordinates();
+        const name = firstGeoObject.getAddressLine();
+
+        map.setCenter(coords, 16);
+
+        map.balloon.open(coords, name, {
+          closeButton: true
+        });
+      } else {
+        alert("Адрес не найден.");
+      }
+    });
+  }
 }
