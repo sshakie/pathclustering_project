@@ -79,15 +79,31 @@ body {
 .order-header {
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 
 .order-details {
   margin-top: 6px;
   font-size: 14px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease-in-out,
+    opacity 0.3s ease-in-out,   
+    margin-top 0.3s ease-in-out;
 }
 
 .order-details.hidden {
-  display: none;
+  display: block !important;
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
+
+.order-details:not(.hidden) {
+  max-height: 200px;
+  opacity: 1;
 }
 
 .order-price {
