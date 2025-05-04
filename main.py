@@ -81,7 +81,7 @@ def show_project(project_id):
         if not (project.orders is None):
             for order_id in list(map(int, project.orders.split(','))):
                 order = session.get(Order, order_id)
-                order_dict = order.to_dict(only=('id', 'address', 'price', 'analytics_id'))
+                order_dict = order.to_dict(only=('id', 'address', 'price', 'analytics_id', 'name', 'phone'))
                 order_dict['coords'] = order.get_coords()
                 deliver = order.who_delivers if order.who_delivers is not None else 'no_courier'
                 courier_orders[deliver] = courier_orders.get(deliver, []) + [order_dict]
