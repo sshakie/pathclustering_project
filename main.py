@@ -78,16 +78,18 @@ def show_project(project_id):
         courier_orders = {}
         courier_data = {}
 
-        for order_id in list(map(int, project.orders.split(','))):
-            order = session.get(Order, order_id)
-            order_dict = order.to_dict(only=('id', 'address', 'price', 'analytics_id'))
-            order_dict['coords'] = order.get_coords()
-            courier_orders[order.who_delivers] = courier_orders.get(order.who_delivers, []) + [order_dict]
+        if not (project.orders is None):
+            for order_id in list(map(int, project.orders.split(','))):
+                order = session.get(Order, order_id)
+                order_dict = order.to_dict(only=('id', 'address', 'price', 'analytics_id'))
+                order_dict['coords'] = order.get_coords()
+                deliver = order.who_delivers if order.who_delivers is not None else 'no_courier'
+                courier_orders[deliver] = courier_orders.get(deliver, []) + [order_dict]
 
-        for courier_id in list(map(int, project.couriers.split(','))):
-            courier = session.get(User, courier_id)
-            courier_data[courier_id] = courier.to_dict(only=('id', 'name'))
-
+        if not (project.couriers is None):
+            for courier_id in list(map(int, project.couriers.split(','))):
+                courier = session.get(User, courier_id)
+                courier_data[courier_id] = courier.to_dict(only=('id', 'name'))
         add_order_form = OrderForm()
         import_order_form = OrderImportForm()
         if request.method == 'POST':

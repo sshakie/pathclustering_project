@@ -76,6 +76,25 @@ body {
     background-color: #D4D4D4
 }
 
+.order-header {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-details {
+  margin-top: 6px;
+  font-size: 14px;
+}
+
+.order-details.hidden {
+  display: none;
+}
+
+.order-price {
+  margin-top: auto;
+}
+
+
 .add-order-btn {
   display: block;
   margin: 20px auto;

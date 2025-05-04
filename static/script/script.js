@@ -52,9 +52,7 @@ function init() {
   const allPlacemarks = [];
   const courierPlacemarks = {};
 
-  // Кнопка "Все"
   const allBtn = document.querySelector('.courier-btn.active[data-courier="all"]');
-
   allBtn.addEventListener('click', () => {
     document.querySelectorAll('.courier-btn').forEach(btn =>
       btn.classList.toggle('active', btn.dataset.courier === 'all')
@@ -62,7 +60,7 @@ function init() {
     setActiveCourier('all');
   });
 
-  // Сначала добавляем нераспределенные заказы (no_courier)
+  // Заказы без курьера
   if (courierOrders['no_courier']) {
     courierOrders['no_courier'].forEach(order => {
       const item = document.createElement('div');
@@ -70,19 +68,36 @@ function init() {
       item.dataset.id = order.id;
       item.dataset.courier = 'no_courier';
       item.innerHTML = `
-        <div style="font-weight: bold;">№ ${order.analytics_id}</div>
-        <div>${order.address}</div>
-        <div style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>`;
-      ordersList.prepend(item); // Добавляем в начало списка
+        <div class="order-header">
+          <div style="font-weight: bold;">№ ${order.analytics_id}</div>
+          <div>${order.address}</div>
+        </div>
+        <div class="order-details hidden">
+          <div><b>Имя:</b> ${order.name || '—'}</div>
+          <div><b>Телефон:</b> ${order.phone || '—'}</div>
+          <div><b>Координаты:</b> [${order.coords.join(', ')}]</div>
+        </div>
+        <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>
+      `;
 
-      const mark = new ymaps.Placemark(order.coords, {
-        balloonContent: order.address,
-        hintContent: 'Не назначен'
-      }, {
-        preset: 'islands#circleIcon',
-        iconColor: '#808080' // Серый цвет для нераспределенных
+      item.addEventListener('click', () => {
+        const details = item.querySelector('.order-details');
+        details.classList.toggle('hidden');
       });
 
+      ordersList.prepend(item);
+
+      const mark = new ymaps.Placemark(order.coords, {
+          balloonContent: order.address,
+          hintContent: 'Не назначен'
+        }, {
+          preset: 'islands#circleIcon',
+          iconColor: '#808080',
+          balloonAutoPan: false,
+          hideIconOnBalloonOpen: false
+        });
+
+       mark.properties.set('courierId', 'no_courier');
       map.geoObjects.add(mark);
       allPlacemarks.push({ mark });
 
@@ -95,9 +110,9 @@ function init() {
     });
   }
 
-  // Затем добавляем заказы с курьерами
+  // Заказы с курьерами
   for (const [courierId, orders] of Object.entries(courierOrders)) {
-    if (courierId === 'no_courier') continue; // Пропускаем нераспределенные
+    if (courierId === 'no_courier') continue;
 
     const data = courierData[courierId] || {};
     const color = courierColors[colorIndex++ % courierColors.length];
@@ -108,9 +123,7 @@ function init() {
     btn.dataset.courier = courierId;
 
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.courier-btn').forEach(b =>
-        b.classList.remove('active')
-      );
+      document.querySelectorAll('.courier-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
       setActiveCourier(courierId);
     });
@@ -124,9 +137,23 @@ function init() {
       item.dataset.id = order.id;
       item.dataset.courier = courierId;
       item.innerHTML = `
-        <div style="font-weight: bold;">№ ${order.analytics_id}</div>
-        <div>${order.address}</div>
-        <div style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>`;
+        <div class="order-header">
+          <div style="font-weight: bold;">№ ${order.analytics_id}</div>
+          <div>${order.address}</div>
+        </div>
+        <div class="order-details hidden">
+          <div><b>Имя:</b> ${order.name || '—'}</div>
+          <div><b>Телефон:</b> ${order.phone || '—'}</div>
+          <div><b>Координаты:</b> [${order.coords.join(', ')}]</div>
+        </div>
+        <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>
+      `;
+
+      item.addEventListener('click', () => {
+        const details = item.querySelector('.order-details');
+        details.classList.toggle('hidden');
+      });
+
       ordersList.appendChild(item);
 
       const mark = new ymaps.Placemark(order.coords, {
@@ -134,9 +161,10 @@ function init() {
         hintContent: data.name || courierId
       }, {
         preset: 'islands#circleIcon',
-        iconColor: color
+        iconColor: color,
+        balloonAutoPan: false
       });
-
+       mark.properties.set('courierId', courierId);
       map.geoObjects.add(mark);
       courierPlacemarks[courierId].push({ mark });
       allPlacemarks.push({ mark });
@@ -160,11 +188,8 @@ function init() {
   }
 
   function setActiveCourier(id) {
-    // Управление видимостью на карте
     if (id === 'all') {
-      allPlacemarks.forEach(({ mark }) => {
-        mark.options.set('visible', true);
-      });
+      allPlacemarks.forEach(({ mark }) => mark.options.set('visible', true));
     } else {
       allPlacemarks.forEach(({ mark }) => {
         const courierId = mark.properties.get('courierId');
@@ -172,14 +197,11 @@ function init() {
       });
     }
 
-    // Управление видимостью в списке
     document.querySelectorAll('.order-item').forEach(el => {
       if (id === 'all') {
         el.style.display = 'block';
       } else {
-        el.style.display = (el.dataset.courier === id || el.dataset.courier === 'no_courier')
-          ? 'block'
-          : 'none';
+        el.style.display = (el.dataset.courier === id || el.dataset.courier === 'no_courier') ? 'block' : 'none';
       }
     });
   }
