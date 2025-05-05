@@ -66,10 +66,11 @@ function init() {
       const item = document.createElement('div');
       item.className = 'order-item unassigned';
       item.dataset.id = order.id;
+      const orderNumber = order.analytics_id ? order.analytics_id : order.id;
       item.dataset.courier = 'no_courier';
       item.innerHTML = `
         <div class="order-header">
-          <div style="font-weight: bold;">№ ${order.analytics_id}</div>
+          <div style="font-weight: bold;">№ ${orderNumber}</div>
           <div>${order.address}</div>
         </div>
         <div class="order-details hidden">
@@ -77,7 +78,7 @@ function init() {
           <div><b>Телефон:</b> ${order.phone || '—'}</div>
           <div><b>Координаты:</b> [${order.coords.join(', ')}]</div>
         </div>
-        <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>
+        <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price} руб.</div>
       `;
 
       item.addEventListener('click', () => {
@@ -141,7 +142,7 @@ function init() {
 
       item.innerHTML = `
         <div class="order-header">
-          <div style="font-weight: bold;">№ ${order.analytics_id}</div>
+          <div style="font-weight: bold;">№ ${orderNumber}</div>
           <div>${order.address}</div>
         </div>
         <div class="order-details hidden">
@@ -149,7 +150,7 @@ function init() {
           <div><b>Телефон:</b> ${order.phone || '—'}</div>
           <div><b>Координаты:</b> [${order.coords.join(', ')}]</div>
         </div>
-        <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${orderNumber}</div>
+        <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price} руб.</div>
       `;
 
       item.addEventListener('click', () => {
@@ -268,3 +269,4 @@ if (orderSearch) {
     });
   });
 }
+

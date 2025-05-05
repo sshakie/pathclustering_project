@@ -7,10 +7,12 @@ from flask import jsonify
 project_parser = reqparse.RequestParser()
 project_parser.add_argument('name', required=True, type=str)
 project_parser.add_argument('icon', type=str)
+project_parser.add_argument('invite_link', type=str)
 
 put_project_parser = reqparse.RequestParser()
 put_project_parser.add_argument('name', type=str)
 put_project_parser.add_argument('icon', type=str)
+put_project_parser.add_argument('invite_link', type=str)
 
 
 class ProjectsResource(Resource):
@@ -51,6 +53,8 @@ class ProjectsResource(Resource):
                     project.name = args.name
                 if 'icon' in args:
                     project.icon = args.icon
+                if 'invite_link' in args:
+                    project.invite_link = args.invite_link
                 session.close()
                 return jsonify({'success': 'edited!'})
             abort(403, message=f"You're not admin")
@@ -75,6 +79,8 @@ class ProjectsListResource(Resource):
                 project = Project(name=args['name'], admin_id=current_user.id)
                 if 'icon' in args:
                     project.icon = args['icon']
+                if 'invite_link' in args:
+                    project.icon = args['invite_link']
                 session.add(project)
                 session.commit()
                 return jsonify({'success': 'created!', 'id': project.id, 'icon': project.icon})

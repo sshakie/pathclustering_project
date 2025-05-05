@@ -1,10 +1,14 @@
 {% extends "base.html" %}
-{% block title %} Стань курьером {% endblock %}
+{% block title %} Стань логистом {% endblock %}
 
 {% block content %}
 <div style="display: flex; justify-content: center; align-items: center; height: 100vh">
     <div style="width: 100%; max-width: 400px">
-        <h2 align="center">Регистрация курьера</h2>
+        {% if admin_name %}
+            <h2 align="center">Присоединиться курьером к {{admin_name}}</h2>
+        {% else %}
+            <h2 align="center">Стань логистом</h2>
+        {% endif %}
         <form action="" method="post">
             {{ form.hidden_tag() }}
             <p>

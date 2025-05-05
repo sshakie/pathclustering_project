@@ -92,7 +92,8 @@
                 </form>
 
             </div>
-            <span style="font-weight: bold; text-align: center; margin-top: -20px; color: #B7B7B7; font-size: 16px">при пакетном импорте следуйте <a href="/static/xls/template.xlsx" style="position: relative; z-index: 1000;"">образцу</a></span>
+            <span style="font-weight: bold; text-align: center; margin-top: -20px; color: #B7B7B7; font-size: 16px">при пакетном импорте следуйте <a
+                    href="/static/xls/template.xlsx" style="position: relative; z-index: 1000;"">образцу</a></span>
             <div class="modal-footer" style="border-top: none"></div>
         </div>
     </div>
@@ -142,9 +143,45 @@
             <div id="map" class="map"></div>
         </div>
         <div style="max-height: 5"><br></div>
-
         <div class="couriers hidden" id="couriers">
-            <a>Курьерыыыыыыыыыыы</a>
+            <hr style="border: none; border-bottom: 3px solid #D3D3D3; margin: 0 0 20px 0;">
+            <div class="couriers-page">
+                <div class="invite-row">
+                    <input type="text" readonly value="https://pathclustering.gg/register/{{invite_link}}"
+                           class="invite-link"/>
+                    <button class="invite-btn">Пригласить</button>
+                </div>
+
+                {% for i in courier_not_ready %}
+                <div class="table-row">
+                    <div class="courier-name">{{i.name}}</div>
+                    <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
+                    <div class="clstr-courier remove">-</div>
+                    <div class="clstr-courier kick">⨉</div>
+                </div>
+                {% if not loop.last %}
+                <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
+                {% endif %}
+                {% endfor %}
+
+                <div style="text-align: center;font-size:26px;margin-top:25px">
+                    <span style="color:#B0B0B0">──────────</span>
+                    <span style="color: #000000">Участники</span>
+                    <span style="color:#B0B0B0">──────────</span>
+                </div>
+                {% for i in courier_ready %}
+                <div class="table-row">
+                    <div class="courier-number" style="color: {{i.color}}">{{loop.index}}</div>
+                    <div class="courier-name" style="color: {{i.color}}; filter: brightness(1.5)">{{i.name}}</div>
+                    <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
+                    <div class="clstr-courier add">+</div>
+                    <div class="clstr-courier kick">⨉</div>
+                </div>
+                {% if not loop.last %}
+                <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
+                {% endif %}
+                {% endfor %}
+            </div>
         </div>
 
         <div align="center" style="min-height: 40">
