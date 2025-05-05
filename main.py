@@ -25,7 +25,7 @@ api = Api(app)
 api.add_resource(UsersListResource, '/api/users')
 api.add_resource(UsersResource, '/api/users/<int:user_id>')
 api.add_resource(OrdersListResource, '/api/orders')
-api.add_resource(OrdersResource, '/api/orders/<order_id>')
+api.add_resource(OrdersResource, '/api/orders/<int:order_id>')
 api.add_resource(ProjectsListResource, '/api/projects')
 api.add_resource(ProjectsResource, '/api/projects/<project_id>')
 
@@ -108,7 +108,8 @@ def show_project(project_id):
                                            add_order_form=add_order_form,
                                            import_order_form=import_order_form,
                                            courier_data=courier_data,
-                                           courier_orders=courier_orders)
+                                           courier_orders=courier_orders,
+                                           icon_id=project.icon)
             elif form_name == 'import_orders' and import_order_form.validate_on_submit():
                 xls = import_order_form.xls_file.data
                 unpack_orders_xls(xls)
@@ -117,7 +118,8 @@ def show_project(project_id):
                                    add_order_form=add_order_form,
                                    import_order_form=import_order_form,
                                    courier_data=courier_data,
-                                   courier_orders=courier_orders)
+                                   courier_orders=courier_orders,
+                                   icon_id=project.icon)
     return redirect('/login')
 
 
