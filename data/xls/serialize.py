@@ -1,7 +1,7 @@
 import pandas, requests
 
 
-def unpack_orders_xls(table):
+def unpack_orders_xls(table, project_id, cookie):
     data_tuples = [tuple(x) for x in pandas.read_excel(table).values]
 
     for analytics_id, address, name, phone, price in data_tuples:
@@ -12,12 +12,13 @@ def unpack_orders_xls(table):
         if str(price) == 'nan':
             price = None
 
-        response = requests.post('http://127.0.0.1:5000/api/orders', json={'phone': phone,
-                                                                           'name': name,
-                                                                           'address': address,
-                                                                           'analytics_id': analytics_id,
-                                                                           'price': price,
-                                                                           'apikey': '123'})  # TODO: Переделать апи
+        response = requests.post('http://127.0.0.1:5000/api/orders',
+                                 json={'phone': phone,
+                                       'name': name,
+                                       'address': address,
+                                       'analytics_id': analytics_id,
+                                       'price': price,
+                                       'project_id': project_id}, cookies=cookie)
         if not response:
             return False
     return True
