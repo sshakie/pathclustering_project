@@ -6,4 +6,4 @@ from data.sql.models.user_relations import UserRelations
 
 from data.sql.models.project import Project
 
-from data.sql.models.order_relations import OrderRelations
+from data.sql.models.courier_relations import CourierRelations

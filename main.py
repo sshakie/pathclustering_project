@@ -77,7 +77,6 @@ def show_project(project_id):
         project = session.get(Project, project_id)
         courier_orders = {}
         courier_data = {}
-
         if not (project.orders is None):
             for order_id in list(map(int, project.orders.split(','))):
                 order = session.get(Order, order_id)

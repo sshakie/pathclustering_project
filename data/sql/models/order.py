@@ -6,6 +6,7 @@ import sqlalchemy, datetime
 class Order(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'orders'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    project_id = sqlalchemy.Column(sqlalchemy.Integer)
     phone = sqlalchemy.Column(sqlalchemy.String, index=True)
     name = sqlalchemy.Column(sqlalchemy.String)
     address = sqlalchemy.Column(sqlalchemy.String)
@@ -15,8 +16,6 @@ class Order(SqlAlchemyBase, SerializerMixin):
     who_delivers = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'), default=-1)
     analytics_id = sqlalchemy.Column(sqlalchemy.String)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
-
-    projects = sqlalchemy.orm.relationship('Project', secondary='order_relations', back_populates='orders')
 
     def set_coords(self, data):
         if isinstance(data, str):
