@@ -114,10 +114,14 @@
 
 <div class="main-wrapper">
     <div class="orders-panel">
-        <h2 class="orders-header" style="margin-top: -4px">
+        <div class="order-search-wrapper" style="margin-bottom: 10px">
+            <input type="text" id="order-search" placeholder="Найти заказ..."/>
+        </div>
+
+        <div class="orders-header" style="margin-top: -4px">
             <span class="orders-text" style="font-weight: bold; color:7F7F7F">Orders Count</span>
             <span class="orders-count-wrapper"><span id="orders-count">0</span></span>
-        </h2>
+        </div>
         <div id="orders-list" class="orders-list" style="margin-top: 10px"></div>
         <button class="add-order-btn" data-bs-toggle="modal" data-bs-target="#addOrderModal">➕</button>
     </div>
