@@ -16,6 +16,8 @@ class Order(SqlAlchemyBase, SerializerMixin):
     analytics_id = sqlalchemy.Column(sqlalchemy.String)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
 
+    projects = sqlalchemy.orm.relationship('Project', secondary='order_relations', back_populates='orders')
+
     def set_coords(self, data):
         if isinstance(data, str):
             data = list(reversed(list(map(float, data.split(',')))))

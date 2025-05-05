@@ -136,6 +136,8 @@ function init() {
       item.className = 'order-item';
       item.dataset.id = order.id;
       item.dataset.courier = courierId;
+      const orderNumber = order.analytics_id ? order.analytics_id : order.id;
+
       item.innerHTML = `
         <div class="order-header">
           <div style="font-weight: bold;">№ ${order.analytics_id}</div>
@@ -146,7 +148,7 @@ function init() {
           <div><b>Телефон:</b> ${order.phone || '—'}</div>
           <div><b>Координаты:</b> [${order.coords.join(', ')}]</div>
         </div>
-        <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price}</div>
+        <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${orderNumber}</div>
       `;
 
       item.addEventListener('click', () => {
