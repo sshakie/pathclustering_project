@@ -16,6 +16,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     telegram_tag = sqlalchemy.Column(sqlalchemy.String)
     status = sqlalchemy.Column(sqlalchemy.String, default='delivery')
 
+
     def set_password(self, password):
         self.hashed_password = generate_password_hash(password)
 
