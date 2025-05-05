@@ -92,6 +92,7 @@ function init() {
           hintContent: 'Не назначен'
         }, {
           preset: 'islands#circleIcon',
+
           iconColor: '#808080',
           balloonAutoPan: false,
           hideIconOnBalloonOpen: false
@@ -249,4 +250,21 @@ function init() {
       }
     });
   }
+}
+
+const orderSearch = document.getElementById('order-search');
+
+if (orderSearch) {
+  orderSearch.addEventListener('input', () => {
+    const query = orderSearch.value.toLowerCase();
+    document.querySelectorAll('.order-item').forEach(order => {
+      const name = order.querySelector('.order-details b:nth-child(1)')?.nextSibling?.textContent?.toLowerCase() || '';
+      const phone = order.querySelector('.order-details b:nth-child(2)')?.nextSibling?.textContent?.toLowerCase() || '';
+      const address = order.querySelector('.order-header div:nth-child(2)')?.textContent?.toLowerCase() || '';
+      const analyticsId = order.querySelector('.order-header div:nth-child(1)')?.textContent?.toLowerCase() || '';
+
+      const match = [name, phone, address, analyticsId].some(text => text.includes(query));
+      order.style.display = match ? 'block' : 'none';
+    });
+  });
 }

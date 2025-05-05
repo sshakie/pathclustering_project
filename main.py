@@ -1,6 +1,8 @@
+import json
+
 from flask_login import LoginManager, logout_user, current_user, login_user
 from data.api.projects_api import ProjectsResource, ProjectsListResource
-from flask import Flask, render_template, redirect, request, url_for
+from flask import Flask, render_template, redirect, request, url_for, jsonify
 from data.api.orders_api import OrdersResource, OrdersListResource
 from data.api.users_api import UsersResource, UsersListResource
 from data.blanks.orderform import OrderForm, OrderImportForm
@@ -71,24 +73,23 @@ def homepage():
 def show_project(project_id):
     if current_user.is_authenticated:
         session = create_session()
-        if session.get(Project, project_id).admin_id != current_user.id:
+        if not session.get(Project, project_id) or session.get(Project, project_id).admin_id != current_user.id:
             return redirect('/projects')
 
         project = session.get(Project, project_id)
+
         courier_orders = {}
         courier_data = {}
-        if not (project.orders is None):
-            for order_id in list(map(int, project.orders.split(','))):
-                order = session.get(Order, order_id)
-                order_dict = order.to_dict(only=('id', 'address', 'price', 'analytics_id', 'name', 'phone'))
-                order_dict['coords'] = order.get_coords()
-                deliver = order.who_delivers if order.who_delivers is not None else 'no_courier'
-                courier_orders[deliver] = courier_orders.get(deliver, []) + [order_dict]
 
-        if not (project.couriers is None):
-            for courier_id in list(map(int, project.couriers.split(','))):
-                courier = session.get(User, courier_id)
-                courier_data[courier_id] = courier.to_dict(only=('id', 'name'))
+        for order in session.query(Order).filter(Order.project_id == project.id).all():
+            order_dict = order.to_dict(only=('id', 'address', 'price', 'analytics_id', 'name', 'phone'))
+            order_dict['coords'] = order.get_coords()
+            deliver = order.who_delivers if order.who_delivers != -1 else 'no_courier'
+            courier_orders[str(deliver)] = courier_orders.get(str(deliver), []) + [order_dict]
+
+        for courier in project.couriers:
+            courier_data[str(courier.id)] = courier.to_dict(only=('id', 'name'))
+
         add_order_form = OrderForm()
         import_order_form = OrderImportForm()
         if request.method == 'POST':
@@ -111,7 +112,7 @@ def show_project(project_id):
                                            icon_id=project.icon)
             elif form_name == 'import_orders' and import_order_form.validate_on_submit():
                 xls = import_order_form.xls_file.data
-                unpack_orders_xls(xls)
+                unpack_orders_xls(xls, project_id, request.cookies)
         else:
             return render_template('homepage.html',
                                    add_order_form=add_order_form,
@@ -173,4 +174,4 @@ def logout():
 
 if __name__ == '__main__':
     port = os.environ.get('PORT', 5000)
-    app.run(host='0.0.0.0', port=port)
+    app.run()

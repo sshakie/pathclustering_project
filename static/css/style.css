@@ -23,6 +23,17 @@ body {
   gap: 10px;
 }
 
+#order-search {
+  padding: 5px;
+  border: 1px solid #ccc;
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+}
+
 .orders-header {
   display: flex;
   align-items: center;
