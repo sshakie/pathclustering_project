@@ -52,19 +52,16 @@ async def fetch_osrm_table(session: aiohttp.ClientSession, coords: list[tuple[fl
 
 
 async def get_distance_matrix(orders: list[Order]) -> list[tuple[str, str, float]]:
-    # Извлекаем координаты из заказов (OSRM ожидает lon, lat)
     coords = [order.get_coords() for order in orders]
     ids = [order.id for order in orders]
 
     async with aiohttp.ClientSession() as session:
-        # Запрашиваем матрицу расстояний
         data = await fetch_osrm_table(session, coords)
-        distances = data['distances']  # Матрица расстояний в метрах
+        distances = data['distances']
 
-        # Формируем список пар
         result = []
         for i in range(len(ids)):
-            for j in range(i + 1, len(ids)):  # Чтобы избежать дубликатов (A-B и B-A)
+            for j in range(i + 1, len(ids)):
                 distance_meters = distances[i][j]
                 result.append((ids[i], ids[j], distance_meters))
 

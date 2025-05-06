@@ -107,11 +107,13 @@ def show_project(project_id):
             form_name = request.form.get('form_name')
             if form_name == 'add_order':
                 if add_order_form.validate_on_submit():
+                    print(1)
                     data = {'phone': add_order_form.phone.data,
                             'name': add_order_form.name.data,
                             'address': add_order_form.address.data,
                             'analytics_id': add_order_form.analytics_id.data,
-                            'price': add_order_form.price.data}
+                            'price': add_order_form.price.data,
+                            'project_id': project_id}
                     requests.post('http://127.0.0.1:5000/api/orders', json=data, cookies=request.cookies)
                     return redirect(f'/projects/{project_id}')
                 else:
