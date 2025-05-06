@@ -313,3 +313,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
+
+clusteringbtn.addEventListener("click", async () => {
+  const currentPath = window.location.pathname;
+
+  try {
+    const response = await fetch(currentPath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ start_clustering: true })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      alert("Кластеризация запущена.");
+    } else {
+      const error = await response.json();
+      alert(error.message || "Ошибка на сервере.");
+    }
+  } catch (error) {
+    alert("Сетевая ошибка.");
+    console.error(error);
+  }
+});
+

@@ -76,5 +76,6 @@ def clustering(orders_list: list[Order], num_couriers: int, depot_coords: list):
     orders_list.append(Depot(id=-1, coords=depot_coords))
     matrix = asyncio.run(get_distance_matrix(orders_list))
     ids = [order.id for order in orders_list]
+    print(matrix)
     return cluster_orders(ids, matrix, num_couriers, -1)
 

@@ -1,8 +1,9 @@
 from flask_login import LoginManager, logout_user, current_user, login_user
 from data.api.projects_api import ProjectsResource, ProjectsListResource
-from flask import Flask, render_template, redirect, request
+from flask import Flask, render_template, redirect, request, jsonify
 from data.api.orders_api import OrdersResource, OrdersListResource
 from data.api.users_api import UsersResource, UsersListResource
+from data.py.clustering import clustering
 from data.sql.models.courier_relations import CourierRelations
 from data.blanks.orderform import OrderForm, OrderImportForm
 from data.sql.db_session import create_session, global_init
@@ -104,10 +105,11 @@ def show_project(project_id):
         add_order_form = OrderForm()
         import_order_form = OrderImportForm()
         if request.method == 'POST':
+            content_type = request.headers.get('Content-Type', '')
+
             form_name = request.form.get('form_name')
             if form_name == 'add_order':
                 if add_order_form.validate_on_submit():
-                    print(1)
                     data = {'phone': add_order_form.phone.data,
                             'name': add_order_form.name.data,
                             'address': add_order_form.address.data,
@@ -129,6 +131,15 @@ def show_project(project_id):
             elif form_name == 'import_orders' and import_order_form.validate_on_submit():
                 xls = import_order_form.xls_file.data
                 unpack_orders_xls(xls, project_id, request.cookies)
+
+                # === Обработка JSON-запроса от JS-кнопки кластеризации ===
+            elif 'application/json' in content_type:
+                data = request.get_json()
+                if data and data.get('start_clustering'):
+                    clustering(orders_list=list(session.query(Order).filter(Order.project_id == project.id).all()),
+                               num_couriers=len([i for i in a if i['is_ready']]),
+                               depot_coords=[55.725007, 37.606523])
+                    return jsonify({'status': 'clustering successfully'}), 200
         else:
             return render_template('homepage.html',
                                    add_order_form=add_order_form,
