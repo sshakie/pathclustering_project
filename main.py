@@ -7,7 +7,6 @@ from data.py.clustering import clustering
 from data.sql.models.courier_relations import CourierRelations
 from data.blanks.orderform import OrderForm, OrderImportForm
 from data.sql.db_session import create_session, global_init
-from data.sql.models.user_relations import UserRelations
 from data.blanks.registerform import RegisterForm
 from data.xls.serialize import unpack_orders_xls
 from data.sql.models.project import Project
@@ -38,6 +37,7 @@ if not session.query(User).filter(User.name == 'admin').first():
     user.name = 'admin'
     user.email = 'admin@admin.py'
     user.set_password('admin')
+    user.status = 'admin'
     session.add(user)
     session.commit()
 session.close()
@@ -98,9 +98,7 @@ def show_project(project_id):
             courier_data[str(courier.id)]['is_ready'] = session.query(CourierRelations).filter(
                 CourierRelations.courier_id == courier.id).first().is_ready
 
-        print(courier_data)
         a = [courier_data[i] for i in courier_data]
-        print(a)
 
         add_order_form = OrderForm()
         import_order_form = OrderImportForm()
@@ -192,7 +190,6 @@ def invite_register(invite_link):
                                                                          'telegram_tag': form.telegram_tag.data,
                                                                          'password': form.password.data,
                                                                          'project_id': project.id})
-        print(user_id)
         login_user(session.get(User, user_id['user_id']), remember=form.remember_me.data)
         session.close()
         return redirect('/')

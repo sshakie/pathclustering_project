@@ -28,6 +28,9 @@ class UsersResource(Resource):
             if current_user.status == 'admin':
                 abort_if_user_not_found(user_id)
                 session = create_session()
+                relation = session.query(UserRelations).filter(UserRelations.courier_id == user_id).first()
+                if relation.admin_id != current_user.id:
+                    abort(403, message=f"This is not your worker")
                 user = session.query(User).get(user_id)
                 session.close()
                 return jsonify(
@@ -40,6 +43,9 @@ class UsersResource(Resource):
             if current_user.status == 'admin':
                 abort_if_user_not_found(user_id)
                 session = create_session()
+                relation = session.query(UserRelations).filter(UserRelations.courier_id == user_id).first()
+                if relation.admin_id != current_user.id:
+                    abort(403, message=f"This is not your worker")
                 session.delete(session.query(User).get(user_id))
                 session.commit()
                 session.close()
@@ -53,6 +59,9 @@ class UsersResource(Resource):
                 abort_if_user_not_found(user_id)
                 args = put_user_parser.parse_args()
                 session = create_session()
+                relation = session.query(UserRelations).filter(UserRelations.courier_id == user_id).first()
+                if relation.admin_id != current_user.id:
+                    abort(403, message=f"This is not your worker")
                 user = session.query(User).get(user_id)
                 if args['name']:
                     user.name = args.name
@@ -80,10 +89,10 @@ class UsersListResource(Resource):
         if current_user.is_authenticated:
             if current_user.status == 'admin':
                 session = create_session()
-                projects = session.query(Project).filter(Project.admin_id == current_user.id).all()  ########
-                users = session.query(User).all()
-                return jsonify({'users': [i.to_dict(only=('id', 'name', 'email', 'telegram_tag', 'status'))
-                                          for i in users]})
+                projects = session.query(Project).filter(Project.admin_id == current_user.id).all()
+                return jsonify({'projects': {i.id: [ii.to_dict(only=('id', 'name', 'email', 'telegram_tag', 'status'))
+                                                    for ii in session.query(CourierRelations).filter(
+                        CourierRelations.project_id == i.id).all()]} for i in projects})
             abort(403, message=f"You're not admin")
         abort(401, message=f"You're not logged in")
 

@@ -1,7 +1,7 @@
 body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+    margin: 0
+    padding: 0;
+    overflow: hidden;
 }
 
 .main-wrapper {
@@ -466,4 +466,12 @@ body {
 
 .clstr-courier.remove:hover {
     color: #F28780
+}
+
+.courier-empty-text {
+    text-align: center;
+    margin-top:25px;
+    color:#999999;
+    font-family: 'Courier New', monospace;
+    font-size:20px
 }

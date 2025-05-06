@@ -115,14 +115,14 @@
 
 <div class="main-wrapper">
     <div class="orders-panel">
+        <h2 class="orders-header" style="margin-top: -4px">
+            <span class="orders-text" style="font-weight: bold; color:7F7F7F">Orders Count</span>
+            <span class="orders-count-wrapper"><span id="orders-count">0</span></span>
+        </h2>
         <div class="order-search-wrapper" style="margin-bottom: 10px">
             <input type="text" id="order-search" placeholder="Найти заказ..."/>
         </div>
 
-        <div class="orders-header" style="margin-top: -4px">
-            <span class="orders-text" style="font-weight: bold; color:7F7F7F">Orders Count</span>
-            <span class="orders-count-wrapper"><span id="orders-count">0</span></span>
-        </div>
         <div id="orders-list" class="orders-list" style="margin-top: 10px"></div>
         <button class="add-order-btn" data-bs-toggle="modal" data-bs-target="#addOrderModal">➕</button>
     </div>
@@ -151,7 +151,9 @@
                            class="invite-link"/>
                     <button class="invite-btn">Пригласить</button>
                 </div>
-
+                {% if not courier_not_ready and not courier_ready %}
+                <div class="courier-empty-text">похоже здесь пусто..</div>
+                {% else %}
                 {% if courier_not_ready %}
                     {% for i in courier_not_ready %}
                     <div class="table-row">
@@ -185,6 +187,7 @@
                     <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
                     {% endif %}
                     {% endfor %}
+                {% endif %}
                 {% endif %}
             </div>
         </div>
