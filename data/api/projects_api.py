@@ -20,14 +20,16 @@ class ProjectsResource(Resource):
     def get(self, project_id):
         if current_user.is_authenticated:
             abort_if_project_not_found(project_id)
-            session = create_session()
-            project = session.get(Project, project_id)
-            session.close()
-            if project.admin_id != current_user.id:
-                abort(403, message=f"This is not your project")
-            return jsonify(
-                {'project': project.to_dict(
-                    only=('id', 'name', 'icon', 'couriers'))})
+            try:
+                session = create_session()
+                project = session.get(Project, project_id)
+                if project.admin_id != current_user.id:
+                    abort(403, message=f"This is not your project")
+                return jsonify(
+                    {'project': project.to_dict(
+                        only=('id', 'name', 'icon'))})
+            finally:
+                session.close()
         abort(401, message=f"You're not logged in")
 
     def delete(self, project_id):
@@ -35,13 +37,12 @@ class ProjectsResource(Resource):
             abort_if_project_not_found(project_id)
             session = create_session()
             project = session.get(Project, project_id)
-            if not project:
-                abort(403, message=f"This project isn't exists")
             if project.admin_id != current_user.id:
                 abort(403, message=f"This is not your project")
             session.delete(project)
 
-            for i in session.query(Order).filter(Order.project_id == project_id).all(): # удаление заказов, привязанных к проекту
+            for i in session.query(Order).filter(
+                    Order.project_id == project_id).all():  # удаление заказов, привязанных к проекту
                 session.delete(i)
             session.commit()
             session.close()
@@ -55,6 +56,8 @@ class ProjectsResource(Resource):
                 args = put_project_parser.parse_args()
                 session = create_session()
                 project = session.get(Project, project_id)
+                if project.admin_id != current_user.id:
+                    abort(403, message=f"This is not your project")
                 if 'name' in args:
                     project.name = args.name
                 if 'icon' in args:
@@ -79,19 +82,21 @@ class ProjectsListResource(Resource):
 
     def post(self):
         if current_user.is_authenticated:
-            try:
-                args = project_parser.parse_args()
-                session = create_session()
-                project = Project(name=args['name'], admin_id=current_user.id)
-                if 'icon' in args:
-                    project.icon = args['icon']
-                if 'invite_link' in args:
-                    project.invite_link = args['invite_link']
-                session.add(project)
-                session.commit()
-                return jsonify({'success': 'created!', 'id': project.id, 'icon': project.icon})
-            finally:
-                session.close()
+            if current_user.status == 'admin':
+                try:
+                    args = project_parser.parse_args()
+                    session = create_session()
+                    project = Project(name=args['name'], admin_id=current_user.id)
+                    if 'icon' in args:
+                        project.icon = args['icon']
+                    if 'invite_link' in args:
+                        project.invite_link = args['invite_link']
+                    session.add(project)
+                    session.commit()
+                    return jsonify({'success': 'created!', 'id': project.id, 'icon': project.icon})
+                finally:
+                    session.close()
+            abort(403, message=f"You're not admin")
         abort(401, message=f"You're not logged in")
 
 

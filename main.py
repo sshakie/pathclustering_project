@@ -6,7 +6,6 @@ from data.api.users_api import UsersResource, UsersListResource
 from data.sql.models.courier_relations import CourierRelations
 from data.blanks.orderform import OrderForm, OrderImportForm
 from data.sql.db_session import create_session, global_init
-from data.sql.models.user_relations import UserRelations
 from data.blanks.registerform import RegisterForm
 from data.xls.serialize import unpack_orders_xls
 from data.sql.models.project import Project
@@ -98,9 +97,7 @@ def show_project(project_id):
             courier_data[str(courier.id)]['is_ready'] = session.query(CourierRelations).filter(
                 CourierRelations.courier_id == courier.id).first().is_ready
 
-        print(courier_data)
         a = [courier_data[i] for i in courier_data]
-        print(a)
 
         add_order_form = OrderForm()
         import_order_form = OrderImportForm()
@@ -108,7 +105,6 @@ def show_project(project_id):
             form_name = request.form.get('form_name')
             if form_name == 'add_order':
                 if add_order_form.validate_on_submit():
-                    print(1)
                     data = {'phone': add_order_form.phone.data,
                             'name': add_order_form.name.data,
                             'address': add_order_form.address.data,
@@ -182,7 +178,6 @@ def invite_register(invite_link):
                                                                          'telegram_tag': form.telegram_tag.data,
                                                                          'password': form.password.data,
                                                                          'project_id': project.id})
-        print(user_id)
         login_user(session.get(User, user_id['user_id']), remember=form.remember_me.data)
         session.close()
         return redirect('/')
