@@ -270,3 +270,46 @@ if (orderSearch) {
   });
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('.clstr-courier');
+        if (!btn) return;
+
+        e.preventDefault();
+
+        const id = btn.dataset.id;
+        const action = btn.dataset.action;
+
+        try {
+            if (action === 'kick') {
+                const res = await fetch(`/api/users/${id}`, {
+                    method: 'DELETE'
+                });
+                if (res.ok) {
+                    location.reload();
+                } else {
+                    const error = await res.json();
+                    alert(error.message || 'Ошибка при удалении');
+                }
+            } else {
+                const is_ready = action === 'add';
+                const res = await fetch(`/api/users/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ is_ready })
+                });
+
+                if (res.ok) {
+                    location.reload();
+                } else {
+                    const error = await res.json();
+                    alert(error.message || 'Ошибка при обновлении');
+                }
+            }
+        } catch (err) {
+            alert('Ошибка сети');
+        }
+    });
+});

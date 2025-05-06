@@ -152,35 +152,40 @@
                     <button class="invite-btn">Пригласить</button>
                 </div>
 
-                {% for i in courier_not_ready %}
-                <div class="table-row">
-                    <div class="courier-name">{{i.name}}</div>
-                    <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
-                    <div class="clstr-courier remove">-</div>
-                    <div class="clstr-courier kick">⨉</div>
-                </div>
-                {% if not loop.last %}
-                <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
+                {% if courier_not_ready %}
+                    {% for i in courier_not_ready %}
+                    <div class="table-row">
+                        <div></div>
+                        <div class="courier-name" style="margin-left: -25px">{{i.name}}</div>
+                        <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
+                        <div class="clstr-courier add" data-id="{{i.id}}" data-action="add">+</div>
+                        <div class="clstr-courier kick" data-id="{{i.id}}" data-action="kick">⨉</div>
+                    </div>
+                    {% if not loop.last %}
+                    <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
+                    {% endif %}
+                    {% endfor %}
                 {% endif %}
-                {% endfor %}
 
-                <div style="text-align: center;font-size:26px;margin-top:25px">
-                    <span style="color:#B0B0B0">──────────</span>
-                    <span style="color: #000000">Участники</span>
-                    <span style="color:#B0B0B0">──────────</span>
-                </div>
-                {% for i in courier_ready %}
-                <div class="table-row">
-                    <div class="courier-number" style="color: {{i.color}}">{{loop.index}}</div>
-                    <div class="courier-name" style="color: {{i.color}}; filter: brightness(1.5)">{{i.name}}</div>
-                    <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
-                    <div class="clstr-courier add">+</div>
-                    <div class="clstr-courier kick">⨉</div>
-                </div>
-                {% if not loop.last %}
-                <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
+                {% if courier_ready %}
+                    <div style="text-align: center;font-size:26px;margin-top:25px">
+                        <span style="color:#B0B0B0">──────────</span>
+                        <span style="color: #000000">Участники</span>
+                        <span style="color:#B0B0B0">──────────</span>
+                    </div>
+                    {% for i in courier_ready %}
+                    <div class="table-row">
+                        <div class="courier-number" style="color: {{i.color}}">{{loop.index}}</div>
+                        <div class="courier-name" style="color: {{i.color}}; filter: brightness(1.5)">{{i.name}}</div>
+                        <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
+                        <div class="clstr-courier remove" data-id="{{i.id}}" data-action="remove">-</div>
+                        <div class="clstr-courier kick" data-id="{{i.id}}" data-action="kick">⨉</div>
+                    </div>
+                    {% if not loop.last %}
+                    <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
+                    {% endif %}
+                    {% endfor %}
                 {% endif %}
-                {% endfor %}
             </div>
         </div>
 

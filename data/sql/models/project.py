@@ -8,7 +8,7 @@ class Project(SqlAlchemyBase, SerializerMixin):
 
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     name = sqlalchemy.Column(sqlalchemy.String)
-    icon = sqlalchemy.Column(sqlalchemy.Integer)
+    icon = sqlalchemy.Column(sqlalchemy.Integer, default=random.randint(1, 4))
     admin_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
 
     couriers = sqlalchemy.orm.relationship('User', secondary='courier_relations', backref='projects')

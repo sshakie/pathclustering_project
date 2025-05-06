@@ -7,6 +7,7 @@ class Order(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'orders'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
     project_id = sqlalchemy.Column(sqlalchemy.Integer)
+
     phone = sqlalchemy.Column(sqlalchemy.String, index=True)
     name = sqlalchemy.Column(sqlalchemy.String)
     address = sqlalchemy.Column(sqlalchemy.String)

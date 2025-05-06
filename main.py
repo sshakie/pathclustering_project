@@ -37,7 +37,6 @@ if not session.query(User).filter(User.name == 'admin').first():
     user.name = 'admin'
     user.email = 'admin@admin.py'
     user.set_password('admin')
-    user.status = 'admin'
     session.add(user)
     session.commit()
 session.close()
@@ -175,18 +174,13 @@ def invite_register(invite_link):
             session.close()
             return render_template('register.html', message='Данная почта уже зарегистрирована, попробуйте войти.',
                                    form=form, admin_name=admin.name)
-
-        user = User()
-        user.name = form.name.data
-        user.email = form.email.data
-        user.telegram_tag = form.telegram_tag.data
-        user.set_password(form.password.data)
-        session.add(user)
-        project.couriers.append(user)
-        session.commit()
-        session.add(UserRelations(admin_id=admin.id, courier_id=user.id))
-        session.commit()
-        login_user(user, remember=form.remember_me.data)
+        user_id = requests.post('http://127.0.0.1:5000/api/users', json={'name': form.name.data,
+                                                                         'email': form.email.data,
+                                                                         'telegram_tag': form.telegram_tag.data,
+                                                                         'password': form.password.data,
+                                                                         'project_id': project.id})
+        print(user_id)
+        login_user(session.get(User, user_id['user_id']), remember=form.remember_me.data)
         session.close()
         return redirect('/')
     session.close()
@@ -224,6 +218,31 @@ def register():
 def logout():
     logout_user()
     return redirect('/login')
+
+
+@app.route('/test')
+def test():
+    # ТЕСТ ПРОЕКТ - КУРЬЕРЫ
+    print(requests.post('http://127.0.0.1:5000/api/projects',
+                        json={'name': 'test', 'admin_id': 1}, cookies=request.cookies).json())
+    print(requests.post('http://127.0.0.1:5000/api/users',
+                        json={'name': 'Samantha Wood', 'email': 'samantha_wood@mail.ru', 'password': '123',
+                              'telegram_tag': '@dropmeapart03', 'project_id': 1}).json())
+    print(requests.post('http://127.0.0.1:5000/api/users',
+                        json={'name': 'Roger Di', 'email': 'roger_di@mail.ru', 'project_id': 1,
+                              'password': '123'}).json())
+    print(requests.post('http://127.0.0.1:5000/api/users',
+                        json={'name': 'Dave Carlson', 'email': 'dave_carlson@mail.ru', 'password': '123',
+                              'telegram_tag': '@captain1928', 'project_id': 1}).json())
+    print(requests.post('http://127.0.0.1:5000/api/orders',
+                        json={'name': 'Jone', 'phone': '+79009897520', 'address': 'Lipetsk, ul. Moskovskaya, 92',
+                              'project_id': 1, 'price': 1512, 'who_delivers': 2}, cookies=request.cookies).json())
+    session = create_session()
+    session.query(CourierRelations).filter(CourierRelations.courier_id == 3).first().is_ready = True
+    session.query(CourierRelations).filter(CourierRelations.courier_id == 4).first().is_ready = True
+    session.commit()
+    session.close()
+    return ''''''
 
 
 if __name__ == '__main__':
