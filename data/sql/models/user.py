@@ -15,7 +15,7 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
 
     telegram_tag = sqlalchemy.Column(sqlalchemy.String)
     color = sqlalchemy.Column(sqlalchemy.String, default=random.choice(
-        ['#FF6A00', '#AA00FF', '#D45564', '#EFAD32', '#42EDAB', '#BE8737', '#7F7F7F', '#BFEE64']))
+        ['#FF6A00', '#AA00FF', '#D45564', '#EFAD32', '#42EDAB', '#BE8737', '#7F7F7F', '#698239']))
     status = sqlalchemy.Column(sqlalchemy.String, default='delivery')
 
     def set_password(self, password):
