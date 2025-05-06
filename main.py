@@ -37,6 +37,7 @@ if not session.query(User).filter(User.name == 'admin').first():
     user.name = 'admin'
     user.email = 'admin@admin.py'
     user.set_password('admin')
+    user.status = 'admin'
     session.add(user)
     session.commit()
 session.close()

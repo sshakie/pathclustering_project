@@ -1,6 +1,7 @@
 from flask_restful import abort, Resource, reqparse
 from data.sql.db_session import create_session
 from data.sql.__all_models import Project
+from data.sql.__all_models import Order
 from flask_login import current_user
 from flask import jsonify
 
@@ -34,9 +35,14 @@ class ProjectsResource(Resource):
             abort_if_project_not_found(project_id)
             session = create_session()
             project = session.get(Project, project_id)
+            if not project:
+                abort(403, message=f"This project isn't exists")
             if project.admin_id != current_user.id:
                 abort(403, message=f"This is not your project")
             session.delete(project)
+
+            for i in session.query(Order).filter(Order.project_id == project_id).all(): # удаление заказов, привязанных к проекту
+                session.delete(i)
             session.commit()
             session.close()
             return jsonify({'success': 'deleted!'})
@@ -80,7 +86,7 @@ class ProjectsListResource(Resource):
                 if 'icon' in args:
                     project.icon = args['icon']
                 if 'invite_link' in args:
-                    project.icon = args['invite_link']
+                    project.invite_link = args['invite_link']
                 session.add(project)
                 session.commit()
                 return jsonify({'success': 'created!', 'id': project.id, 'icon': project.icon})
