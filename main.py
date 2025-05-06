@@ -250,6 +250,9 @@ def test():
     session = create_session()
     session.query(CourierRelations).filter(CourierRelations.courier_id == 3).first().is_ready = True
     session.query(CourierRelations).filter(CourierRelations.courier_id == 4).first().is_ready = True
+    session.query(User).filter(User.id == 2).first().color = '#7F7F7F'
+    session.query(User).filter(User.id == 3).first().color = '#AA00FF'
+    session.query(User).filter(User.id == 4).first().color = '#FF6A00'
     session.commit()
     session.close()
     return ''''''
