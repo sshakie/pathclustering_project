@@ -10,4 +10,3 @@ class CourierRelations(SqlAlchemyBase, SerializerMixin):
                                    primary_key=True)
     project_id = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('projects.id', ondelete='CASCADE'),
                                    primary_key=True)
-    is_ready = sqlalchemy.Column(sqlalchemy.Boolean, default=False)

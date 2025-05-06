@@ -148,8 +148,8 @@
             <div class="couriers-page">
                 <div class="invite-row">
                     <input type="text" readonly value="https://pathclustering.gg/register/{{invite_link}}"
-                           class="invite-link"/>
-                    <button class="invite-btn">Пригласить</button>
+                           class="invite-link" id="inviteLinkInput"/>
+                    <button class="invite-btn" onclick="copyInviteLink()">Пригласить</button>
                 </div>
                 {% if not courier_not_ready and not courier_ready %}
                 <div class="courier-empty-text">похоже здесь пусто..</div>
@@ -184,7 +184,7 @@
                         <div class="clstr-courier kick" data-id="{{i.id}}" data-action="kick">⨉</div>
                     </div>
                     {% if not loop.last %}
-                    <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
+                    <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0">
                     {% endif %}
                     {% endfor %}
                 {% endif %}
@@ -194,10 +194,8 @@
 
         <div align="center" style="min-height: 40">
             <button class="export-btn" data-bs-toggle="modal" data-bs-target="#ExportModal" id="exportbtn"
-                    style="width: 100px; font-weight: bold">экспорт
-            </button>
-            <button class="clustering-btn" id="clusteringbtn" style="width: 150px; font-weight: bold">распределить
-            </button>
+                    style="width: 100px; font-weight: bold">экспорт</button>
+            <button class="clustering-btn" id="clusteringbtn" style="width: 150px; font-weight: bold">распределить</button>
         </div>
     </div>
 

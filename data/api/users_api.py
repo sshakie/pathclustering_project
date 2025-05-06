@@ -12,14 +12,14 @@ user_parser.add_argument('name', required=True, type=str)
 user_parser.add_argument('email', required=True, type=str)
 user_parser.add_argument('password', required=True, type=str)
 user_parser.add_argument('telegram_tag', type=str)
-user_parser.add_argument('project_id', type=str)
+user_parser.add_argument('project_id')
+user_parser.add_argument('admin_id')
 
 put_user_parser = reqparse.RequestParser()
 put_user_parser.add_argument('name', type=str)
 put_user_parser.add_argument('email', type=str)
 put_user_parser.add_argument('password', type=str)
 put_user_parser.add_argument('telegram_tag', type=str)
-put_user_parser.add_argument('is_ready', type=bool)
 
 
 class UsersResource(Resource):
@@ -47,6 +47,7 @@ class UsersResource(Resource):
                 if relation.admin_id != current_user.id:
                     abort(403, message=f"This is not your worker")
                 session.delete(session.query(User).get(user_id))
+                session.delete(session.query(UserRelations).filter(UserRelations.courier_id == user_id).first())
                 session.commit()
                 session.close()
                 return jsonify({'success': 'deleted!'})
@@ -74,9 +75,6 @@ class UsersResource(Resource):
                     user.email = args.email
                 if args['password']:
                     user.set_password(args['password'])
-                if 'is_ready' in args:
-                    prj = session.query(CourierRelations).filter(CourierRelations.courier_id == user_id).first()
-                    prj.is_ready = args['is_ready']
                 session.commit()
                 session.close()
                 return jsonify({'success': 'edited!'})
@@ -101,12 +99,27 @@ class UsersListResource(Resource):
             args = user_parser.parse_args()
             session = create_session()
             if args['project_id']:  # проверка существует ли проект
-                project = session.get(Project, args['project_id'])
+                if args['project_id'].isdigit():
+                    project = [session.get(Project, int(args['project_id']))]
+                elif type(args['project_id']) == list:
+                    try:
+                        project = [session.get(Project, i) for i in args['project_id']]
+                    except Exception:
+                        abort(400, message=f"Invalid data type in project_id.list")
+                else:
+                    abort(400, message=f"Invalid project_id data type")
                 if not project:
                     abort(404, message=f"This project isn't exists")
+                admin_ids = set([i.admin_id for i in project])
+                if len(admin_ids) != 1:
+                    abort(400, message=f"Projects can only have the same admin")
 
             if '@' not in args['email'] or '.' not in args['email']:  # проверка правильная ли почта
                 abort(400, message=f"Email isn't correct")
+
+            if args['admin_id'] and args['project_id']:
+                if admin_ids[0] != args['admin_id']:
+                    abort(400, message=f"Admin_id and admin_id in project(s) aren't the same")
 
             user = User(name=args['name'], email=args['email'])
             if args['telegram_tag']:
@@ -114,15 +127,19 @@ class UsersListResource(Resource):
                     user.telegram_tag = f'@{args['telegram_tag']}'
                 else:
                     user.telegram_tag = args['telegram_tag']
-            if not args['project_id']:  # проверка принадлежности пользователя, иначе - админ
+            if not args['project_id'] and not args['admin_id']:  # проверка принадлежности пользователя, иначе - админ
                 user.status = 'admin'
             user.set_password(args['password'])
             session.add(user)
             session.commit()
             user_id = user.id
             if args['project_id']:  # добавление в отношения
-                project.couriers.append(user)
-                session.add(UserRelations(admin_id=project.admin_id, courier_id=user_id))
+                for i in project:
+                    i.couriers.append(user)
+                if not args['admin_id']:
+                    session.add(UserRelations(admin_id=project[0].admin_id, courier_id=user_id))
+            if args['admin_id']:
+                session.add(UserRelations(admin_id=args['admin_id'], courier_id=user_id))
             session.commit()
             session.close()
             return jsonify({'success': 'created!', 'user_id': user_id})
