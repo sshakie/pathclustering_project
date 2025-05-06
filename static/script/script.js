@@ -60,57 +60,71 @@ function init() {
     setActiveCourier('all');
   });
 
-  // Заказы без курьера
-  if (courierOrders['no_courier']) {
-    courierOrders['no_courier'].forEach(order => {
-      const item = document.createElement('div');
-      item.className = 'order-item unassigned';
-      item.dataset.id = order.id;
-      const orderNumber = order.analytics_id ? order.analytics_id : order.id;
-      item.dataset.courier = 'no_courier';
-      item.innerHTML = `
-        <div class="order-header">
-          <div style="font-weight: bold;">№ ${orderNumber}</div>
-          <div>${order.address}</div>
-        </div>
-        <div class="order-details hidden">
-          <div><b>Имя:</b> ${order.name || '—'}</div>
-          <div><b>Телефон:</b> ${order.phone || '—'}</div>
-          <div><b>Координаты:</b> [${order.coords.join(', ')}]</div>
-        </div>
-        <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price} руб.</div>
-      `;
+    function handleOrderClick(item, order, mark) {
+  // Закрываем все открытые details
+  document.querySelectorAll('.order-details:not(.hidden)').forEach(openDetails => {
+    if (openDetails !== item.querySelector('.order-details')) {
+      openDetails.classList.add('hidden');
+    }
+  });
 
-      item.addEventListener('click', () => {
-        const details = item.querySelector('.order-details');
-        details.classList.toggle('hidden');
-      });
+  // Переключаем текущий элемент
+  const details = item.querySelector('.order-details');
+  details.classList.toggle('hidden');
 
-      ordersList.prepend(item);
+  // Центрируем карту и открываем балун
+  map.setCenter(order.coords);
+  mark.balloon.open();
+  highlightOrder(order.id);
+}
 
-      const mark = new ymaps.Placemark(order.coords, {
-          balloonContent: order.address,
-          hintContent: 'Не назначен'
-        }, {
-          preset: 'islands#circleIcon',
+// Заказы без курьера
+if (courierOrders['no_courier']) {
+  courierOrders['no_courier'].forEach(order => {
+    const item = document.createElement('div');
+    item.className = 'order-item unassigned';
+    item.dataset.id = order.id;
+    const orderNumber = order.analytics_id ? order.analytics_id : order.id;
+    item.dataset.courier = 'no_courier';
+    item.innerHTML = `
+      <div class="order-header">
+        <div style="font-weight: bold;">№ ${orderNumber}</div>
+        <div>${order.address}</div>
+      </div>
+      <div class="order-details hidden">
+        <div><b>Имя:</b> ${order.name || '—'}</div>
+        <div><b>Телефон:</b> ${order.phone || '—'}</div>
+        <div><b>Координаты:</b> [${order.coords.join(', ')}]</div>
+      </div>
+      <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price} руб.</div>
+    `;
 
-          iconColor: '#808080',
-          balloonAutoPan: false,
-          hideIconOnBalloonOpen: false
-        });
-
-       mark.properties.set('courierId', 'no_courier');
-      map.geoObjects.add(mark);
-      allPlacemarks.push({ mark });
-
-      mark.events.add('click', () => highlightOrder(order.id));
-      item.addEventListener('click', () => {
-        map.setCenter(order.coords);
-        mark.balloon.open();
-        highlightOrder(order.id);
-      });
+    const mark = new ymaps.Placemark(order.coords, {
+      balloonContent: order.address,
+      hintContent: 'Не назначен'
+    }, {
+      preset: 'islands#circleIcon',
+      iconColor: '#808080',
+      balloonAutoPan: false,
+      hideIconOnBalloonOpen: false
     });
-  }
+
+    mark.properties.set('courierId', 'no_courier');
+    map.geoObjects.add(mark);
+    allPlacemarks.push({ mark });
+
+    item.addEventListener('click', (e) => {
+      e.stopPropagation(); // Предотвращаем всплытие
+      handleOrderClick(item, order, mark);
+    });
+
+    mark.events.add('click', () => {
+      handleOrderClick(item, order, mark);
+    });
+
+    ordersList.prepend(item);
+  });
+}
 
   // Заказы с курьерами
   for (const [courierId, orders] of Object.entries(courierOrders)) {
@@ -134,31 +148,40 @@ function init() {
     courierPlacemarks[courierId] = [];
 
     orders.forEach(order => {
-      const item = document.createElement('div');
-      item.className = 'order-item';
-      item.dataset.id = order.id;
-      item.dataset.courier = courierId;
-      const orderNumber = order.analytics_id ? order.analytics_id : order.id;
+  const item = document.createElement('div');
+  item.className = 'order-item';
+  item.dataset.id = order.id;
+  item.dataset.courier = courierId;
+  const orderNumber = order.analytics_id ? order.analytics_id : order.id;
 
-      item.innerHTML = `
-        <div class="order-header">
-          <div style="font-weight: bold;">№ ${orderNumber}</div>
-          <div>${order.address}</div>
-        </div>
-        <div class="order-details hidden">
-          <div><b>Имя:</b> ${order.name || '—'}</div>
-          <div><b>Телефон:</b> ${order.phone || '—'}</div>
-          <div><b>Координаты:</b> [${order.coords.join(', ')}]</div>
-        </div>
-        <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price} руб.</div>
-      `;
+  item.innerHTML = `
+    <div class="order-header">
+      <div style="font-weight: bold;">№ ${orderNumber}</div>
+      <div>${order.address}</div>
+    </div>
+    <div class="order-details hidden">
+      <div><b>Имя:</b> ${order.name || '—'}</div>
+      <div><b>Телефон:</b> ${order.phone || '—'}</div>
+      <div><b>Координаты:</b> [${order.coords.join(', ')}]</div>
+    </div>
+    <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price} руб.</div>
+  `;
 
-      item.addEventListener('click', () => {
-        const details = item.querySelector('.order-details');
-        details.classList.toggle('hidden');
-      });
+  item.addEventListener('click', () => {
+    // Закрываем все открытые details
+    document.querySelectorAll('.order-details:not(.hidden)').forEach(openDetails => {
+      if (openDetails !== item.querySelector('.order-details')) {
+        openDetails.classList.add('hidden');
+      }
+    });
 
-      ordersList.appendChild(item);
+    // Переключаем текущий элемент
+    const details = item.querySelector('.order-details');
+    details.classList.toggle('hidden');
+  });
+
+  // Добавляем элемент в список
+  document.getElementById('orders-list').appendChild(item);
 
       const mark = new ymaps.Placemark(order.coords, {
         balloonContent: order.address,
@@ -271,45 +294,122 @@ if (orderSearch) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+    if (window.location.hash === '#couriers') {
+        switchToCouriersTab();
+        history.replaceState(null, null, ' ');
+    }
+
     document.addEventListener('click', async (e) => {
         const btn = e.target.closest('.clstr-courier');
         if (!btn) return;
 
         e.preventDefault();
 
-        const id = btn.dataset.id;
+        const courierId = btn.dataset.id;
         const action = btn.dataset.action;
+        const projectId = window.location.pathname.split('/')[2];
 
         try {
+            window.location.hash = 'couriers';
+
             if (action === 'kick') {
-                const res = await fetch(`/api/users/${id}`, {
-                    method: 'DELETE'
-                });
-                if (res.ok) {
-                    location.reload();
-                } else {
-                    const error = await res.json();
-                    alert(error.message || 'Ошибка при удалении');
-                }
-            } else {
-                const is_ready = action === 'add';
-                const res = await fetch(`/api/users/${id}`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ is_ready })
+                if (!confirm("Вы уверены, что хотите удалить этого курьера?")) return;
+
+                const res = await fetch(`/api/users/${courierId}`, {
+                    method: 'DELETE',
+                    credentials: 'include'
                 });
 
                 if (res.ok) {
-                    location.reload();
-                } else {
-                    const error = await res.json();
-                    alert(error.message || 'Ошибка при обновлении');
+                    window.location.reload(true);
+                    return;
                 }
+                const error = await res.json();
+                alert(error.message || 'Ошибка при удалении');
+
+            } else if (action === 'add' || action === 'remove') {
+                const method = action === 'add' ? 'POST' : 'DELETE';
+                const res = await fetch('/api/courier_relations', {
+                    method,
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCSRFToken()
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify({
+                        project_id: parseInt(projectId),
+                        courier_id: parseInt(courierId)
+                    })
+                });
+
+                if (res.ok) {
+                    window.location.reload(true);
+                    return;
+                }
+                const error = await res.json();
+                alert(error.message || `Ошибка при ${action === 'add' ? 'добавлении' : 'удалении'}`);
             }
+
         } catch (err) {
-            alert('Ошибка сети');
+            console.error('Ошибка:', err);
+            alert('Ошибка сети: ' + err.message);
         }
     });
+
+    function switchToCouriersTab() {
+        document.getElementById('tab-map').classList.remove('active');
+        document.getElementById('tab-couriers').classList.add('active');
+        document.getElementById('map-wrapper').classList.add('hidden');
+        document.getElementById('address-search-wrapper').classList.add('hidden');
+        exportbtn.classList.add("hidden");
+        clusteringbtn.classList.add("hidden");
+        document.getElementById('couriers').classList.remove('hidden');
+
+    }
+
+    function getCSRFToken() {
+        const meta = document.querySelector('meta[name="csrf-token"]');
+        return meta ? meta.content : '';
+    }
 });
+
+function copyInviteLink() {
+    const input = document.getElementById('inviteLinkInput');
+    const btn = document.querySelector('.invite-btn');
+
+    input.select();
+    input.setSelectionRange(0, 99999); // Для мобильных устройств
+
+    document.execCommand('copy');
+
+    btn.classList.add('copied');
+    setTimeout(() => {
+    btn.classList.remove('copied');
+    }, 500);
+}
+
+clusteringbtn.addEventListener("click", async () => {
+  const currentPath = window.location.pathname;
+
+  try {
+    const response = await fetch(currentPath, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ start_clustering: true })
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      alert("Кластеризация запущена.");
+    } else {
+      const error = await response.json();
+      alert(error.message || "Ошибка на сервере.");
+    }
+  } catch (error) {
+    alert("Сетевая ошибка.");
+    console.error(error);
+  }
+});
+

@@ -35,18 +35,6 @@ data.forEach((project, index) => {
     panel.appendChild(close);
     container.appendChild(panel);
 
-    container.addEventListener('click', (e) => {
-    const panel = e.target.closest('.panel');
-    if (!panel) return;
-
-    if (e.target.classList.contains('close-btn')) return;
-
-    const projectId = panel.dataset.projectId;
-    if (projectId) {
-        window.location.href = `/projects/${projectId}`;
-    }
-});
-
     close.onclick = (e) => {
         e.stopPropagation();
         fetch(`/api/projects/${project.id}`, {
@@ -60,6 +48,18 @@ data.forEach((project, index) => {
     };
 });
 
+container.addEventListener('click', (e) => {
+    const panel = e.target.closest('.panel');
+    if (!panel) return;
+
+    if (e.target.classList.contains('close-btn')) return;
+
+    const projectId = panel.dataset.projectId;
+    if (projectId) {
+        window.location.href = `/projects/${projectId}`;
+    }
+});
+
 function updateProjectIndices() {
     const container = document.getElementById('projects');
     const panels = container.querySelectorAll('.panel');
@@ -71,9 +71,20 @@ function updateProjectIndices() {
     });
 }
 
+function isProjectNameExists(name) {
+    const projects = document.querySelectorAll('.panel:not(.temp-panel)');
+    for (const project of projects) {
+        const projectName = project.querySelector('span:not(.panel-number):not(.close-btn)');
+        if (projectName && projectName.textContent.toLowerCase() === name.toLowerCase()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 document.getElementById('add-project-btn').addEventListener('click', () => {
     const tempPanel = document.createElement('div');
-    tempPanel.className = 'panel';
+    tempPanel.className = 'panel temp-panel';
 
     const iconNumber = Math.floor(Math.random() * 4) + 1;
     const iconWrapper = document.createElement('div');
@@ -99,6 +110,7 @@ document.getElementById('add-project-btn').addEventListener('click', () => {
     const projectIndex = document.createElement('span');
     projectIndex.className = 'panel-number';
     projectIndex.textContent = container.children.length + 1;
+    projectIndex.style.marginLeft = '-20px';
 
     const close = document.createElement('span');
     close.innerHTML = '&times;';
@@ -119,6 +131,16 @@ document.getElementById('add-project-btn').addEventListener('click', () => {
         if (e.key === 'Enter') {
             const name = input.value.trim();
             if (!name) return;
+
+            if (isProjectNameExists(name)) {
+            input.classList.add('flash-duplicate');
+
+            setTimeout(() => {
+                input.classList.remove('flash-duplicate');
+            }, 800);
+
+            return;
+        }
 
             try {
                 const response = await fetch('/api/projects', {
@@ -142,6 +164,7 @@ document.getElementById('add-project-btn').addEventListener('click', () => {
 
                 const panel = document.createElement('div');
                 panel.className = 'panel';
+                panel.dataset.projectId = data.id;
 
                 const iconWrapper = document.createElement('div');
                 iconWrapper.className = 'icon-wrapper';
