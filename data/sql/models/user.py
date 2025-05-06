@@ -2,8 +2,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy_serializer import SerializerMixin
 from data.sql.db_session import SqlAlchemyBase
 from flask_login import UserMixin
-from sqlalchemy import orm
-import sqlalchemy
+import sqlalchemy, random
 
 
 class User(SqlAlchemyBase, UserMixin, SerializerMixin):
@@ -15,7 +14,8 @@ class User(SqlAlchemyBase, UserMixin, SerializerMixin):
     hashed_password = sqlalchemy.Column(sqlalchemy.String)
 
     telegram_tag = sqlalchemy.Column(sqlalchemy.String)
-    order = orm.relationship('Order', back_populates='delivery_man', lazy='joined')
+    color = sqlalchemy.Column(sqlalchemy.String, default=random.choice(
+        ['#FF6A00', '#AA00FF', '#D45564', '#EFAD32', '#42EDAB', '#BE8737', '#7F7F7F', '#698239']))
     status = sqlalchemy.Column(sqlalchemy.String, default='delivery')
 
     def set_password(self, password):

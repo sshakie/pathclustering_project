@@ -1,0 +1,62 @@
+h2 {
+    color: #4B96AF;
+    margin-top: 206px;
+    font-weight: bold;
+    font-size: 36px
+}
+
+.add-project-btn {
+    border: None;
+    outline: None
+}
+
+.panel {
+    margin: 10px auto;
+    width: 360px;
+    border: 2px solid #D8D8D8;
+    border-radius: 5px;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-height: 71px;
+    position: relative;
+    padding-right: 17px;
+    cursor: pointer;
+    transition: background 0.2s ease
+}
+
+.panel:hover {
+    background: #E2E2E2
+}
+
+.panel-number {
+  font-size: 32px;
+  font-weight: normal;
+  color: #FF6A00
+}
+
+.close-btn {
+    position: absolute;
+    top: 5px;
+    right: 10px;
+    font-size: 22px;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.2s ease;
+    margin-top: -10px;
+    margin-right: -4px
+}
+
+.close-btn:hover {
+    color: red;
+}
+
+.icon-wrapper {
+    width: 90px;
+    height: 67px;
+    display: flex;
+    align-items: center;
+    justify-content: center
+}

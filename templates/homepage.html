@@ -10,145 +10,204 @@
 
 <!--  НЕ УБИРАТЬ!!!! БЕЗ ЭТОГО НЕ БУДУТ ПОРТИРОВАТЬСЯ ДАННЫЕ ИЗ ШАБЛОНА В JS-->
 <script>
-  const courierData = {{ courier_data | tojson | safe }};
-  const courierOrders = {{ courier_orders | tojson | safe }};
+    const courierData = {{ courier_data | tojson | safe }};
+    const courierOrders = {{ courier_orders | tojson | safe }};
 </script>
 
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const input = document.getElementById('xls-input');
-    if (input) {
-      input.addEventListener('change', function() {
-        if (this.files.length > 0) {
-          // Находим ближайшую форму и отправляем
-          const form = this.closest('form');
-          if (form) {
-            form.submit();
+    document.addEventListener('DOMContentLoaded', function() {
+      const input = document.getElementById('xls-input');
+      if (input) {
+        input.addEventListener('change', function() {
+          if (this.files.length > 0) {
+            // Находим ближайшую форму и отправляем
+            const form = this.closest('form');
+            if (form) {
+              form.submit();
+            }
           }
-        }
-      });
-    }
-  });
+        });
+      }
+    });
 </script>
-
-
 
 
 <!--Модальное окно создания заказа-->
 <div class="modal fade" id="addOrderModal" tabindex="-1" aria-labelledby="addOrderModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="addOrderModalLabel">Добавить заказ</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть">✖</button>
-      </div>
-      <div class="modal-body">
-          <form action="" method="post">
-      {{ add_order_form.hidden_tag() }}
-              <input type="hidden" name="form_name" value="add_order">
-        <p>
-          {{  add_order_form.name.label }}<br>
-          {{ add_order_form.name(class="form-control") }}<br>
-        </p>
-        <p>
-          {{  add_order_form.address.label }}<br>
-          {{ add_order_form.address(class="form-control") }}<br>
-        </p>
-        <p>
-          {{  add_order_form.phone.label }}<br>
-          {{ add_order_form.phone(class="form-control") }}<br>
-        </p>
-        <p>
-          {{  add_order_form.price.label }}<br>
-          {{ add_order_form.price(class="form-control") }}<br>
-        </p>
-        <p>
-          {{  add_order_form.analytics_id.label }}<br>
-          {{ add_order_form.analytics_id(class="form-control") }}<br>
-        </p>
-          <p>
-            {{ add_order_form.submit(type="submit", class="btn btn-primary") }}
-            <div align="center" style="color: #FF5C51">{{ message }}</div>
-              <button class="btn btn-success" onclick="document.getElementById('xls-input').click()" type="button">
-              Импорт
-            </button>
-          </p>
-        </form>
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="margin-top: -36px">
+        <div class="modal-content">
+            <div class="modal-body">
+                <form action="" method="post">
+                    {{ add_order_form.hidden_tag() }}
+                    <div class="d-flex justify-content-end">
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть">✖</button>
+                    </div>
+                    <input type="hidden" name="form_name" value="add_order">
+                    <h2 align="center">Добавление заказа</h2>
+                    <p style="margin-top: 10px">
+                        {{ add_order_form.name.label }}<br>
+                        {{ add_order_form.name(class="form-control", style="margin-top: -10px") }}<br>
+                    </p>
+                    <p style="margin-top: -35px">
+                        {{ add_order_form.address.label }}<br>
+                        {{ add_order_form.address(class="form-control", style="margin-top: -10px") }}<br>
+                    </p>
+                    <p style="margin-top: -35px">
+                        {{ add_order_form.phone.label }}<br>
+                        {% if add_order_form.errors %}
+                        <script>
+                            document.addEventListener('DOMContentLoaded', function () {
+                              const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('addOrderModal'));
+                              modal.show();});
+                        </script>
+                        {% endif %}
+                        {{ add_order_form.phone(class="form-control is-invalid" if add_order_form.phone.errors else
+                        "form-control", style="margin-top: -10px") }}
+                        {% for error in add_order_form.phone.errors %}
+                    <div class="invalid-feedback" style="display:block">{{ error }}</div>
+                    {% endfor %}
+                    </p>
+                    <p style="margin-top: -10px">
+                        {{ add_order_form.price.label }}<br>
+                        {{ add_order_form.price(class="form-control", style="margin-top: -10px") }}<br>
+                    </p>
+                    <p style="margin-top: -35px">
+                        {{ add_order_form.analytics_id.label }}<br>
+                        {{ add_order_form.analytics_id(class="form-control", style="margin-top: -10px") }}<br>
+                    </p>
+                    <p style="margin-top: -20px; margin-left: 61px">
+                        {{ add_order_form.submit(type="submit", class="btn btn-primary", style="width: 211px") }}
+                        <button class="btn btn-success" onclick="document.getElementById('xls-input').click()"
+                                type="button" style="width: 93px; margin: -1px">Импорт
+                        </button>
+                    <div align="center" style="color: #FF5C51">{{ message }}</div>
+                    </p>
+                </form>
 
-        <!-- Скрытая форма для импорта -->
-        <form action="" enctype="multipart/form-data" id="import-form" method="post" style="display: none;">
-          {{ import_order_form.hidden_tag() }}
-          {{ import_order_form.xls_file(id="xls-input") }}
-            <input type="hidden" name="form_name" value="import_orders">
-          <button id="hidden-submit" type="submit"></button>
-        </form>
+                <!-- Скрытая форма для импорта -->
+                <form action="" enctype="multipart/form-data" id="import-form" method="post" style="display: none;">
+                    {{ import_order_form.hidden_tag() }} {{ import_order_form.xls_file(id="xls-input") }}
+                    <input type="hidden" name="form_name" value="import_orders">
+                    <button id="hidden-submit" type="submit"></button>
+                </form>
 
-      </div>
-      <div class="modal-footer">
-        <span>При пакетном импорте следуйте образцу</span> <!-- Надо прописать стиль тексту -->
-      </div>
+            </div>
+            <span style="font-weight: bold; text-align: center; margin-top: -20px; color: #B7B7B7; font-size: 16px">при пакетном импорте следуйте <a
+                    href="/static/xls/template.xlsx" style="position: relative; z-index: 1000;"">образцу</a></span>
+            <div class="modal-footer" style="border-top: none"></div>
+        </div>
     </div>
-  </div>
 </div>
 <!--Модальное окно экспорта-->
 <div class="modal fade" id="ExportModal" tabindex="-1" aria-labelledby="ExportModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="ExportModalLabel">Экспорт</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть">✖</button>
-      </div>
-      <div class="modal-body">
-      </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="ExportModalLabel">Экспорт</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть">✖</button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 
 
 <div class="main-wrapper">
     <div class="orders-panel">
-        <h2 class="orders-header">
-            <span class="orders-text">Orders Count</span>
+        <h2 class="orders-header" style="margin-top: -4px">
+            <span class="orders-text" style="font-weight: bold; color:7F7F7F">Orders Count</span>
             <span class="orders-count-wrapper"><span id="orders-count">0</span></span>
         </h2>
-        <div id="orders-list" class="orders-list"></div>
+        <div class="order-search-wrapper" style="margin-bottom: 10px">
+            <input type="text" id="order-search" placeholder="Найти заказ..."/>
+        </div>
+
+        <div id="orders-list" class="orders-list" style="margin-top: 10px"></div>
         <button class="add-order-btn" data-bs-toggle="modal" data-bs-target="#addOrderModal">➕</button>
     </div>
 
     <div class="map-block">
         <div class="top-controls">
-            <div class="address-search-wrapper" id="address-search-wrapper">
+            <div class="address-search-wrapper" id="address-search-wrapper" style="margin-top: -1px">
                 <input type="text" id="address-search" placeholder="Введите адрес..."/>
                 <button id="address-search-btn">🔍</button>
             </div>
-            <div class="tab-switch">
+            <div class="tab-switch" style="margin-top: -1px">
                 <div class="tab active" id="tab-map">карта</div>
                 <div class="tab" id="tab-couriers">курьеры</div>
             </div>
         </div>
 
-    <div class="map-wrapper" id="map-wrapper">
-      <div id="map" class="map"></div>
-    </div>
-    <div style="max-height: 5"><br></div>
-
+        <div class="map-wrapper" id="map-wrapper">
+            <div id="map" class="map"></div>
+        </div>
+        <div style="max-height: 5"><br></div>
         <div class="couriers hidden" id="couriers">
-        <a>Курьерыыыыыыыыыыы</a>
+            <hr style="border: none; border-bottom: 3px solid #D3D3D3; margin: 0 0 20px 0;">
+            <div class="couriers-page">
+                <div class="invite-row">
+                    <input type="text" readonly value="https://pathclustering.gg/register/{{invite_link}}"
+                           class="invite-link"/>
+                    <button class="invite-btn">Пригласить</button>
+                </div>
+                {% if not courier_not_ready and not courier_ready %}
+                <div class="courier-empty-text">похоже здесь пусто..</div>
+                {% else %}
+                {% if courier_not_ready %}
+                    {% for i in courier_not_ready %}
+                    <div class="table-row">
+                        <div></div>
+                        <div class="courier-name" style="margin-left: -25px">{{i.name}}</div>
+                        <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
+                        <div class="clstr-courier add" data-id="{{i.id}}" data-action="add">+</div>
+                        <div class="clstr-courier kick" data-id="{{i.id}}" data-action="kick">⨉</div>
+                    </div>
+                    {% if not loop.last %}
+                    <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
+                    {% endif %}
+                    {% endfor %}
+                {% endif %}
+
+                {% if courier_ready %}
+                    <div style="text-align: center;font-size:26px;margin-top:25px">
+                        <span style="color:#B0B0B0">──────────</span>
+                        <span style="color: #000000">Участники</span>
+                        <span style="color:#B0B0B0">──────────</span>
+                    </div>
+                    {% for i in courier_ready %}
+                    <div class="table-row">
+                        <div class="courier-number" style="color: {{i.color}}">{{loop.index}}</div>
+                        <div class="courier-name" style="color: {{i.color}}; filter: brightness(1.5)">{{i.name}}</div>
+                        <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
+                        <div class="clstr-courier remove" data-id="{{i.id}}" data-action="remove">-</div>
+                        <div class="clstr-courier kick" data-id="{{i.id}}" data-action="kick">⨉</div>
+                    </div>
+                    {% if not loop.last %}
+                    <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
+                    {% endif %}
+                    {% endfor %}
+                {% endif %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div align="center" style="min-height: 40">
+            <button class="export-btn" data-bs-toggle="modal" data-bs-target="#ExportModal" id="exportbtn"
+                    style="width: 100px; font-weight: bold">экспорт
+            </button>
+            <button class="clustering-btn" id="clusteringbtn" style="width: 150px; font-weight: bold">распределить
+            </button>
+        </div>
     </div>
 
-    <div align="center" style="min-height: 40">
-    <button class="export-btn" data-bs-toggle="modal" data-bs-target="#ExportModal" id="exportbtn">Экспорт</button> <!--Название класса-->
-    <button class="clustering-btn" id="clusteringbtn">Распределить</button>
-      </div>
-  </div>
-
-  <div class="courier-panel" id="courier-panel">
-    <div class="courier-filter-wrapper">
-      <input type="text" id="courier-search" placeholder="Найти курьера..." />
-      <div id="courier-filter-buttons" class="courier-filters-scroll">
-        <button class="courier-btn active" data-courier="all">Все</button>
-      </div>
+    <div class="courier-panel" id="courier-panel">
+        <div class="courier-filter-wrapper" style="margin-top: -6px">
+            <input type="text" id="courier-search" placeholder="Найти курьера..."/>
+            <div id="courier-filter-buttons" class="courier-filters-scroll" style="margin-top: -4px">
+                <button class="courier-btn active" data-courier="all">Все</button>
+            </div>
+        </div>
     </div>
-  </div>
 </div>
 {% endblock %}

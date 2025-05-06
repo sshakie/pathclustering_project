@@ -1,11 +1,10 @@
 body {
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
+    margin: 0
+    padding: 0;
+    overflow: hidden;
 }
 
 .main-wrapper {
-  margin-top: 50px;
   display: flex;
   height: calc(100vh - 50px);
 }
@@ -22,6 +21,15 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+#order-search {
+    padding: 8px;
+    border: 1px solid #ccc;
+    width: 100%;
+    margin-bottom: 15px;
+    font-size: 14px;
+    border-radius: 4px;
 }
 
 .orders-header {
@@ -45,7 +53,7 @@ body {
 }
 
 .order-item {
-  padding: 12px;
+  padding: 15px;
   border-radius: 6px;
   outline: 1px solid #000000;
   background-color: #FFFFFF;
@@ -64,6 +72,53 @@ body {
 .order-item.active {
   background-color: #FFD2B7;
 }
+
+.order-item.unassigned {
+   outline: 2px solid #E55050;
+}
+
+.order-item.unassigned:hover {
+  background-color: #CFCFCF
+}
+
+.order-item.unassigned.active {
+    background-color: #D4D4D4
+}
+
+.order-header {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.order-details {
+  margin-top: 6px;
+  font-size: 14px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease-in-out,
+    opacity 0.3s ease-in-out,   
+    margin-top 0.3s ease-in-out;
+}
+
+.order-details.hidden {
+  display: block !important;
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
+
+.order-details:not(.hidden) {
+  max-height: 200px;
+  opacity: 1;
+}
+
+.order-price {
+  margin-top: auto;
+}
+
 
 .add-order-btn {
   display: block;
@@ -195,7 +250,7 @@ body {
 
 #courier-search {
   width: 100%;
-  padding: 10px;
+  padding: 7px;
   font-size: 14px;
   border-radius: 5px;
   border: 1px solid #ccc;
@@ -257,12 +312,12 @@ body {
 }
 
 .tab-switch {
-  display: inline-flex;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  overflow: hidden;
-  margin-left: auto;
-  order: 2;
+    display: inline-flex;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-left: auto;
+    order: 2
 }
 
 .top-controls {
@@ -303,4 +358,120 @@ body {
 .btn-close {
     border: None;
     outline: None
+}
+
+.couriers-page {
+    margin: 0 auto;
+    width: fit-content;
+}
+
+.invite-row {
+    display: flex
+}
+
+.invite-row input {
+    width: 625px;
+    font-weight: bold;
+    font-size: 18px;
+    height: 38px;
+    letter-spacing: 1px;
+    border: 2px solid #CCCCCC
+}
+
+.invite-btn {
+    letter-spacing: 1px;
+    font-weight: bold;
+    font-size: 18px;
+    border: 2px solid #A3A3A3;
+    height: 38px;
+    cursor: pointer;
+    transition: all 0.3s
+}
+
+.invite-btn:active {
+  transform: scale(0.95);
+}
+
+.invite-link {
+    border: 1px solid #ccc;
+    padding: 8px 12px;
+    width: 400px;
+    background: linear-gradient(90deg, black 0 39ch, #888 39ch 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent
+}
+
+.table-row {
+    display: grid;
+    grid-template-columns: 40px minmax(150px, 1fr) minmax(150px, 1fr) 40px 40px;
+    align-items: center
+}
+
+.members {
+    text-align: center;
+    font-size:22px;
+    margin-top:25px
+}
+
+.tg-tag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #808080;
+    display: inline-block;
+    font-weight: bold;
+    margin-left: -45px
+}
+
+.courier-number {
+    text-align: center;
+    font-weight: 850;
+    font-size: 26px
+}
+
+.courier-name {
+    font-weight:bold;
+    font-size: 17px;
+    letter-spacing: 2px
+}
+
+.clstr-courier {
+    font-size: 30px;
+    font-weight: bold;
+    cursor: pointer
+}
+
+.clstr-courier.add {
+    color: #6DFF4C
+}
+
+.clstr-courier.remove {
+    color: #DB6057
+}
+
+.clstr-courier.kick {
+    color: #808080;
+    font-size: 20px
+}
+
+.clstr-courier.kick:hover {
+    color: #B5B5B5
+}
+
+.clstr-courier.add:hover {
+    color: #AFFF9B
+}
+
+.clstr-courier.remove:hover {
+    color: #F28780
+}
+
+.courier-empty-text {
+    text-align: center;
+    margin-top:25px;
+    color:#999999;
+    font-family: 'Courier New', monospace;
+    font-size:20px
 }

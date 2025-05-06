@@ -1,23 +1,22 @@
 from sqlalchemy_serializer import SerializerMixin
 from data.sql.db_session import SqlAlchemyBase
-from sqlalchemy import orm
 import sqlalchemy, datetime
 
 
 class Order(SqlAlchemyBase, SerializerMixin):
     __tablename__ = 'orders'
     id = sqlalchemy.Column(sqlalchemy.Integer, primary_key=True, autoincrement=True)
+    project_id = sqlalchemy.Column(sqlalchemy.Integer)
+
     phone = sqlalchemy.Column(sqlalchemy.String, index=True)
     name = sqlalchemy.Column(sqlalchemy.String)
     address = sqlalchemy.Column(sqlalchemy.String)
     price = sqlalchemy.Column(sqlalchemy.Integer)
     longitude = sqlalchemy.Column(sqlalchemy.Float)
     latitude = sqlalchemy.Column(sqlalchemy.Float)
-    who_delivers = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'))
+    who_delivers = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'), default=-1)
     analytics_id = sqlalchemy.Column(sqlalchemy.String)
     created_date = sqlalchemy.Column(sqlalchemy.DateTime, default=datetime.datetime.now)
-
-    delivery_man = orm.relationship('User', back_populates='order', lazy='joined')
 
     def set_coords(self, data):
         if isinstance(data, str):
