@@ -15,3 +15,4 @@ sqlalchemy_serializer~=1.4.22
 numpy~=2.2.5
 aiohttp~=3.11.18
 networkx~=3.4.2
+scipy~=1.15.2

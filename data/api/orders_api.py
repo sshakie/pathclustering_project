@@ -64,19 +64,20 @@ class OrdersResource(Resource):
             project = session.query(Project).filter(Project.id == order.project_id).first()
             if project.admin_id == current_user.id:
                 args = put_order_parser.parse_args()
-                if 'phone' in args:
+                if args['phone']:
                     order.phone = args.phone
-                if 'name' in args:
+                if args['name']:
                     order.name = args.name
-                if 'address' in args:
+                if args['address']:
                     order.address = args.address
                     order.set_coords(get_coords_from_geocoder(args.address))
-                if 'price' in args:
+                if args['price']:
                     order.price = args.price
-                if 'analytics_id' in args:
+                if args['analytics_id']:
                     order.analytics_id = args.analytics_id
-                if 'who_delivers' in args:
+                if args['who_delivers']:
                     order.who_delivers = args.who_delivers
+                session.commit()
                 session.close()
                 return jsonify({'success': 'edited!'})
             session.close()
@@ -107,11 +108,11 @@ class OrdersListResource(Resource):
                     order = Order(phone=args['phone'], name=args['name'], address=args['address'],
                                   project_id=args['project_id'])
                     order.set_coords(get_coords_from_geocoder(args['address']))
-                    if 'price' in args:
+                    if args['price']:
                         order.price = args['price']
-                    if 'analytics_id' in args:
+                    if args['analytics_id']:
                         order.analytics_id = args['analytics_id']
-                    if 'who_delivers' in args:
+                    if args['who_delivers']:
                         order.who_delivers = args['who_delivers']
                     if project.admin_id == current_user.id:
                         session.add(order)

@@ -58,12 +58,13 @@ class ProjectsResource(Resource):
                 project = session.get(Project, project_id)
                 if project.admin_id != current_user.id:
                     abort(403, message=f"This is not your project")
-                if 'name' in args:
+                if args['name']:
                     project.name = args.name
-                if 'icon' in args:
+                if args['icon']:
                     project.icon = args.icon
-                if 'invite_link' in args:
+                if args['invite_link']:
                     project.invite_link = args.invite_link
+                session.commit()
                 session.close()
                 return jsonify({'success': 'edited!'})
             abort(403, message=f"You're not admin")
@@ -87,9 +88,9 @@ class ProjectsListResource(Resource):
                     args = project_parser.parse_args()
                     session = create_session()
                     project = Project(name=args['name'], admin_id=current_user.id)
-                    if 'icon' in args:
+                    if args['icon']:
                         project.icon = args['icon']
-                    if 'invite_link' in args:
+                    if args['invite_link']:
                         project.invite_link = args['invite_link']
                     session.add(project)
                     session.commit()

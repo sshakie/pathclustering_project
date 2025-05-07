@@ -119,7 +119,7 @@ class UsersListResource(Resource):
 
             if args['admin_id'] and args['project_id']:
                 if admin_ids[0] != args['admin_id']:
-                    abort(400, message=f"Admin_id and admin_id in project(s) aren't the same")
+                    abort(400, message=f"Admin_id and admin_id in args project(s) aren't the same")
 
             user = User(name=args['name'], email=args['email'])
             if args['telegram_tag']:

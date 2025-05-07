@@ -136,13 +136,18 @@ def show_project(project_id):
                 xls = import_order_form.xls_file.data
                 unpack_orders_xls(xls, project_id, request.cookies)
 
-                # === Обработка JSON-запроса от JS-кнопки кластеризации ===
             elif 'application/json' in content_type:
                 data = request.get_json()
                 if data and data.get('start_clustering'):
-                    clustering(orders_list=list(session.query(Order).filter(Order.project_id == project.id).all()),
-                               num_couriers=len([i for i in a if i['is_ready']]),
+                    clusters = clustering(
+                        orders_list=list(session.query(Order).filter(Order.project_id == project.id).all()),
+                        num_couriers=len([i for i in a if i['project_id']]),
                                depot_coords=[55.725007, 37.606523])
+                    print(clusters)
+                    for courier_id in clusters.keys():
+                        for order_id in clusters[courier_id]:
+                            requests.put(f'http://127.0.0.1:5000/api/orders/{order_id}',
+                                         json={'who_delivers': int(courier_id)}, cookies=request.cookies)
                     return jsonify({'status': 'clustering successfully'}), 200
         else:
             return render_template('homepage.html',
@@ -195,7 +200,7 @@ def invite_register(invite_link):
                                                                          'email': form.email.data,
                                                                          'telegram_tag': form.telegram_tag.data,
                                                                          'password': form.password.data,
-                                                                         'project_id': project.id})
+                                                                         'project_id': project.id}).json()
         login_user(session.get(User, user_id['user_id']), remember=form.remember_me.data)
         session.close()
         return redirect('/')
@@ -264,4 +269,4 @@ def test():
 
 if __name__ == '__main__':
     port = os.environ.get('PORT', 5000)
-    app.run()
+    app.run(threaded=True)
