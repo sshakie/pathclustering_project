@@ -34,7 +34,7 @@ h2 {
 .panel-number {
   font-size: 32px;
   font-weight: normal;
-  color: #FF6A00
+  color: #FF6A00;
 }
 
 .close-btn {
@@ -59,4 +59,19 @@ h2 {
     display: flex;
     align-items: center;
     justify-content: center
+}
+
+@keyframes boldRedFade {
+  0% {
+    color: red;
+  }
+  100% {
+    color: inherit;
+    font-weight: normal;
+  }
+}
+
+.flash-duplicate {
+  color: red;
+  animation: boldRedFade 2s
 }

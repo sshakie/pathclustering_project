@@ -1,16 +1,18 @@
 from flask_login import LoginManager, logout_user, current_user, login_user
+from data.api.courier_relations_api import CourierRelationsListResource
 from data.api.projects_api import ProjectsResource, ProjectsListResource
 from flask import Flask, render_template, redirect, request, jsonify
 from data.api.orders_api import OrdersResource, OrdersListResource
 from data.api.users_api import UsersResource, UsersListResource
-from data.py.clustering import clustering
 from data.sql.models.courier_relations import CourierRelations
 from data.blanks.orderform import OrderForm, OrderImportForm
 from data.sql.db_session import create_session, global_init
+from data.sql.models.user_relations import UserRelations
 from data.blanks.registerform import RegisterForm
 from data.xls.serialize import unpack_orders_xls
 from data.sql.models.project import Project
 from data.blanks.loginform import LoginForm
+from data.py.clustering import clustering
 from data.sql.models.order import Order
 from data.sql.models.user import User
 from flask_restful import Api
@@ -30,6 +32,7 @@ api.add_resource(OrdersListResource, '/api/orders')
 api.add_resource(OrdersResource, '/api/orders/<int:order_id>')
 api.add_resource(ProjectsListResource, '/api/projects')
 api.add_resource(ProjectsResource, '/api/projects/<project_id>')
+api.add_resource(CourierRelationsListResource, '/api/courier_relations')
 
 session = create_session()
 if not session.query(User).filter(User.name == 'admin').first():
@@ -95,10 +98,13 @@ def show_project(project_id):
 
         for courier in project.couriers:
             courier_data[str(courier.id)] = courier.to_dict(only=('id', 'name', 'telegram_tag', 'color'))
-            courier_data[str(courier.id)]['is_ready'] = session.query(CourierRelations).filter(
-                CourierRelations.courier_id == courier.id).first().is_ready
 
-        a = [courier_data[i] for i in courier_data]
+        a = []
+        for i in session.query(UserRelations).filter(UserRelations.admin_id == current_user.id).all():
+            b = session.get(User, i.courier_id).to_dict(only=('id', 'name', 'telegram_tag', 'color'))
+            b['project_id'] = [i.project_id for i in
+                               session.query(CourierRelations).filter(CourierRelations.courier_id == b['id']).all()]
+            a.append(b)
 
         add_order_form = OrderForm()
         import_order_form = OrderImportForm()
@@ -124,8 +130,8 @@ def show_project(project_id):
                                            courier_orders=courier_orders,
                                            icon_id=project.icon,
                                            invite_link=project.invite_link,
-                                           courier_ready=[i for i in a if i['is_ready']],
-                                           courier_not_ready=[i for i in a if not i['is_ready']])
+                                           courier_ready=[i for i in a if i['project_id']],
+                                           courier_not_ready=[i for i in a if not i['project_id']])
             elif form_name == 'import_orders' and import_order_form.validate_on_submit():
                 xls = import_order_form.xls_file.data
                 unpack_orders_xls(xls, project_id, request.cookies)
@@ -146,8 +152,8 @@ def show_project(project_id):
                                    courier_orders=courier_orders,
                                    icon_id=project.icon,
                                    invite_link=project.invite_link,
-                                   courier_ready=[i for i in a if i['is_ready']],
-                                   courier_not_ready=[i for i in a if not i['is_ready']])
+                                   courier_ready=[i for i in a if i['project_id']],
+                                   courier_not_ready=[i for i in a if not i['project_id']])
     return redirect('/login')
 
 
@@ -239,7 +245,7 @@ def test():
                         json={'name': 'Samantha Wood', 'email': 'samantha_wood@mail.ru', 'password': '123',
                               'telegram_tag': '@dropmeapart03', 'project_id': 1}).json())
     print(requests.post('http://127.0.0.1:5000/api/users',
-                        json={'name': 'Roger Di', 'email': 'roger_di@mail.ru', 'project_id': 1,
+                        json={'name': 'Roger Di', 'email': 'roger_di@mail.ru', 'admin_id': 1,
                               'password': '123'}).json())
     print(requests.post('http://127.0.0.1:5000/api/users',
                         json={'name': 'Dave Carlson', 'email': 'dave_carlson@mail.ru', 'password': '123',
@@ -248,14 +254,12 @@ def test():
                         json={'name': 'Jone', 'phone': '+79009897520', 'address': 'Lipetsk, ul. Moskovskaya, 92',
                               'project_id': 1, 'price': 1512, 'who_delivers': 2}, cookies=request.cookies).json())
     session = create_session()
-    session.query(CourierRelations).filter(CourierRelations.courier_id == 3).first().is_ready = True
-    session.query(CourierRelations).filter(CourierRelations.courier_id == 4).first().is_ready = True
     session.query(User).filter(User.id == 2).first().color = '#7F7F7F'
     session.query(User).filter(User.id == 3).first().color = '#AA00FF'
     session.query(User).filter(User.id == 4).first().color = '#FF6A00'
     session.commit()
     session.close()
-    return ''''''
+    return redirect('/projects')
 
 
 if __name__ == '__main__':
