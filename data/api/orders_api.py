@@ -1,8 +1,11 @@
 from data.api.geocoder_api import get_coords_from_geocoder
+from data.blanks.orderform import is_right_phone_number
 from flask_restful import abort, Resource, reqparse
+from data.sql.__all_models import CourierRelations
 from data.sql.db_session import create_session
 from data.sql.__all_models import Project
 from data.sql.__all_models import Order
+from data.sql.__all_models import User
 from flask_login import current_user
 from flask import jsonify
 
@@ -65,18 +68,31 @@ class OrdersResource(Resource):
             if project.admin_id == current_user.id:
                 args = put_order_parser.parse_args()
                 if args['phone']:
-                    order.phone = args.phone
+                    try:
+                        is_right_phone_number('', args['phone'])
+                        order.phone = args.phone
+                    except Exception:
+                        abort(400, message=f"Wrong phone number format")
                 if args['name']:
                     order.name = args.name
                 if args['address']:
-                    order.address = args.address
-                    order.set_coords(get_coords_from_geocoder(args.address))
+                    try:
+                        order.set_coords(get_coords_from_geocoder(args.address))
+                    except Exception:
+                        abort(404, message=f"This address isn't exists or invalid")
                 if args['price']:
                     order.price = args.price
                 if args['analytics_id']:
                     order.analytics_id = args.analytics_id
                 if args['who_delivers']:
-                    order.who_delivers = args.who_delivers
+                    checking = session.query(User).filter(User.id == args['who_delivers']).all()
+                    cr = session.query(CourierRelations).filter(
+                        CourierRelations.courier_id == args['who_delivers']).first()
+                    if checking:
+                        if cr.admin_id == current_user.id:
+                            order.who_delivers = args.who_delivers
+                        abort(400, message=f"This is not your courier")
+                    abort(404, message=f"User.who_delivers.id is not found")
                 session.commit()
                 session.close()
                 return jsonify({'success': 'edited!'})
@@ -107,7 +123,10 @@ class OrdersListResource(Resource):
                 if project:
                     order = Order(phone=args['phone'], name=args['name'], address=args['address'],
                                   project_id=args['project_id'])
-                    order.set_coords(get_coords_from_geocoder(args['address']))
+                    try:
+                        order.set_coords(get_coords_from_geocoder(args['address']))
+                    except Exception:
+                        abort(400, message=f"This address isn't exists or invalid")
                     if args['price']:
                         order.price = args['price']
                     if args['analytics_id']:

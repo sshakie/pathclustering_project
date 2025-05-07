@@ -3,6 +3,7 @@ from data.sql.__all_models import CourierRelations
 from data.sql.__all_models import UserRelations
 from data.sql.db_session import create_session
 from data.sql.__all_models import Project
+from data.sql.__all_models import Order
 from data.sql.__all_models import User
 from flask_login import current_user
 from flask import jsonify
@@ -59,6 +60,8 @@ class CourierRelationsListResource(Resource):
                 spisok = [i for i in cr if i.project_id == args['project_id']]
                 if not spisok:
                     abort(403, message=f"CourierRelations between project and courier doesn't exists")
+                for i in session.query(Order).filter(Order.who_delivers == spisok[0].courier_id).all():
+                    i.who_delivers = -1
                 session.delete(spisok[0])
                 session.commit()
                 session.close()

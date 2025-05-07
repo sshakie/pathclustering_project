@@ -3,6 +3,7 @@ from data.sql.__all_models import CourierRelations
 from data.sql.__all_models import UserRelations
 from data.sql.db_session import create_session
 from data.sql.__all_models import Project
+from data.sql.__all_models import Order
 from data.sql.__all_models import User
 from flask_login import current_user
 from flask import jsonify
@@ -46,6 +47,9 @@ class UsersResource(Resource):
                 relation = session.query(UserRelations).filter(UserRelations.courier_id == user_id).first()
                 if relation.admin_id != current_user.id:
                     abort(403, message=f"This is not your worker")
+
+                for i in session.query(Order).filter(Order.who_delivers == user_id).all():
+                    i.who_delivers = -1
                 session.delete(session.query(User).get(user_id))
                 session.delete(session.query(UserRelations).filter(UserRelations.courier_id == user_id).first())
                 session.commit()

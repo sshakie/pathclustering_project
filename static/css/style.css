@@ -73,6 +73,22 @@ body {
   background-color: #FFE2CC;
 }
 
+/* Скрываем кнопку по умолчанию */
+.edit-btn {
+  display: none;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  margin-left: auto;
+  font-size: 16px;
+}
+
+/* Показываем кнопку, когда details открыты */
+.order-details:not(.hidden) + .order-price ~ .edit-btn,
+.order-details:not(.hidden) ~ .edit-btn {
+  display: block;
+}
+
 .order-item.unassigned {
    outline: 2px solid #E55050;
 }

@@ -52,44 +52,22 @@ function init() {
   const allPlacemarks = [];
   const courierPlacemarks = {};
 
-  const allBtn = document.querySelector('.courier-btn.active[data-courier="all"]');
-  allBtn.addEventListener('click', () => {
-    document.querySelectorAll('.courier-btn').forEach(btn =>
-      btn.classList.toggle('active', btn.dataset.courier === 'all')
-    );
-    setActiveCourier('all');
-  });
-
-    function handleOrderClick(item, order, mark) {
-  // Закрываем все открытые details
-  document.querySelectorAll('.order-details:not(.hidden)').forEach(openDetails => {
-    if (openDetails !== item.querySelector('.order-details')) {
-      openDetails.classList.add('hidden');
-    }
-  });
-
-  // Переключаем текущий элемент
-  const details = item.querySelector('.order-details');
-  details.classList.toggle('hidden');
-
-  // Центрируем карту и открываем балун
-  map.setCenter(order.coords);
-  mark.balloon.open();
-  highlightOrder(order.id);
-}
-
-// Заказы без курьера
-if (courierOrders['no_courier']) {
-  courierOrders['no_courier'].forEach(order => {
+  // Универсальная функция для создания элемента заказа
+  function createOrderItem(order, courierId, color) {
     const item = document.createElement('div');
-    item.className = 'order-item unassigned';
+    item.className = courierId === 'no_courier' ? 'order-item unassigned' : 'order-item';
     item.dataset.id = order.id;
+    item.dataset.courier = courierId;
+
     const orderNumber = order.analytics_id ? order.analytics_id : order.id;
-    item.dataset.courier = 'no_courier';
+
     item.innerHTML = `
       <div class="order-header">
-        <div style="font-weight: bold;">№ ${orderNumber}</div>
-        <div>${order.address}</div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-weight: bold;">№ ${orderNumber}</div>
+          <button class="edit-btn">✏️</button>
+        </div>
+        <div class="order-address">${order.address}</div>
       </div>
       <div class="order-details hidden">
         <div><b>Имя:</b> ${order.name || '—'}</div>
@@ -99,114 +77,213 @@ if (courierOrders['no_courier']) {
       <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price} руб.</div>
     `;
 
+    return item;
+  }
+
+  // Универсальная функция для создания маркера
+  function createOrderMarker(order, courierId, color) {
     const mark = new ymaps.Placemark(order.coords, {
       balloonContent: order.address,
-      hintContent: 'Не назначен'
+      hintContent: courierId === 'no_courier' ? 'Не назначен' : (courierData[courierId]?.name || courierId)
     }, {
       preset: 'islands#circleIcon',
-      iconColor: '#808080',
+      iconColor: courierId === 'no_courier' ? '#808080' : color,
       balloonAutoPan: false,
       hideIconOnBalloonOpen: false
     });
 
-    mark.properties.set('courierId', 'no_courier');
+    mark.properties.set('courierId', courierId);
     map.geoObjects.add(mark);
-    allPlacemarks.push({ mark });
+    return mark;
+  }
 
+  // Универсальный обработчик кликов по заказу
+  function setupOrderClickHandler(item, order, mark) {
     item.addEventListener('click', (e) => {
-      e.stopPropagation(); // Предотвращаем всплытие
-      handleOrderClick(item, order, mark);
-    });
+        // Получаем кнопку редактирования этого заказа
+        const editBtn = item.querySelector('.edit-btn');
 
-    mark.events.add('click', () => {
-      handleOrderClick(item, order, mark);
-    });
+        // Если клик по кнопке редактирования или идет редактирование - не обрабатываем
+        if (e.target.classList.contains('edit-btn') || editBtn.textContent === '✅') {
+            return;
+        }
 
-    ordersList.prepend(item);
-  });
-}
+        // Если где-то идет редактирование - не закрываем детали
+        const isAnyEditing = document.querySelector('.edit-btn[data-editing="true"]');
+        if (isAnyEditing) return;
 
-  // Заказы с курьерами
-  for (const [courierId, orders] of Object.entries(courierOrders)) {
-    if (courierId === 'no_courier') continue;
+        // Закрываем все открытые details, кроме текущего
+        document.querySelectorAll('.order-details:not(.hidden)').forEach(openDetails => {
+            if (openDetails !== item.querySelector('.order-details')) {
+                openDetails.classList.add('hidden');
+                const parentItem = openDetails.closest('.order-item');
+                if (parentItem) {
+                    parentItem.querySelector('.edit-btn').style.display = 'none';
+                }
+            }
+        });
 
-    const data = courierData[courierId] || {};
-    const color = courierColors[colorIndex++ % courierColors.length];
+        const details = item.querySelector('.order-details');
+        details.classList.toggle('hidden');
 
-    const btn = document.createElement('button');
-    btn.className = 'courier-btn';
-    btn.textContent = data.name || courierId;
-    btn.dataset.courier = courierId;
+        // Управляем видимостью кнопки редактирования
+        editBtn.style.display = details.classList.contains('hidden') ? 'none' : 'block';
 
-    btn.addEventListener('click', () => {
-      document.querySelectorAll('.courier-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      setActiveCourier(courierId);
-    });
-
-    filterBlock.appendChild(btn);
-    courierPlacemarks[courierId] = [];
-
-    orders.forEach(order => {
-  const item = document.createElement('div');
-  item.className = 'order-item';
-  item.dataset.id = order.id;
-  item.dataset.courier = courierId;
-  const orderNumber = order.analytics_id ? order.analytics_id : order.id;
-
-  item.innerHTML = `
-    <div class="order-header">
-      <div style="font-weight: bold;">№ ${orderNumber}</div>
-      <div>${order.address}</div>
-    </div>
-    <div class="order-details hidden">
-      <div><b>Имя:</b> ${order.name || '—'}</div>
-      <div><b>Телефон:</b> ${order.phone || '—'}</div>
-      <div><b>Координаты:</b> [${order.coords.join(', ')}]</div>
-    </div>
-    <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price} руб.</div>
-  `;
-
-  item.addEventListener('click', () => {
-    // Закрываем все открытые details
-    document.querySelectorAll('.order-details:not(.hidden)').forEach(openDetails => {
-      if (openDetails !== item.querySelector('.order-details')) {
-        openDetails.classList.add('hidden');
-      }
-    });
-
-    // Переключаем текущий элемент
-    const details = item.querySelector('.order-details');
-    details.classList.toggle('hidden');
-  });
-
-  // Добавляем элемент в список
-  document.getElementById('orders-list').appendChild(item);
-
-      const mark = new ymaps.Placemark(order.coords, {
-        balloonContent: order.address,
-        hintContent: data.name || courierId
-      }, {
-        preset: 'islands#circleIcon',
-        iconColor: color,
-        balloonAutoPan: false
-      });
-       mark.properties.set('courierId', courierId);
-      map.geoObjects.add(mark);
-      courierPlacemarks[courierId].push({ mark });
-      allPlacemarks.push({ mark });
-
-      mark.events.add('click', () => highlightOrder(order.id));
-      item.addEventListener('click', () => {
+        // Центрируем карту и открываем балун
         map.setCenter(order.coords);
         mark.balloon.open();
         highlightOrder(order.id);
-      });
+    });
+}
+
+  // Обработчик кликов по маркеру
+  function setupMarkerClickHandler(item, order, mark) {
+    mark.events.add('click', () => {
+      item.click(); // Эмулируем клик по элементу заказа
     });
   }
 
-  document.getElementById('orders-count').textContent =
-    Object.values(courierOrders).flat().length;
+  // Обработчик кнопки редактирования (с оригинальным стилем полей)
+  function setupEditButtonHandler(item, order, mark) {
+    const editBtn = item.querySelector('.edit-btn');
+    const details = item.querySelector('.order-details');
+    const addressEl = item.querySelector('.order-address');
+    const priceEl = item.querySelector('.order-price');
+
+    let isEditing = false;
+
+    editBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+
+      const nameEl = details.querySelector('div:nth-child(1)');
+      const phoneEl = details.querySelector('div:nth-child(2)');
+
+      if (!isEditing) {
+        const nameVal = nameEl.textContent.replace('Имя:', '').trim();
+        const phoneVal = phoneEl.textContent.replace('Телефон:', '').trim();
+        const priceVal = priceEl.textContent.replace('руб.', '').trim();
+        const addressVal = addressEl.textContent.trim();
+        editBtn.dataset.editing = "true";
+
+        item.dataset.tempAddress = addressVal;
+
+        // Оригинальный стиль полей ввода как у вас было
+        nameEl.innerHTML = `<b>Имя:</b> <input type="text" value="${nameVal}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:70%;">`;phoneEl.innerHTML = `<b>Телефон:</b> <input type="text" value="${phoneVal}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:70%;">`;
+        priceEl.innerHTML = `<input type="number" value="${parseInt(priceVal)}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-weight:700; text-align:right; width:60%;"> руб.`;
+        addressEl.innerHTML = `<input type="text" value="${addressVal}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:100%;">`;
+
+        editBtn.textContent = '✅';
+        details.classList.remove('hidden');
+        isEditing = true;
+      } else {
+        delete editBtn.dataset.editing;
+        const updatedName = nameEl.querySelector('input').value;
+        const updatedPhone = phoneEl.querySelector('input').value;
+        const updatedPrice = priceEl.querySelector('input').value;
+        const updatedAddress = addressEl.querySelector('input').value;
+
+        try {
+          const res = await fetch(`/api/orders/${order.id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: updatedName,
+              phone: updatedPhone,
+              price: parseInt(updatedPrice),
+              address: updatedAddress
+            }),
+          });
+
+          if (res.ok) {
+            nameEl.innerHTML = `<b>Имя:</b> ${updatedName}`;
+            phoneEl.innerHTML = `<b>Телефон:</b> ${updatedPhone}`;
+            priceEl.innerHTML = `${updatedPrice} руб.`;
+            addressEl.innerHTML = updatedAddress;
+
+            // Обновляем маркер на карте
+            mark.properties.set('balloonContent', updatedAddress);
+
+            editBtn.textContent = '✏️';
+            isEditing = false;
+          } else {
+            addressEl.innerHTML = item.dataset.tempAddress || order.address;
+            alert('Ошибка при сохранении');
+          }
+        } catch (e) {
+          console.error(e);
+          addressEl.innerHTML = item.dataset.tempAddress || order.address;
+          alert('Ошибка соединения');
+        }
+      }
+    });
+  }
+
+  // Инициализация всех заказов
+  function initializeOrders() {
+    // Заказы без курьера
+    if (courierOrders['no_courier']) {
+      courierOrders['no_courier'].forEach(order => {
+        const item = createOrderItem(order, 'no_courier');
+        const mark = createOrderMarker(order, 'no_courier');
+
+        setupOrderClickHandler(item, order, mark);
+        setupMarkerClickHandler(item, order, mark);
+        setupEditButtonHandler(item, order, mark);
+
+        allPlacemarks.push({ mark, order });
+        ordersList.prepend(item);
+      });
+    }
+
+    // Заказы с курьерами
+    for (const [courierId, orders] of Object.entries(courierOrders)) {
+      if (courierId === 'no_courier') continue;
+
+      const data = courierData[courierId] || {};
+      const color = courierColors[colorIndex++ % courierColors.length];
+
+      // Создаем кнопку фильтра для курьера
+      const btn = document.createElement('button');
+      btn.className = 'courier-btn';
+      btn.textContent = data.name || courierId;
+      btn.dataset.courier = courierId;
+
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.courier-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        setActiveCourier(courierId);
+      });
+
+      filterBlock.appendChild(btn);
+      courierPlacemarks[courierId] = [];
+
+      // Инициализируем заказы курьера
+      orders.forEach(order => {
+        const item = createOrderItem(order, courierId, color);
+        const mark = createOrderMarker(order, courierId, color);
+
+        setupOrderClickHandler(item, order, mark);
+        setupMarkerClickHandler(item, order, mark);
+        setupEditButtonHandler(item, order, mark);
+
+        courierPlacemarks[courierId].push({ mark, order });
+        allPlacemarks.push({ mark, order });
+        ordersList.appendChild(item);
+      });
+    }
+
+    document.getElementById('orders-count').textContent =
+      Object.values(courierOrders).flat().length;
+  }
+
+  // Инициализация кнопки "Все"
+  const allBtn = document.querySelector('.courier-btn.active[data-courier="all"]');
+  allBtn.addEventListener('click', () => {
+    document.querySelectorAll('.courier-btn').forEach(btn =>
+      btn.classList.toggle('active', btn.dataset.courier === 'all')
+    );
+    setActiveCourier('all');
+  });
 
   function highlightOrder(id) {
     document.querySelectorAll('.order-item').forEach(el =>
@@ -233,6 +310,7 @@ if (courierOrders['no_courier']) {
     });
   }
 
+  // Поиск курьеров
   courierSearch.addEventListener('input', () => {
     const val = courierSearch.value.toLowerCase();
     document.querySelectorAll('.courier-btn').forEach(btn => {
@@ -241,17 +319,13 @@ if (courierOrders['no_courier']) {
     });
   });
 
+  // Поиск адресов
   const addressInput = document.getElementById('address-search');
   const addressBtn = document.getElementById('address-search-btn');
 
-  addressBtn.addEventListener('click', () => {
-    searchAddress(addressInput.value);
-  });
-
+  addressBtn.addEventListener('click', () => searchAddress(addressInput.value));
   addressInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      searchAddress(addressInput.value);
-    }
+    if (e.key === 'Enter') searchAddress(addressInput.value);
   });
 
   function searchAddress(address) {
@@ -265,17 +339,18 @@ if (courierOrders['no_courier']) {
         const name = firstGeoObject.getAddressLine();
 
         map.setCenter(coords, 16);
-
-        map.balloon.open(coords, name, {
-          closeButton: true
-        });
+        map.balloon.open(coords, name, { closeButton: true });
       } else {
         alert("Адрес не найден.");
       }
     });
   }
+
+  // Запускаем инициализацию
+  initializeOrders();
 }
 
+// Остальной код остается без изменений
 const orderSearch = document.getElementById('order-search');
 
 if (orderSearch) {
@@ -294,98 +369,96 @@ if (orderSearch) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.hash === '#couriers') {
-        switchToCouriersTab();
-        history.replaceState(null, null, ' ');
-    }
+  if (window.location.hash === '#couriers') {
+    switchToCouriersTab();
+    history.replaceState(null, null, ' ');
+  }
 
-    document.addEventListener('click', async (e) => {
-        const btn = e.target.closest('.clstr-courier');
-        if (!btn) return;
+  document.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.clstr-courier');
+    if (!btn) return;
 
-        e.preventDefault();
+    e.preventDefault();
 
-        const courierId = btn.dataset.id;
-        const action = btn.dataset.action;
-        const projectId = window.location.pathname.split('/')[2];
+    const courierId = btn.dataset.id;
+    const action = btn.dataset.action;
+    const projectId = window.location.pathname.split('/')[2];
 
-        try {
-            window.location.hash = 'couriers';
+    try {
+      window.location.hash = 'couriers';
 
-            if (action === 'kick') {
-                if (!confirm("Вы уверены, что хотите удалить этого курьера?")) return;
+      if (action === 'kick') {
+        if (!confirm("Вы уверены, что хотите удалить этого курьера?")) return;
 
-                const res = await fetch(`/api/users/${courierId}`, {
-                    method: 'DELETE',
-                    credentials: 'include'
-                });
+        const res = await fetch(`/api/users/${courierId}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        });
 
-                if (res.ok) {
-                    window.location.reload(true);
-                    return;
-                }
-                const error = await res.json();
-                alert(error.message || 'Ошибка при удалении');
-
-            } else if (action === 'add' || action === 'remove') {
-                const method = action === 'add' ? 'POST' : 'DELETE';
-                const res = await fetch('/api/courier_relations', {
-                    method,
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken()
-                    },
-                    credentials: 'include',
-                    body: JSON.stringify({
-                        project_id: parseInt(projectId),
-                        courier_id: parseInt(courierId)
-                    })
-                });
-
-                if (res.ok) {
-                    window.location.reload(true);
-                    return;
-                }
-                const error = await res.json();
-                alert(error.message || `Ошибка при ${action === 'add' ? 'добавлении' : 'удалении'}`);
-            }
-
-        } catch (err) {
-            console.error('Ошибка:', err);
-            alert('Ошибка сети: ' + err.message);
+        if (res.ok) {
+          window.location.reload(true);
+          return;
         }
-    });
+        const error = await res.json();
+        alert(error.message || 'Ошибка при удалении');
 
-    function switchToCouriersTab() {
-        document.getElementById('tab-map').classList.remove('active');
-        document.getElementById('tab-couriers').classList.add('active');
-        document.getElementById('map-wrapper').classList.add('hidden');
-        document.getElementById('address-search-wrapper').classList.add('hidden');
-        exportbtn.classList.add("hidden");
-        clusteringbtn.classList.add("hidden");
-        document.getElementById('couriers').classList.remove('hidden');
+      } else if (action === 'add' || action === 'remove') {
+        const method = action === 'add' ? 'POST' : 'DELETE';
+        const res = await fetch('/api/courier_relations', {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            project_id: parseInt(projectId),
+            courier_id: parseInt(courierId)
+          })
+        });
 
+        if (res.ok) {
+          window.location.reload(true);
+          return;
+        }
+        const error = await res.json();
+        alert(error.message || `Ошибка при ${action === 'add' ? 'добавлении' : 'удалении'}`);
+      }
+    } catch (err) {
+      console.error('Ошибка:', err);
+      alert('Ошибка сети: ' + err.message);
     }
+  });
 
-    function getCSRFToken() {
-        const meta = document.querySelector('meta[name="csrf-token"]');
-        return meta ? meta.content : '';
-    }
+  function switchToCouriersTab() {
+    document.getElementById('tab-map').classList.remove('active');
+    document.getElementById('tab-couriers').classList.add('active');
+    document.getElementById('map-wrapper').classList.add('hidden');
+    document.getElementById('address-search-wrapper').classList.add('hidden');
+    exportbtn.classList.add("hidden");
+    clusteringbtn.classList.add("hidden");
+    document.getElementById('couriers').classList.remove('hidden');
+  }
+
+  function getCSRFToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.content : '';
+  }
 });
 
 function copyInviteLink() {
-    const input = document.getElementById('inviteLinkInput');
-    const btn = document.querySelector('.invite-btn');
+  const input = document.getElementById('inviteLinkInput');
+  const btn = document.querySelector('.invite-btn');
 
-    input.select();
-    input.setSelectionRange(0, 99999); // Для мобильных устройств
+  input.select();
+  input.setSelectionRange(0, 99999);
 
-    document.execCommand('copy');
+  document.execCommand('copy');
 
-    btn.classList.add('copied');
-    setTimeout(() => {
+  btn.classList.add('copied');
+  setTimeout(() => {
     btn.classList.remove('copied');
-    }, 500);
+  }, 500);
 }
 
 clusteringbtn.addEventListener("click", async () => {
@@ -412,4 +485,3 @@ clusteringbtn.addEventListener("click", async () => {
     console.error(error);
   }
 });
-

@@ -6,7 +6,10 @@ import re
 
 
 def is_right_phone_number(form, field):
-    s = field.data
+    if isinstance(field, str):
+        s = field
+    else:
+        s = field.data
     remainder = ''
     if s.startswith('+7'):
         remainder = s[2:]

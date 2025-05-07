@@ -121,17 +121,7 @@ def show_project(project_id):
                             'price': add_order_form.price.data,
                             'project_id': project_id}
                     requests.post('http://127.0.0.1:5000/api/orders', json=data, cookies=request.cookies)
-                    return redirect(f'/projects/{project_id}')
-                else:
-                    return render_template('homepage.html',
-                                           add_order_form=add_order_form,
-                                           import_order_form=import_order_form,
-                                           courier_data=courier_data,
-                                           courier_orders=courier_orders,
-                                           icon_id=project.icon,
-                                           invite_link=project.invite_link,
-                                           courier_ready=[i for i in a if i['project_id']],
-                                           courier_not_ready=[i for i in a if not i['project_id']])
+                return redirect(f'/projects/{project_id}')
             elif form_name == 'import_orders' and import_order_form.validate_on_submit():
                 xls = import_order_form.xls_file.data
                 unpack_orders_xls(xls, project_id, request.cookies)
@@ -149,16 +139,15 @@ def show_project(project_id):
                             requests.put(f'http://127.0.0.1:5000/api/orders/{order_id}',
                                          json={'who_delivers': int(courier_id)}, cookies=request.cookies)
                     return jsonify({'status': 'clustering successfully'}), 200
-        else:
-            return render_template('homepage.html',
-                                   add_order_form=add_order_form,
-                                   import_order_form=import_order_form,
-                                   courier_data=courier_data,
-                                   courier_orders=courier_orders,
-                                   icon_id=project.icon,
-                                   invite_link=project.invite_link,
-                                   courier_ready=[i for i in a if i['project_id']],
-                                   courier_not_ready=[i for i in a if not i['project_id']])
+        return render_template('homepage.html',
+                               add_order_form=add_order_form,
+                               import_order_form=import_order_form,
+                               courier_data=courier_data,
+                               courier_orders=courier_orders,
+                               icon_id=project.icon,
+                               invite_link=project.invite_link,
+                               courier_ready=[i for i in a if i['project_id']],
+                               courier_not_ready=[i for i in a if not i['project_id']])
     return redirect('/login')
 
 
