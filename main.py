@@ -122,6 +122,7 @@ def show_project(project_id):
                             'project_id': project_id}
                     requests.post('http://127.0.0.1:5000/api/orders', json=data, cookies=request.cookies)
                 return redirect(f'/projects/{project_id}')
+
             elif form_name == 'import_orders' and import_order_form.validate_on_submit():
                 xls = import_order_form.xls_file.data
                 unpack_orders_xls(xls, project_id, request.cookies)

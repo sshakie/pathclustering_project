@@ -1,0 +1,154 @@
+.orders-panel {
+  width: 20%;
+  background-color: #f9f9f9;
+  padding: 15px;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#order-search {
+    padding: 8px;
+    border: 1px solid #ccc;
+    width: 100%;
+    margin-bottom: 15px;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.orders-header {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  gap: 5px;
+}
+
+.orders-text {
+  text-align: left;
+}
+
+.orders-count-wrapper {
+  margin-left: auto;
+  text-align: right;
+}
+
+#orders-count {
+  font-weight: bold;
+}
+
+.order-item {
+  padding: 15px;
+  border-radius: 6px;
+  outline: 1px solid #000000;
+  background-color: #FFFFFF;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background-color 0.2s ease;
+  user-select: none;
+  width: 100%;
+  line-height: 1.2;
+}
+
+.order-item:hover {
+  background-color: #FFE2CC;
+}
+
+.order-item.active {
+  background-color: #FFE2CC;
+}
+
+/* Скрываем кнопку по умолчанию */
+.edit-btn {
+  display: none;
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+  margin-left: auto;
+  font-size: 16px;
+}
+
+.edit-btn:focus {
+    border: none;
+    outline: none;
+}
+
+/* Показываем кнопку, когда details открыты */
+.order-details:not(.hidden) + .order-price ~ .edit-btn,
+.order-details:not(.hidden) ~ .edit-btn {
+  display: block;
+  border: none;
+  outline: none;
+}
+
+.order-item.unassigned {
+   outline: 2px solid #E55050;
+}
+
+.order-item.unassigned:hover {
+  background-color: #E8E8E8
+}
+
+.order-item.unassigned.active {
+    background-color: #E8E8E8
+}
+
+.order-header {
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+}
+
+.order-details {
+  margin-top: 6px;
+  font-size: 14px;
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition:
+    max-height 0.3s ease-in-out,
+    opacity 0.3s ease-in-out,
+    margin-top 0.3s ease-in-out;
+}
+
+.order-details.hidden {
+  display: block !important;
+  max-height: 0;
+  opacity: 0;
+  margin-top: 0;
+}
+
+.order-details:not(.hidden) {
+  max-height: 200px;
+  opacity: 1;
+}
+
+.order-price {
+  margin-top: auto;
+}
+
+
+.add-order-btn {
+  display: block;
+  margin: 20px auto;
+  background-color: #FFFFFF;
+  border: None;
+}
+
+.add-order-btn:hover {
+    background-color: #FFFFFF
+}
+
+.add-order-btn:focus {
+    outline: None
+}
+
+.btn-close {
+    border: None;
+    outline: None
+}
