@@ -32,6 +32,7 @@ class OrderForm(FlaskForm):
     address = StringField('адрес отправления', validators=[DataRequired()])
     analytics_id = StringField('айди заказа (если есть)')
     price = IntegerField('стоимость')
+    comment = IntegerField('комментарий')
     submit = SubmitField('Создать')
 
 
