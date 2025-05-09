@@ -476,11 +476,27 @@ function copyInviteLink() {
   }, 500);
 }
 
+let clusteringSuccess = false; // Флаг успешной кластеризации
+
 clusteringbtn.addEventListener("click", async () => {
-  const currentPath = window.location.pathname;
+  const clusteringModalElement = document.getElementById('clusteringModal');
+  const clusteringModal = new bootstrap.Modal(clusteringModalElement);
+
+  const loadingBlock = document.getElementById('clustering-loading');
+  const successBlock = document.getElementById('clustering-success');
+  const errorBlock = document.getElementById('clustering-error');
+  const errorMessage = document.getElementById('clustering-error-message');
+
+  // Сброс состояний
+  loadingBlock.style.display = 'block';
+  successBlock.style.display = 'none';
+  errorBlock.style.display = 'none';
+  clusteringSuccess = false;
+
+  clusteringModal.show();
 
   try {
-    const response = await fetch(currentPath, {
+    const response = await fetch(window.location.pathname, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -490,13 +506,26 @@ clusteringbtn.addEventListener("click", async () => {
 
     if (response.ok) {
       const result = await response.json();
-      alert("Кластеризация запущена.");
+      loadingBlock.style.display = 'none';
+      successBlock.style.display = 'block';
+      clusteringSuccess = true;
     } else {
       const error = await response.json();
-      alert(error.message || "Ошибка на сервере.");
+      loadingBlock.style.display = 'none';
+      errorMessage.textContent = error.message || "Произошла ошибка на сервере.";
+      errorBlock.style.display = 'block';
     }
   } catch (error) {
-    alert("Сетевая ошибка.");
+    loadingBlock.style.display = 'none';
+    errorMessage.textContent = "Сетевая ошибка. Проверьте соединение.";
+    errorBlock.style.display = 'block';
     console.error(error);
+  }
+});
+
+// Обновление страницы после успешной кластеризации при закрытии модалки
+document.getElementById('clusteringModal').addEventListener('hidden.bs.modal', () => {
+  if (clusteringSuccess) {
+    window.location.reload();
   }
 });

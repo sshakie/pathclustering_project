@@ -88,7 +88,6 @@ class OrdersResource(Resource):
                     order.analytics_id = args.analytics_id
                 if args['who_delivers']:
                     checking = session.query(User).filter(User.id == args['who_delivers']).all()
-                    print(args['who_delivers'])
                     ur = session.query(UserRelations).filter(
                         UserRelations.courier_id == args['who_delivers']).first()
                     if checking:

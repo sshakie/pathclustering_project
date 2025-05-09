@@ -97,11 +97,12 @@
 
             </div>
             <span style="font-weight: bold; text-align: center; margin-top: -20px; color: #B7B7B7; font-size: 16px">при пакетном импорте следуйте <a
-                    href="/static/xls/template.xlsx" style="position: relative; z-index: 1000;"">образцу</a></span>
+                    href="/static/xls/template.xlsx" style="position: relative; z-index: 1000;">образцу</a></span>
             <div class="modal-footer" style="border-top: none"></div>
         </div>
     </div>
 </div>
+
 <!--Модальное окно экспорта-->
 <div class="modal fade" id="ExportModal" tabindex="-1" aria-labelledby="ExportModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -115,6 +116,40 @@
         </div>
     </div>
 </div>
+<!---Модальное окно статуса кластеризации-->
+<div class="modal fade" id="clusteringModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+     data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4">
+
+            <!-- Блок загрузки -->
+            <div id="clustering-loading">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                <h5 class="mt-3">Идёт распределение заказов...</h5>
+                <p>Это может занять несколько минут. Пожалуйста, подождите.</p>
+            </div>
+
+            <!-- Блок успешного завершения -->
+            <div id="clustering-success" style="display: none;">
+                <div class="text-success" style="font-size: 2rem;">✔</div>
+                <h5 class="mt-3">Кластеризация завершена!</h5>
+                <p>Заказы успешно распределены между курьерами.</p>
+                <button type="button" class="btn btn-primary mt-2" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+
+            <!-- Блок ошибки -->
+            <div id="clustering-error" style="display: none;">
+                <div class="text-danger" style="font-size: 2rem;">⨯</div>
+                <h5 class="mt-3">Ошибка при распределении</h5>
+                <p id="clustering-error-message">Что-то пошло не так.</p>
+                <button type="button" class="btn btn-secondary mt-2" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
 
 
 <div class="main-wrapper">

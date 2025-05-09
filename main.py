@@ -1,3 +1,5 @@
+import time
+
 from flask_login import LoginManager, logout_user, current_user, login_user
 from data.api.courier_relations_api import CourierRelationsListResource
 from data.api.projects_api import ProjectsResource, ProjectsListResource
@@ -130,18 +132,27 @@ def show_project(project_id):
             elif 'application/json' in content_type:
                 data = request.get_json()
                 if data and data.get('start_clustering'):
-                    clusters = clustering(
-                        orders_list=list(session.query(Order).filter(Order.project_id == project.id).all()),
-                        num_couriers=len([i for i in a if i['project_id']]),
-                        depot_coords=[55.725007, 37.606523])  # TODO: Координаты склада
+                    try:
+                        clusters = clustering(
+                            orders_list=list(session.query(Order).filter(
+                                Order.project_id == project.id).all()),
+                            num_couriers=len([i for i in a if i['project_id']]),
+                            depot_coords=[52.605003, 39.535107])  # TODO: Координаты склада
+                    except ValueError:
+                        return jsonify({'status': 'error',
+                                        'message': 'Ошибка. Возможно, нет свободных заказов или курьеров'}), 400
+                    try:
+                        ready_couriers = [i for i in a if i['project_id']]
+                        for cluster in clusters.keys():
+                            for order_id in clusters[cluster]:
+                                requests.put(f'http://127.0.0.1:5000/api/orders/{order_id}',
+                                             json={'who_delivers': ready_couriers[int(cluster) - 1]['id']},
+                                             cookies=request.cookies)
 
-                    ready_couriers = [i for i in a if i['project_id']]
-                    for cluster in clusters.keys():
-                        for order_id in clusters[cluster]:
-                            requests.put(f'http://127.0.0.1:5000/api/orders/{order_id}',
-                                         json={'who_delivers': ready_couriers[int(cluster) - 1]['id']},
-                                         cookies=request.cookies)
-                    return jsonify({'status': 'clustering successfully'}), 200
+                        return jsonify({'status': 'clustering successfully'}), 200
+                    except IndexError:
+                        return jsonify({'status': 'error',
+                                        'message': 'Ошибка. Возможно, нет курьеров'}), 400
 
         return render_template('homepage.html',
                                add_order_form=add_order_form,
