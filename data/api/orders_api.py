@@ -94,8 +94,10 @@ class OrdersResource(Resource):
                     if checking:
                         if ur.admin_id == current_user.id:
                             order.who_delivers = args.who_delivers
-                        abort(400, message=f"This is not your courier")
-                    abort(404, message=f"User.who_delivers.id is not found")
+                        else:
+                            abort(400, message=f"This is not your courier")
+                    else:
+                        abort(404, message=f"User.who_delivers.id is not found")
                 session.commit()
                 session.close()
                 return jsonify({'success': 'edited!'})
