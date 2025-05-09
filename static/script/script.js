@@ -1,5 +1,5 @@
 const courierColors = ['#ff4d4d', '#4dd2ff', '#85e085', '#ffcc66', '#cc99ff', '#9966cc', '#ff9966'];
-
+const depotCoords = [52.605003, 39.535107]
 // === TAB переключатели ===
 const tabMap = document.getElementById("tab-map");
 const tabCouriers = document.getElementById("tab-couriers");
@@ -284,7 +284,22 @@ function init() {
     );
     setActiveCourier('all');
   });
+    addWarehouseToMap(depotCoords)
+   function addWarehouseToMap(coords) {
+    const warehousePlacemark = new ymaps.Placemark(
+    coords,
+    {
+      hintContent: 'Склад',
+      balloonContent: 'Склад. Отсюда будут забирать заказы.'
+    },
+    {
+      preset: 'islands#blackDeliveryCircleIcon',
+      iconColor: '#000000'}
+  );
 
+  map.geoObjects.add(warehousePlacemark);
+  return warehousePlacemark;
+}
   function highlightOrder(id) {
     document.querySelectorAll('.order-item').forEach(el =>
       el.classList.toggle('active', el.dataset.id == id)

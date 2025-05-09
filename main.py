@@ -135,10 +135,14 @@ def show_project(project_id):
                         num_couriers=len([i for i in a if i['project_id']]),
                         depot_coords=[55.725007, 37.606523])  # TODO: Координаты склада
 
-                    for courier_id in clusters.keys():
-                        for order_id in clusters[courier_id]:
+                    print(clusters)
+                    ready_couriers = [i for i in a if i['project_id']]
+                    for cluster in clusters.keys():  # TODO: рпроблема с кластеризацией
+                        for order_id in clusters[cluster]:
+                            print('id', ready_couriers[int(cluster) - 1]['id'])
                             requests.put(f'http://127.0.0.1:5000/api/orders/{order_id}',
-                                         json={'who_delivers': int(courier_id)}, cookies=request.cookies)
+                                         json={'who_delivers': ready_couriers[int(cluster) - 1]['id']},
+                                         cookies=request.cookies)
                     return jsonify({'status': 'clustering successfully'}), 200
 
         return render_template('homepage.html',

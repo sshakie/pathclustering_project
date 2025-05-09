@@ -9,6 +9,8 @@ from data.sql.__all_models import User
 from flask_login import current_user
 from flask import jsonify
 
+from data.sql.models.user_relations import UserRelations
+
 order_parser = reqparse.RequestParser()
 order_parser.add_argument('phone', required=True, type=str)
 order_parser.add_argument('name', required=True, type=str)
@@ -86,10 +88,11 @@ class OrdersResource(Resource):
                     order.analytics_id = args.analytics_id
                 if args['who_delivers']:
                     checking = session.query(User).filter(User.id == args['who_delivers']).all()
-                    cr = session.query(CourierRelations).filter(
-                        CourierRelations.courier_id == args['who_delivers']).first()
+                    print(args['who_delivers'])
+                    ur = session.query(UserRelations).filter(
+                        UserRelations.courier_id == args['who_delivers']).first()
                     if checking:
-                        if cr.admin_id == current_user.id:
+                        if ur.admin_id == current_user.id:
                             order.who_delivers = args.who_delivers
                         abort(400, message=f"This is not your courier")
                     abort(404, message=f"User.who_delivers.id is not found")
