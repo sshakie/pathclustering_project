@@ -688,18 +688,13 @@ document.addEventListener('DOMContentLoaded', function() {
         const selectedCouriers = [];
 
         if (exportType === 'selected') {
-            document.querySelectorAll('#couriersCheckboxList input[type="checkbox"]:checked').forEach(checkbox => {
-                selectedCouriers.push({
-                    id: checkbox.value,
-                    name: checkbox.dataset.name
-                });
-            });
-
-            if (selectedCouriers.length === 0) {
-                showAlert('Пожалуйста, выберите хотя бы одного курьера', 'warning');
-                return;
-            }
-        }
+    document.querySelectorAll('#couriersCheckboxList input[type="checkbox"]:checked').forEach(checkbox => {
+        selectedCouriers.push({
+            id: checkbox.value,
+            name: checkbox.dataset.name
+        });
+    });
+}
 
         exportData('couriers', {
             couriersType: exportType,
@@ -747,27 +742,11 @@ document.addEventListener('DOMContentLoaded', function() {
             window.URL.revokeObjectURL(url);
 
             bootstrap.Modal.getInstance(document.getElementById('ExportModal')).hide();
-            showAlert('Экспорт завершен успешно!', 'success');
         });
     })
     .catch(error => {
         console.error('Ошибка экспорта:', error);
-        showAlert(`Ошибка при экспорте: ${error.message}`, 'danger');
     });
 }
 
-
-
-    // Вспомогательная функция для показа уведомлений
-    function showAlert(message, type) {
-        const alertDiv = document.createElement('div');
-        alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
-        alertDiv.role = 'alert';
-        alertDiv.innerHTML = `
-            ${message}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        `;
-        document.body.prepend(alertDiv);
-        setTimeout(() => alertDiv.remove(), 5000);
-    }
 });
