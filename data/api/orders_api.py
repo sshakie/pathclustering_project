@@ -1,12 +1,12 @@
 from data.api.geocoder_api import get_coords_from_geocoder
 from data.blanks.orderform import is_right_phone_number
 from flask_restful import abort, Resource, reqparse
-from data.sql.__all_models import CourierRelations
 from data.sql.db_session import create_session
 from data.sql.__all_models import Project
 from data.sql.__all_models import Order
 from data.sql.__all_models import User
 from flask_login import current_user
+from wtforms import ValidationError
 from flask import jsonify
 
 from data.sql.models.user_relations import UserRelations
@@ -17,6 +17,7 @@ order_parser.add_argument('name', required=True, type=str)
 order_parser.add_argument('address', required=True, type=str)
 order_parser.add_argument('project_id', required=True, type=int)
 order_parser.add_argument('price', type=int)
+order_parser.add_argument('comment', type=str)
 order_parser.add_argument('analytics_id', type=str)
 order_parser.add_argument('who_delivers', type=int)
 
@@ -25,6 +26,7 @@ put_order_parser.add_argument('phone', type=str)
 put_order_parser.add_argument('name', type=str)
 put_order_parser.add_argument('address', type=str)
 put_order_parser.add_argument('price', type=int)
+put_order_parser.add_argument('comment', type=str)
 put_order_parser.add_argument('analytics_id', type=str)
 put_order_parser.add_argument('who_delivers', type=int)
 
@@ -40,7 +42,7 @@ class OrdersResource(Resource):
                 session.close()
                 return jsonify(
                     {'order': order.to_dict(
-                        only=('id', 'phone', 'name', 'address', 'project_id', 'price', 'analytics_id',
+                        only=('id', 'phone', 'name', 'address', 'project_id', 'price', 'comment', 'analytics_id',
                               'who_delivers'))})
             session.close()
             abort(403, message=f"This is not your order")
@@ -73,7 +75,7 @@ class OrdersResource(Resource):
                     try:
                         is_right_phone_number('', args['phone'])
                         order.phone = args.phone
-                    except Exception:
+                    except ValidationError:
                         abort(400, message=f"Wrong phone number format")
                 if args['name']:
                     order.name = args.name
@@ -84,6 +86,8 @@ class OrdersResource(Resource):
                         abort(404, message=f"This address isn't exists or invalid")
                 if args['price']:
                     order.price = args.price
+                if args['comment']:
+                    order.comment = args.comment
                 if args['analytics_id']:
                     order.analytics_id = args.analytics_id
                 if args['who_delivers']:
@@ -114,7 +118,7 @@ class OrdersListResource(Resource):
             session.close()
             return jsonify({'orders':
                 [i.to_dict(
-                    only=('id', 'phone', 'name', 'address', 'project_id', 'price', 'analytics_id', 'who_delivers'))
+                    only=('id', 'phone', 'name', 'address', 'project_id', 'price', 'comment', 'analytics_id', 'who_delivers'))
                     for i in orders]})
         abort(401, message=f"You're not logged in")
 
@@ -133,6 +137,8 @@ class OrdersListResource(Resource):
                         abort(400, message=f"This address isn't exists or invalid")
                     if args['price']:
                         order.price = args['price']
+                    if args['comment']:
+                        order.comment = args['comment']
                     if args['analytics_id']:
                         order.analytics_id = args['analytics_id']
                     if args['who_delivers']:

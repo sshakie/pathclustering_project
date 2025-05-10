@@ -74,13 +74,16 @@ function init() {
       <div class="order-details hidden">
         <div><b>Имя:</b> ${order.name || '—'}</div>
         <div><b>Телефон:</b> ${order.phone || '—'}</div>
-        <div><b>Координаты:</b> [${order.coords.join(', ')}]</div>
+        <div><b>Комментарий:</b> ${order.comment || '—'}</div>
+        <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+          <button class="delete-order-btn" style="background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Удалить заказ</button>
+        </div>
       </div>
       <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price} руб.</div>
     `;
 
     return item;
-  }
+}
 
   // Универсальная функция для создания маркера
   function createOrderMarker(order, courierId, color) {
@@ -104,9 +107,12 @@ function init() {
     item.addEventListener('click', (e) => {
         // Получаем кнопку редактирования этого заказа
         const editBtn = item.querySelector('.edit-btn');
+        const deleteBtn = item.querySelector('.delete-order-btn');
 
-        // Если клик по кнопке редактирования или идет редактирование - не обрабатываем
-        if (e.target.classList.contains('edit-btn') || editBtn.textContent === '✅') {
+        // Если клик по кнопке редактирования/удаления или идет редактирование - не обрабатываем
+        if (e.target.classList.contains('edit-btn') ||
+            e.target.classList.contains('delete-order-btn') ||
+            editBtn.textContent === '✅') {
             return;
         }
 
@@ -136,6 +142,41 @@ function init() {
         mark.balloon.open();
         highlightOrder(order.id);
     });
+
+    // Добавляем обработчик для кнопки удаления
+    const deleteBtn = item.querySelector('.delete-order-btn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            if (confirm('Вы уверены, что хотите удалить этот заказ?')) {
+                try {
+                    const res = await fetch(`/api/delete/${order.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRFToken': getCSRFToken()
+                        }
+                    });
+
+                    if (res.ok) {
+                        // Удаляем маркер с карты
+                        map.geoObjects.remove(mark);
+                        // Удаляем элемент из списка
+                        item.remove();
+                        // Обновляем счетчик заказов
+                        document.getElementById('orders-count').textContent =
+                            parseInt(document.getElementById('orders-count').textContent) - 1;
+                    } else {
+                        const error = await res.json();
+                        alert(error.message || 'Ошибка при удалении заказа');
+                    }
+                } catch (err) {
+                    console.error('Ошибка:', err);
+                    alert('Ошибка сети: ' + err.message);
+                }
+            }
+        });
+    }
 }
 
   // Обработчик кликов по маркеру
@@ -155,70 +196,74 @@ function init() {
     let isEditing = false;
 
     editBtn.addEventListener('click', async (e) => {
-      e.stopPropagation();
+        e.stopPropagation();
 
-      const nameEl = details.querySelector('div:nth-child(1)');
-      const phoneEl = details.querySelector('div:nth-child(2)');
+        const nameEl = details.querySelector('div:nth-child(1)');
+        const phoneEl = details.querySelector('div:nth-child(2)');
+        const commentEl = details.querySelector('div:nth-child(3)');
 
-      if (!isEditing) {
-        const nameVal = nameEl.textContent.replace('Имя:', '').trim();
-        const phoneVal = phoneEl.textContent.replace('Телефон:', '').trim();
-        const priceVal = priceEl.textContent.replace('руб.', '').trim();
-        const addressVal = addressEl.textContent.trim();
-        editBtn.dataset.editing = "true";
+        if (!isEditing) {
+            const nameVal = nameEl.textContent.replace('Имя:', '').trim();
+            const phoneVal = phoneEl.textContent.replace('Телефон:', '').trim();
+            const commentVal = commentEl.textContent.replace('Комментарий:', '').trim();
+            const priceVal = priceEl.textContent.replace('руб.', '').trim();
+            const addressVal = addressEl.textContent.trim();
+            editBtn.dataset.editing = "true";
 
-        item.dataset.tempAddress = addressVal;
+            item.dataset.tempAddress = addressVal;
 
-        // Оригинальный стиль полей ввода как у вас было
-        nameEl.innerHTML = `<b>Имя:</b> <input type="text" value="${nameVal}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:70%;">`;phoneEl.innerHTML = `<b>Телефон:</b> <input type="text" value="${phoneVal}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:70%;">`;
-        priceEl.innerHTML = `<input type="number" value="${parseInt(priceVal)}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-weight:700; text-align:right; width:60%;"> руб.`;
-        addressEl.innerHTML = `<input type="text" value="${addressVal}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:100%;">`;
+            nameEl.innerHTML = `<b>Имя:</b> <input type="text" value="${nameVal}" class="edit-field">`;
+            phoneEl.innerHTML = `<b>Телефон:</b> <input type="text" value="${phoneVal}" class="edit-field">`;
+            commentEl.innerHTML = `<b>Комментарий:</b> <input type="text" value="${commentVal}" class="edit-field">`;
+            priceEl.innerHTML = `<input type="number" value="${parseInt(priceVal)}" class="edit-field price-field"> руб.`;
+            addressEl.innerHTML = `<input type="text" value="${addressVal}" class="edit-field address-field">`;
 
-        editBtn.textContent = '✅';
-        details.classList.remove('hidden');
-        isEditing = true;
-      } else {
-        delete editBtn.dataset.editing;
-        const updatedName = nameEl.querySelector('input').value;
-        const updatedPhone = phoneEl.querySelector('input').value;
-        const updatedPrice = priceEl.querySelector('input').value;
-        const updatedAddress = addressEl.querySelector('input').value;
+            editBtn.textContent = '✅';
+            details.classList.remove('hidden');
+            isEditing = true;
+        } else {
+            delete editBtn.dataset.editing;
+            const updatedName = nameEl.querySelector('input').value;
+            const updatedPhone = phoneEl.querySelector('input').value;
+            const updatedComment = commentEl.querySelector('input').value;
+            const updatedPrice = priceEl.querySelector('input').value;
+            const updatedAddress = addressEl.querySelector('input').value;
 
-        try {
-          const res = await fetch(`/api/orders/${order.id}`, {
-            method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              name: updatedName,
-              phone: updatedPhone,
-              price: parseInt(updatedPrice),
-              address: updatedAddress
-            }),
-          });
+            try {
+                const res = await fetch(`/api/orders/${order.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: updatedName,
+                        phone: updatedPhone,
+                        comment: updatedComment,
+                        price: parseInt(updatedPrice),
+                        address: updatedAddress
+                    }),
+                });
 
-          if (res.ok) {
-            nameEl.innerHTML = `<b>Имя:</b> ${updatedName}`;
-            phoneEl.innerHTML = `<b>Телефон:</b> ${updatedPhone}`;
-            priceEl.innerHTML = `${updatedPrice} руб.`;
-            addressEl.innerHTML = updatedAddress;
+                if (res.ok) {
+                    nameEl.innerHTML = `<b>Имя:</b> ${updatedName || '—'}`;
+                    phoneEl.innerHTML = `<b>Телефон:</b> ${updatedPhone || '—'}`;
+                    commentEl.innerHTML = `<b>Комментарий:</b> ${updatedComment || '—'}`;
+                    priceEl.innerHTML = `${updatedPrice} руб.`;
+                    addressEl.innerHTML = updatedAddress;
 
-            // Обновляем маркер на карте
-            mark.properties.set('balloonContent', updatedAddress);
-
-            editBtn.textContent = '✏️';
-            isEditing = false;
-          } else {
-            addressEl.innerHTML = item.dataset.tempAddress || order.address;
-            alert('Ошибка при сохранении');
-          }
-        } catch (e) {
-          console.error(e);
-          addressEl.innerHTML = item.dataset.tempAddress || order.address;
-          alert('Ошибка соединения');
+                    mark.properties.set('balloonContent', updatedAddress);
+                    editBtn.textContent = '✏️';
+                    isEditing = false;
+                } else {
+                    addressEl.innerHTML = item.dataset.tempAddress || order.address;
+                    alert('Ошибка при сохранении');
+                }
+            } catch (e) {
+                console.error(e);
+                addressEl.innerHTML = item.dataset.tempAddress || order.address;
+                alert('Ошибка соединения');
+            }
         }
-      }
     });
-  }
+}
 
   // Инициализация всех заказов
   function initializeOrders() {
@@ -376,10 +421,11 @@ if (orderSearch) {
     document.querySelectorAll('.order-item').forEach(order => {
       const name = order.querySelector('.order-details b:nth-child(1)')?.nextSibling?.textContent?.toLowerCase() || '';
       const phone = order.querySelector('.order-details b:nth-child(2)')?.nextSibling?.textContent?.toLowerCase() || '';
+      const comment = order.querySelector('.order-details b:nth-child(3)')?.nextSibling?.textContent?.toLowerCase() || '';
       const address = order.querySelector('.order-header div:nth-child(2)')?.textContent?.toLowerCase() || '';
       const analyticsId = order.querySelector('.order-header div:nth-child(1)')?.textContent?.toLowerCase() || '';
 
-      const match = [name, phone, address, analyticsId].some(text => text.includes(query));
+      const match = [name, phone, comment, address, analyticsId].some(text => text.includes(query));
       order.style.display = match ? 'block' : 'none';
     });
   });

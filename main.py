@@ -93,7 +93,7 @@ def show_project(project_id):
         courier_data = {}
 
         for order in session.query(Order).filter(Order.project_id == project.id).all():
-            order_dict = order.to_dict(only=('id', 'address', 'price', 'analytics_id', 'name', 'phone'))
+            order_dict = order.to_dict(only=('id', 'address', 'price', 'analytics_id', 'name', 'phone', 'comment'))
             order_dict['coords'] = order.get_coords()
             deliver = order.who_delivers if order.who_delivers != -1 else 'no_courier'
             courier_orders[str(deliver)] = courier_orders.get(str(deliver), []) + [order_dict]
@@ -121,6 +121,7 @@ def show_project(project_id):
                             'address': add_order_form.address.data,
                             'analytics_id': add_order_form.analytics_id.data,
                             'price': add_order_form.price.data,
+                            'comment': add_order_form.comment.data,
                             'project_id': project_id}
                     requests.post('http://127.0.0.1:5000/api/orders', json=data, cookies=request.cookies)
                 return redirect(f'/projects/{project_id}')
@@ -275,7 +276,7 @@ def test():
                               'telegram_tag': '@captain1928', 'project_id': 1}).json())
     print(requests.post('http://127.0.0.1:5000/api/orders',
                         json={'name': 'Jone', 'phone': '+79009897520', 'address': 'Lipetsk, ul. Moskovskaya, 92',
-                              'project_id': 1, 'price': 1512, 'who_delivers': 2}, cookies=request.cookies).json())
+                              'project_id': 1, 'price': 1512, 'comment': 'бобер мне снес квартиру', 'who_delivers': 2}, cookies=request.cookies).json())
     session = create_session()
     session.query(User).filter(User.id == 2).first().color = '#7F7F7F'
     session.query(User).filter(User.id == 3).first().color = '#AA00FF'
