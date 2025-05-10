@@ -58,7 +58,6 @@ function init() {
   const courierPlacemarks = {};
 
   // Универсальная функция для создания элемента заказа
-  // В функции createOrderItem заменяем кнопку удаления на новую версию:
 function createOrderItem(order, courierId, color) {
     const item = document.createElement('div');
     item.className = courierId === 'no_courier' ? 'order-item unassigned' : 'order-item';
@@ -90,21 +89,57 @@ function createOrderItem(order, courierId, color) {
 }
 
   // Универсальная функция для создания маркера
-  function createOrderMarker(order, courierId, color) {
+function createOrderMarker(order, courierId, color) {
+  // Для заказов без курьера — простой серый круг
+  if (courierId === 'no_courier') {
     const mark = new ymaps.Placemark(order.coords, {
       balloonContent: order.address,
-      hintContent: courierId === 'no_courier' ? 'Не назначен' : (courierData[courierId]?.name || courierId)
+      hintContent: 'Не назначен'
     }, {
       preset: 'islands#circleIcon',
-      iconColor: courierId === 'no_courier' ? '#808080' : color,
+      iconColor: '#808080',
       balloonAutoPan: false,
       hideIconOnBalloonOpen: false
     });
-
     mark.properties.set('courierId', courierId);
     map.geoObjects.add(mark);
     return mark;
   }
+
+  // Для остальных — эффект свечения через радиальный градиент
+  const glowColor = color;
+  const glowSvg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80">
+      <defs>
+        <radialGradient id="grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="${glowColor}" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="${glowColor}" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="40" cy="40" r="30" fill="url(#grad)"/>
+      <circle cx="40" cy="40" r="8"  fill="${glowColor}"/>
+    </svg>
+  `;
+  const encodedSvg = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(glowSvg);
+
+  const mark = new ymaps.Placemark(order.coords, {
+    balloonContent: order.address,
+    hintContent: courierData[courierId]?.name || courierId
+  }, {
+    iconLayout:    'default#image',
+    iconImageHref: encodedSvg,
+    iconImageSize: [80, 80],
+    iconImageOffset: [-40, -40],
+    balloonAutoPan: false,
+    hideIconOnBalloonOpen: false
+  });
+
+  mark.properties.set('courierId', courierId);
+  map.geoObjects.add(mark);
+  return mark;
+}
+
+
 
   // Универсальный обработчик кликов по заказу
   function setupOrderClickHandler(item, order, mark) {
@@ -606,6 +641,178 @@ document.getElementById('clusteringModal').addEventListener('hidden.bs.modal', (
   }
 });
 
+document.addEventListener('DOMContentLoaded', function() {
+    // Получаем текущий URL страницы без параметров запроса
+    const currentPageUrl = window.location.origin + window.location.pathname;
+
+    // Используем courierData для данных о курьерах
+    const exportType = document.getElementById('exportType');
+    const steps = {
+        'initial': document.getElementById('step1'),
+        'orders': document.getElementById('step2-orders'),
+        'couriers-type': document.getElementById('step2-couriers'),
+        'couriers-select': document.getElementById('step3-couriers-select'),
+        'couriers-format': document.getElementById('step3-couriers-format'),
+        'couriers-export': document.getElementById('step4-couriers')
+    };
+
+    // Скрываем все шаги кроме первого
+    function resetSteps() {
+        for (const key in steps) {
+            if (key !== 'initial') {
+                steps[key].style.display = 'none';
+            }
+        }
+    }
+
+    // Генерация списка курьеров из courierData
+    function generateCouriersList() {
+        const container = document.getElementById('couriersCheckboxList');
+        container.innerHTML = '';
+
+        if (!courierData || typeof courierData !== 'object') {
+            container.innerHTML = '<div class="alert alert-danger">Ошибка загрузки данных о курьерах</div>';
+            return;
+        }
+
+        // Сортируем курьеров по имени
+        const sortedCouriers = Object.entries(courierData).sort((a, b) => {
+            const nameA = a[1].name || '';
+            const nameB = b[1].name || '';
+            return nameA.localeCompare(nameB);
+        });
+
+        // Создаем чекбоксы для каждого курьера
+        for (const [id, courier] of sortedCouriers) {
+            const div = document.createElement('div');
+            div.className = 'form-check mb-2';
+
+            const input = document.createElement('input');
+            input.className = 'form-check-input courier-checkbox';
+            input.type = 'checkbox';
+            input.value = id;
+            input.id = `courier-${id}`;
+            input.dataset.name = courier.name || `Курьер ${id}`;
+
+            const label = document.createElement('label');
+            label.className = 'form-check-label';
+            label.htmlFor = `courier-${id}`;
+            label.textContent = courier.name || `Курьер ${id}`;
+
+            div.appendChild(input);
+            div.appendChild(label);
+            container.appendChild(div);
+        }
+
+        if (Object.keys(courierData).length === 0) {
+            container.innerHTML = '<div class="alert alert-warning">Нет доступных курьеров</div>';
+        }
+    }
+
+    // Обработчики событий
+    exportType.addEventListener('change', function() {
+        resetSteps();
+        if (this.value === 'orders') {
+            steps['orders'].style.display = 'block';
+        } else if (this.value === 'couriers') {
+            steps['couriers-type'].style.display = 'block';
+            generateCouriersList();
+        }
+    });
+
+    document.getElementById('couriersExportType').addEventListener('change', function() {
+        if (this.value === 'selected') {
+            steps['couriers-select'].style.display = 'block';
+            steps['couriers-format'].style.display = 'none';
+            steps['couriers-export'].style.display = 'none';
+        } else {
+            steps['couriers-select'].style.display = 'none';
+            steps['couriers-format'].style.display = 'block';
+        }
+    });
+
+    document.getElementById('couriersCheckboxList').addEventListener('change', function() {
+        const anyChecked = document.querySelectorAll('#couriersCheckboxList input[type="checkbox"]:checked').length > 0;
+        steps['couriers-format'].style.display = anyChecked ? 'block' : 'none';
+        steps['couriers-export'].style.display = 'none';
+    });
+
+    document.getElementById('exportFormat').addEventListener('change', function() {
+        steps['couriers-export'].style.display = 'block';
+    });
+
+    document.getElementById('exportOrdersBtn').addEventListener('click', function() {
+        exportData('orders');
+    });
+
+    document.getElementById('exportCouriersBtn').addEventListener('click', function() {
+        const exportType = document.getElementById('couriersExportType').value;
+        const exportFormat = document.getElementById('exportFormat').value;
+        const selectedCouriers = [];
+
+        if (exportType === 'selected') {
+    document.querySelectorAll('#couriersCheckboxList input[type="checkbox"]:checked').forEach(checkbox => {
+        selectedCouriers.push({
+            id: checkbox.value,
+            name: checkbox.dataset.name
+        });
+    });
+}
+
+        exportData('couriers', {
+            couriersType: exportType,
+            format: exportFormat,
+            selectedCouriers: selectedCouriers,
+            allCouriers: exportType === 'all' ? courierData : null
+        });
+    });
+
+    // Функция экспорта с отправкой на текущий URL
+    function exportData(type, options = {}) {
+    fetch(currentPageUrl, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify({
+            action: 'export',
+            type: type,
+            data: options
+        })
+    })
+    .then(response => {
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        return response.blob().then(blob => {
+            // Попробуем вытащить имя файла из заголовка
+            const disposition = response.headers.get('Content-Disposition');
+            let fileName = 'exported_file.xlsx';
+
+            if (disposition && disposition.includes('filename=')) {
+                const match = disposition.match(/filename="?([^"]+)"?/);
+                if (match && match[1]) {
+                    fileName = decodeURIComponent(match[1]);
+                }
+            }
+
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            window.URL.revokeObjectURL(url);
+
+            bootstrap.Modal.getInstance(document.getElementById('ExportModal')).hide();
+        });
+    })
+    .catch(error => {
+        console.error('Ошибка экспорта:', error);
+    });
+}
+
+});
 document.addEventListener('DOMContentLoaded', function() {
     const overlay = document.getElementById('storageModalOverlay');
     if (!overlay) return;
