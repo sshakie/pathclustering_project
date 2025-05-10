@@ -86,21 +86,57 @@ function init() {
 }
 
   // Универсальная функция для создания маркера
-  function createOrderMarker(order, courierId, color) {
+function createOrderMarker(order, courierId, color) {
+  // Для заказов без курьера — простой серый круг
+  if (courierId === 'no_courier') {
     const mark = new ymaps.Placemark(order.coords, {
       balloonContent: order.address,
-      hintContent: courierId === 'no_courier' ? 'Не назначен' : (courierData[courierId]?.name || courierId)
+      hintContent: 'Не назначен'
     }, {
       preset: 'islands#circleIcon',
-      iconColor: courierId === 'no_courier' ? '#808080' : color,
+      iconColor: '#808080',
       balloonAutoPan: false,
       hideIconOnBalloonOpen: false
     });
-
     mark.properties.set('courierId', courierId);
     map.geoObjects.add(mark);
     return mark;
   }
+
+  // Для остальных — эффект свечения через радиальный градиент
+  const glowColor = color;
+  const glowSvg = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80">
+      <defs>
+        <radialGradient id="grad" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="${glowColor}" stop-opacity="0.6"/>
+          <stop offset="100%" stop-color="${glowColor}" stop-opacity="0"/>
+        </radialGradient>
+      </defs>
+      <circle cx="40" cy="40" r="30" fill="url(#grad)"/>
+      <circle cx="40" cy="40" r="8"  fill="${glowColor}"/>
+    </svg>
+  `;
+  const encodedSvg = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(glowSvg);
+
+  const mark = new ymaps.Placemark(order.coords, {
+    balloonContent: order.address,
+    hintContent: courierData[courierId]?.name || courierId
+  }, {
+    iconLayout:    'default#image',
+    iconImageHref: encodedSvg,
+    iconImageSize: [80, 80],
+    iconImageOffset: [-40, -40],
+    balloonAutoPan: false,
+    hideIconOnBalloonOpen: false
+  });
+
+  mark.properties.set('courierId', courierId);
+  map.geoObjects.add(mark);
+  return mark;
+}
+
+
 
   // Универсальный обработчик кликов по заказу
   function setupOrderClickHandler(item, order, mark) {
