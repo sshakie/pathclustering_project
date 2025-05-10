@@ -1,3 +1,8 @@
+function getCSRFToken() {
+    const meta = document.querySelector('meta[name="csrf-token"]');
+    return meta ? meta.content : '';
+}
+
 const courierColors = ['#ff4d4d', '#4dd2ff', '#85e085', '#ffcc66', '#cc99ff', '#9966cc', '#ff9966'];
 const depotCoords = [52.605003, 39.535107]
 // === TAB переключатели ===
@@ -53,7 +58,8 @@ function init() {
   const courierPlacemarks = {};
 
   // Универсальная функция для создания элемента заказа
-  function createOrderItem(order, courierId, color) {
+  // В функции createOrderItem заменяем кнопку удаления на новую версию:
+function createOrderItem(order, courierId, color) {
     const item = document.createElement('div');
     item.className = courierId === 'no_courier' ? 'order-item unassigned' : 'order-item';
     item.dataset.id = order.id;
@@ -65,7 +71,10 @@ function init() {
       <div class="order-header">
         <div style="display: flex; justify-content: space-between; align-items: center;">
           <div style="font-weight: bold;">№ ${orderNumber}</div>
-          <button class="edit-btn">✏️</button>
+          <div style="display: flex; align-items: center;">
+            <button class="delete-order-btn hidden" style="height: 24px; display: flex; align-items: center; justify-content: center; margin-right: 10px;">🗑️</button>
+            <button class="edit-btn" style="height: 24px; display: flex; align-items: center; justify-content: center;">✏️</button>
+          </div>
         </div>
         <div class="order-address">${order.address}</div>
       </div>
@@ -73,9 +82,6 @@ function init() {
         <div><b>Имя:</b> ${order.name || '—'}</div>
         <div><b>Телефон:</b> ${order.phone || '—'}</div>
         <div><b>Комментарий:</b> ${order.comment || '—'}</div>
-        <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
-          <button class="delete-order-btn" style="background: #ff4d4d; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer;">Удалить заказ</button>
-        </div>
       </div>
       <div class="order-price" style="color: orangered; font-weight: 700; text-align: right;">${order.price} руб.</div>
     `;
@@ -103,9 +109,13 @@ function init() {
   // Универсальный обработчик кликов по заказу
   function setupOrderClickHandler(item, order, mark) {
     item.addEventListener('click', (e) => {
-        // Получаем кнопку редактирования этого заказа
+        // Получаем кнопки этого заказа
         const editBtn = item.querySelector('.edit-btn');
         const deleteBtn = item.querySelector('.delete-order-btn');
+
+        if (e.target === editBtn || e.target === deleteBtn || editBtn.textContent === '✅') {
+            return;
+        }
 
         // Если клик по кнопке редактирования/удаления или идет редактирование - не обрабатываем
         if (e.target.classList.contains('edit-btn') ||
@@ -124,16 +134,26 @@ function init() {
                 openDetails.classList.add('hidden');
                 const parentItem = openDetails.closest('.order-item');
                 if (parentItem) {
-                    parentItem.querySelector('.edit-btn').style.display = 'none';
+                    parentItem.querySelector('.edit-btn').style.display = 'block'; // Всегда показываем кнопку редактирования
                 }
             }
         });
 
         const details = item.querySelector('.order-details');
+        const wasHidden = details.classList.contains('hidden');
         details.classList.toggle('hidden');
 
-        // Управляем видимостью кнопки редактирования
-        editBtn.style.display = details.classList.contains('hidden') ? 'none' : 'block';
+        // Управляем видимостью кнопок
+        if (wasHidden) {
+            // При открытии - показываем кнопку редактирования
+            editBtn.style.display = 'block';
+            // Кнопку удаления оставляем скрытой (она появится только при редактировании)
+            deleteBtn.classList.add('hidden');
+        } else {
+            // При закрытии - оставляем кнопку редактирования видимой
+            editBtn.style.display = 'block';
+            deleteBtn.classList.add('hidden');
+        }
 
         // Центрируем карту и открываем балун
         map.setCenter(order.coords);
@@ -148,7 +168,7 @@ function init() {
             e.stopPropagation();
             if (confirm('Вы уверены, что хотите удалить этот заказ?')) {
                 try {
-                    const res = await fetch(`/api/delete/${order.id}`, {
+                    const res = await fetch(`/api/orders/${order.id}`, {
                         method: 'DELETE',
                         headers: {
                             'Content-Type': 'application/json',
@@ -162,20 +182,21 @@ function init() {
                         // Удаляем элемент из списка
                         item.remove();
                         // Обновляем счетчик заказов
-                        document.getElementById('orders-count').textContent =
-                            parseInt(document.getElementById('orders-count').textContent) - 1;
+                        const ordersCount = document.getElementById('orders-count');
+                        ordersCount.textContent = parseInt(ordersCount.textContent) - 1;
                     } else {
                         const error = await res.json();
                         alert(error.message || 'Ошибка при удалении заказа');
                     }
                 } catch (err) {
-                    console.error('Ошибка:', err);
-                    alert('Ошибка сети: ' + err.message);
+                    console.error('Ошибка удаления:', err);
+                    alert(`Ошибка при удалении заказа: ${err.message}`);
                 }
             }
         });
     }
 }
+
 
   // Обработчик кликов по маркеру
   function setupMarkerClickHandler(item, order, mark) {
@@ -187,6 +208,7 @@ function init() {
   // Обработчик кнопки редактирования (с оригинальным стилем полей)
   function setupEditButtonHandler(item, order, mark) {
     const editBtn = item.querySelector('.edit-btn');
+    const deleteBtn = item.querySelector('.delete-order-btn');
     const details = item.querySelector('.order-details');
     const addressEl = item.querySelector('.order-address');
     const priceEl = item.querySelector('.order-price');
@@ -201,6 +223,9 @@ function init() {
         const commentEl = details.querySelector('div:nth-child(3)');
 
         if (!isEditing) {
+            // Показываем кнопку удаления при начале редактирования
+            deleteBtn.classList.remove('hidden');
+
             const nameVal = nameEl.textContent.replace('Имя:', '').trim();
             const phoneVal = phoneEl.textContent.replace('Телефон:', '').trim();
             const commentVal = commentEl.textContent.replace('Комментарий:', '').trim();
@@ -210,11 +235,11 @@ function init() {
 
             item.dataset.tempAddress = addressVal;
 
-            nameEl.innerHTML = `<b>Имя:</b> <input type="text" value="${nameVal}" class="edit-field">`;
-            phoneEl.innerHTML = `<b>Телефон:</b> <input type="text" value="${phoneVal}" class="edit-field">`;
-            commentEl.innerHTML = `<b>Комментарий:</b> <input type="text" value="${commentVal}" class="edit-field">`;
-            priceEl.innerHTML = `<input type="number" value="${parseInt(priceVal)}" class="edit-field price-field"> руб.`;
-            addressEl.innerHTML = `<input type="text" value="${addressVal}" class="edit-field address-field">`;
+            nameEl.innerHTML = `<b>Имя:</b> <input type="text" value="${nameVal}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:70%;">`;
+            phoneEl.innerHTML = `<b>Телефон:</b> <input type="text" value="${phoneVal}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:70%;">`;
+            commentEl.innerHTML = `<b>Комментарий:</b> <input type="text" value="${commentVal}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:70%;">`;
+            priceEl.innerHTML = `<input type="number" value="${parseInt(priceVal)}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-weight:700; text-align:right; width:60%;"> руб.`;
+            addressEl.innerHTML = `<input type="text" value="${addressVal}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:100%;">`;
 
             editBtn.textContent = '✅';
             details.classList.remove('hidden');
@@ -250,6 +275,11 @@ function init() {
                     mark.properties.set('balloonContent', updatedAddress);
                     editBtn.textContent = '✏️';
                     isEditing = false;
+
+                    // Скрываем кнопку удаления после завершения редактирования
+                    deleteBtn.classList.add('hidden');
+                    // Но оставляем кнопку редактирования видимой
+                    editBtn.style.display = 'block';
                 } else {
                     addressEl.innerHTML = item.dataset.tempAddress || order.address;
                     alert('Ошибка при сохранении');
@@ -574,4 +604,48 @@ document.getElementById('clusteringModal').addEventListener('hidden.bs.modal', (
   if (clusteringSuccess) {
     window.location.reload();
   }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const overlay = document.getElementById('storageModalOverlay');
+    if (!overlay) return;
+
+    const input = document.getElementById('storageInput');
+    const button = document.getElementById('saveStorageBtn');
+
+    function flashError() {
+        input.classList.add('error');
+        input.focus();
+
+        setTimeout(() => {
+            input.classList.remove('error');
+        }, 1000);
+    }
+
+    button.addEventListener('click', async function() {
+        const address = input.value.trim();
+
+        if (!address) {
+            flashError();
+            return;
+        }
+
+        try {
+            const projectId = window.location.pathname.split('/').pop();
+            const response = await fetch(`/api/projects/${projectId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ storage: address })
+            });
+
+            if (!response.ok) {
+                flashError();
+            } else {
+                window.location.reload();
+            }
+        } catch (error) {
+            console.error('Ошибка:', error);
+            flashError();
+        }
+    });
 });

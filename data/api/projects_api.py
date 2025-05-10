@@ -1,5 +1,6 @@
 from flask_restful import abort, Resource, reqparse
 from data.sql.db_session import create_session
+from data.py.geocoder import get_coords_from_geocoder
 from data.sql.__all_models import Project
 from data.sql.__all_models import Order
 from flask_login import current_user
@@ -14,6 +15,7 @@ put_project_parser = reqparse.RequestParser()
 put_project_parser.add_argument('name', type=str)
 put_project_parser.add_argument('icon', type=str)
 put_project_parser.add_argument('invite_link', type=str)
+put_project_parser.add_argument('storage', type=str)
 
 
 class ProjectsResource(Resource):
@@ -27,7 +29,7 @@ class ProjectsResource(Resource):
                     abort(403, message=f"This is not your project")
                 return jsonify(
                     {'project': project.to_dict(
-                        only=('id', 'name', 'icon'))})
+                        only=('id', 'name', 'icon', 'storage'))})
             finally:
                 session.close()
         abort(401, message=f"You're not logged in")
@@ -64,6 +66,8 @@ class ProjectsResource(Resource):
                     project.icon = args.icon
                 if args['invite_link']:
                     project.invite_link = args.invite_link
+                if args['storage']:
+                    project.set_depot_coords(get_coords_from_geocoder(args.storage))
                 session.commit()
                 session.close()
                 return jsonify({'success': 'edited!'})
@@ -78,7 +82,7 @@ class ProjectsListResource(Resource):
             projects = session.query(Project).filter(Project.admin_id == current_user.id).all()
             session.close()
             return jsonify({'projects': [i.to_dict(
-                only=('id', 'name', 'icon')) for i in projects]})
+                only=('id', 'name', 'icon', 'storage')) for i in projects]})
         abort(401, message=f"You're not logged in")
 
     def post(self):

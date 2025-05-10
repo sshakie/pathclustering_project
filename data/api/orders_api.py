@@ -1,4 +1,4 @@
-from data.api.geocoder_api import get_coords_from_geocoder
+from data.py.geocoder import get_coords_from_geocoder
 from data.blanks.orderform import is_right_phone_number
 from flask_restful import abort, Resource, reqparse
 from data.sql.db_session import create_session

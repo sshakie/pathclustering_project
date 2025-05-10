@@ -78,7 +78,7 @@ def homepage():
     return redirect('/login')
 
 
-@app.route('/projects/<int:project_id>', methods=['GET', 'POST'])
+@app.route('/projects/<int:project_id>', methods=['GET', 'POST', 'PUT'])
 def show_project(project_id):
     if current_user.is_authenticated:
         if current_user.status != 'admin':
@@ -163,7 +163,8 @@ def show_project(project_id):
                                icon_id=project.icon,
                                invite_link=project.invite_link,
                                courier_ready=[i for i in a if i['project_id']],
-                               courier_not_ready=[i for i in a if not i['project_id']])
+                               courier_not_ready=[i for i in a if not i['project_id']],
+                               project_depot=[project.longitude, project.latitude])
     return redirect('/login')
 
 

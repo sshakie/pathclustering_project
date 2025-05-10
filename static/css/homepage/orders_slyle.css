@@ -62,21 +62,36 @@
   background-color: #FFE2CC;
 }
 
-.edit-btn, .delete-btn {
-    background: none;
+.edit-btn, .delete-order-btn {
     border: none;
+    background: none;
     cursor: pointer;
-    font-size: 16px;
     padding: 0 5px;
-    margin-left: 5px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
 }
 
-.edit-btn:hover {
-    color: #4CAF50;
+.edit-btn:hover, .delete-order-btn:hover {
+    background-color: rgba(0, 0, 0, 0.1);
 }
 
-.delete-btn:hover {
-    color: #f44336;
+.edit-btn:active, .delete-order-btn:active {
+    background-color: rgba(0, 0, 0, 0.2);
+}
+
+.edit-btn:focus {
+    border: none;
+    outline: none
+}
+
+.delete-order-btn:focus {
+    border: none;
+    outline: none
 }
 
 /* Показываем кнопку, когда details открыты */
