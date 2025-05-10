@@ -9,13 +9,15 @@ from data.sql.models.order import Order
 def unpack_orders_xls(table, project_id, cookie):  # TODO: Добавить комментарии в шабон
     data_tuples = [tuple(x) for x in pandas.read_excel(table).values]
 
-    for analytics_id, address, name, phone, price in data_tuples:
+    for analytics_id, address, name, phone, comment, price in data_tuples:
         if not (phone, name, address):
             return False
         if str(analytics_id) == 'nan':
             analytics_id = None
         if str(price) == 'nan':
             price = None
+        if str(comment) == 'nan':
+            comment = None
 
         response = requests.post('http://127.0.0.1:5000/api/orders',
                                  json={'phone': phone,
@@ -23,6 +25,7 @@ def unpack_orders_xls(table, project_id, cookie):  # TODO: Добавить ко
                                        'address': address,
                                        'analytics_id': analytics_id,
                                        'price': price,
+                                       'comment': comment,
                                        'project_id': project_id}, cookies=cookie)
         if not response:
             return False
@@ -70,7 +73,7 @@ def create_couriers_excel(project_id, couriers, one_file):
                             'Получатель': order.name,
                             'Телефон': order.phone,
                             'Цена': order.price,
-                            # 'Комментарий': order.comment
+                            'Комментарий': order.comment
                         })
 
                     if orders:
@@ -108,7 +111,7 @@ def create_couriers_excel(project_id, couriers, one_file):
                             'Получатель': order.name,
                             'Телефон': order.phone,
                             'Цена': order.price,
-                            # 'Комментарий': order.comment
+                            'Комментарий': order.comment
                         })
 
                     if orders:
