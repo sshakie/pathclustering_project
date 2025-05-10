@@ -147,21 +147,18 @@ def create_orders_excel(project_id):
                 'Получатель': order.name,
                 'Телефон': order.phone,
                 'Цена': order.price,
-                # 'Комментарий': order.comment if hasattr(order, 'comment') else None,
+                'Комментарий': order.comment if hasattr(order, 'comment') else None,
             }
             orders_data.append(order_info)
 
-        # Создаем DataFrame
         df = pd.DataFrame(orders_data)
 
-        # Создаем файл в памяти
         output = BytesIO()
         with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
             df.to_excel(writer, index=False, sheet_name='Заказы')
 
         output.seek(0)
 
-        # Возвращаем файл как ответ
         return send_file(
             output,
             mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',

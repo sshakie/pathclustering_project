@@ -18,22 +18,20 @@ class Depot:
 
 
 def cluster_orders(orders, edges, num_couriers, depot):
+    """Кластеризация"""
     G = nx.Graph()
     G.add_weighted_edges_from(edges)
 
     nodes = [node for node in orders if node != depot]
 
-    # Матрица кратчайших расстояний между заказами
     dist_matrix = nx.floyd_warshall_numpy(G, weight='weight')
     idx = [list(G.nodes).index(n) for n in nodes]
     reduced_matrix = dist_matrix[np.ix_(idx, idx)]
 
-    # Кластеризация
     condensed = squareform(reduced_matrix)
     z = linkage(condensed, method='average')
     labels = fcluster(z, t=num_couriers, criterion='maxclust')
 
-    # Сопоставляем точки с курьерами
     clusters = {}
     for node, label in zip(nodes, labels):
         clusters.setdefault(label, []).append(node)
@@ -42,6 +40,7 @@ def cluster_orders(orders, edges, num_couriers, depot):
 
 
 def haversine(coord1, coord2):
+    """расстояние между двумя точками"""
     R = 6371000
 
     lat1, lon1 = radians(coord1[0]), radians(coord1[1])
@@ -57,6 +56,7 @@ def haversine(coord1, coord2):
 
 
 def get_distance_matrix(orders: list[Order]) -> list[tuple[str, str, float]]:
+    """Получение матрицы расстояний между всеми точками"""
     coords = [order.get_coords() for order in orders]
     ids = [order.id for order in orders]
 
