@@ -11,7 +11,7 @@ from data.blanks.orderform import OrderForm, OrderImportForm
 from data.sql.db_session import create_session, global_init
 from data.sql.models.user_relations import UserRelations
 from data.blanks.registerform import RegisterForm
-from data.xls.serialize import unpack_orders_xls
+from data.xls.serialize import unpack_orders_xls, create_couriers_excel, create_orders_excel
 from data.sql.models.project import Project
 from data.blanks.loginform import LoginForm
 from data.py.clustering import clustering
@@ -128,6 +128,7 @@ def show_project(project_id):
             elif form_name == 'import_orders' and import_order_form.validate_on_submit():
                 xls = import_order_form.xls_file.data
                 unpack_orders_xls(xls, project_id, request.cookies)
+                return redirect(f'/projects/{project_id}')
 
             elif 'application/json' in content_type:
                 data = request.get_json()
@@ -154,7 +155,20 @@ def show_project(project_id):
                         return jsonify({'status': 'error',
                                         'message': 'Ошибка. Возможно, нет курьеров'}), 400
 
-        return render_template('homepage.html',
+
+                elif data.get('action', '') == 'export':
+                    print(data)
+                    if data['type'] == 'couriers':
+                        one_file = True if data['data']['format'] == 'single' else False
+
+                        couriers = data['data']['selectedCouriers'] if data['data']['selectedCouriers'] \
+                            else data['data']['allCouriers']
+
+                        return create_couriers_excel(project_id, couriers, one_file)
+                    elif data['type'] == 'orders':
+                        return create_orders_excel(project_id)
+
+    return render_template('homepage.html',
                                add_order_form=add_order_form,
                                import_order_form=import_order_form,
                                courier_data=courier_data,

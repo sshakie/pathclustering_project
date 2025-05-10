@@ -103,7 +103,7 @@
     </div>
 </div>
 
-<!--Модальное окно экспорта-->
+<!-- Модальное окно экспорта -->
 <div class="modal fade" id="ExportModal" tabindex="-1" aria-labelledby="ExportModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -112,10 +112,66 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть">✖</button>
             </div>
             <div class="modal-body">
+                <form id="exportForm">
+                    <!-- Шаг 1: Выбор типа данных -->
+                    <div class="mb-3 step" id="step1">
+                        <label for="exportType" class="form-label">Что экспортировать?</label>
+                        <select class="form-select" id="exportType" required>
+                            <option value="" selected disabled>Выберите тип данных</option>
+                            <option value="orders">Заказы</option>
+                            <option value="couriers">Курьеры</option>
+                        </select>
+                    </div>
+
+                    <!-- Шаг 2a: Для заказов -->
+                    <div class="mb-3 step" id="step2-orders" style="display: none;">
+                        <div class="alert alert-info">
+                            Будут экспортированы все заказы
+                        </div>
+                        <button type="button" class="btn btn-primary w-100" id="exportOrdersBtn">Экспортировать заказы
+                        </button>
+                    </div>
+
+                    <!-- Шаг 2b: Для курьеров - выбор типа -->
+                    <div class="mb-3 step" id="step2-couriers" style="display: none;">
+                        <label for="couriersExportType" class="form-label">Каких курьеров экспортировать?</label>
+                        <select class="form-select" id="couriersExportType" required>
+                            <option value="" selected disabled>Выберите вариант</option>
+                            <option value="all">Все курьеры</option>
+                            <option value="selected">Только выбранные</option>
+                        </select>
+                    </div>
+
+                    <!-- Шаг 3a: Выбор конкретных курьеров -->
+                    <div class="mb-3 step" id="step3-couriers-select" style="display: none;">
+                        <label class="form-label">Выберите курьеров для экспорта:</label>
+                        <div id="couriersCheckboxList" class="border p-2" style="max-height: 200px; overflow-y: auto;">
+                            <!-- Список чекбоксов будет сгенерирован динамически -->
+                        </div>
+                    </div>
+
+                    <!-- Шаг 3b: Для курьеров - выбор формата -->
+                    <div class="mb-3 step" id="step3-couriers-format" style="display: none;">
+                        <label for="exportFormat" class="form-label">Формат экспорта</label>
+                        <select class="form-select" id="exportFormat" required>
+                            <option value="" selected disabled>Выберите вариант</option>
+                            <option value="single">В один файл</option>
+                            <option value="multiple">Отдельные файлы</option>
+                        </select>
+                    </div>
+
+                    <!-- Шаг 4: Кнопка экспорта для курьеров -->
+                    <div class="mb-3 step" id="step4-couriers" style="display: none;">
+                        <button type="button" class="btn btn-primary w-100" id="exportCouriersBtn">Экспортировать
+                            курьеров
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
+
 <!---Модальное окно статуса кластеризации-->
 <div class="modal fade" id="clusteringModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
      data-bs-keyboard="false">
