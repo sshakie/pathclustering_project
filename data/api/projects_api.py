@@ -67,7 +67,10 @@ class ProjectsResource(Resource):
                 if args['invite_link']:
                     project.invite_link = args.invite_link
                 if args['storage']:
-                    project.set_depot_coords(get_coords_from_geocoder(args.storage))
+                    try:
+                        project.set_depot_coords(get_coords_from_geocoder(args.storage))
+                    except Exception:
+                        abort(404, message=f"This address isn't exists or invalid")
                 session.commit()
                 session.close()
                 return jsonify({'success': 'edited!'})

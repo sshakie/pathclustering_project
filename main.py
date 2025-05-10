@@ -1,5 +1,3 @@
-import time
-
 from flask_login import LoginManager, logout_user, current_user, login_user
 from data.api.courier_relations_api import CourierRelationsListResource
 from data.api.projects_api import ProjectsResource, ProjectsListResource

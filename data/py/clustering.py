@@ -1,6 +1,4 @@
 from math import radians, sin, cos, atan2, sqrt
-import aiohttp
-import asyncio
 from data.sql.models.order import Order
 import networkx as nx
 import numpy as np
