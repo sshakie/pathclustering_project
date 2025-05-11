@@ -60,6 +60,18 @@ body {
     outline: None
 }
 
+.import-btn {
+    background: #66FF9F;
+    border: none;
+    border-radius: 6px;
+    color: #FFFFFF;
+    box-shadow: inset 0 0 0 2px #32FF7D;
+}
+
+.import-btn:focus {
+    outline: None
+}
+
 .clustering-btn {
     background: #4B95AF;
     border: none;

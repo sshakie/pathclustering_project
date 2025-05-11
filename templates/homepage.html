@@ -38,77 +38,12 @@
     });
 </script>
 
+<input type="file" id="hiddenFileInput" accept=".xls,.xlsx" style="display: none;">
 
-<!--Модальное окно создания заказа-->
-<div class="modal fade" id="addOrderModal" tabindex="-1" aria-labelledby="addOrderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="margin-top: -60px">
-        <div class="modal-content">
-            <div class="modal-body">
-                <form action="" method="post">
-                    {{ add_order_form.hidden_tag() }}
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть">✖</button>
-                    </div>
-                    <input type="hidden" name="form_name" value="add_order">
-                    <h2 align="center">Добавление заказа</h2>
-                    <p style="margin-top: 10px">
-                        {{ add_order_form.name.label }}<br>
-                        {{ add_order_form.name(class="form-control", style="margin-top: -10px") }}<br>
-                    </p>
-                    <p style="margin-top: -35px">
-                        {{ add_order_form.address.label }}<br>
-                        {{ add_order_form.address(class="form-control", style="margin-top: -10px") }}<br>
-                    </p>
-                    <p style="margin-top: -35px">
-                        {{ add_order_form.phone.label }}<br>
-                        {% if add_order_form.errors %}
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function () {
-                              const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('addOrderModal'));
-                              modal.show();});
-                        </script>
-                        {% endif %}
-                        {{ add_order_form.phone(class="form-control is-invalid" if add_order_form.phone.errors else
-                        "form-control", style="margin-top: -10px") }}
-                        {% for error in add_order_form.phone.errors %}
-                    <div class="invalid-feedback" style="display:block">{{ error }}</div>
-                    {% endfor %}
-                    </p>
-                    <p style="margin-top: -10px">
-                        {{ add_order_form.price.label }}<br>
-                        {{ add_order_form.price(class="form-control", style="margin-top: -10px") }}<br>
-                    </p>
-                    <p style="margin-top: -35px">
-                        {{ add_order_form.comment.label }}<br>
-                        {{ add_order_form.comment(class="form-control", style="margin-top: -10px") }}<br>
-                    </p>
-                    <p style="margin-top: -35px">
-                        {{ add_order_form.analytics_id.label }}<br>
-                        {{ add_order_form.analytics_id(class="form-control", style="margin-top: -10px") }}<br>
-                    </p>
-                    <p style="margin-top: -20px; margin-left: 61px">
-                        {{ add_order_form.submit(type="submit", class="btn btn-primary", style="width: 211px") }}
-                        <button class="btn btn-success" onclick="document.getElementById('xls-input').click()"
-                                type="button" style="width: 93px; margin: -1px">Импорт
-                        </button>
-                    <div align="center" style="color: #FF5C51">{{ message }}</div>
-                    </p>
-                </form>
-
-                <!-- Скрытая форма для импорта -->
-                <form action="" enctype="multipart/form-data" id="import-form" method="post" style="display: none;">
-                    {{ import_order_form.hidden_tag() }} {{ import_order_form.xls_file(id="xls-input") }}
-                    <input type="hidden" name="form_name" value="import_orders">
-                    <button id="hidden-submit" type="submit"></button>
-                </form>
-
-            </div>
-            <span style="font-weight: bold; text-align: center; margin-top: -20px; color: #B7B7B7; font-size: 16px">при пакетном импорте следуйте <a
-                    href="/static/xls/template.xlsx" style="position: relative; z-index: 1000;">образцу</a></span>
-            <div class="modal-footer" style="border-top: none"></div>
-        </div>
-    </div>
-</div>
+<form id="importForm" method="post" enctype="multipart/form-data" style="display: none;">
+    <input type="hidden" name="form_name" value="import_orders">
+    <input type="file" name="xls_file" id="actualFileInput">
+</form>
 
 <!-- Модальное окно экспорта -->
 <div class="modal fade" id="ExportModal" tabindex="-1" aria-labelledby="ExportModalLabel" aria-hidden="true">
@@ -226,7 +161,7 @@
         </div>
 
         <div id="orders-list" class="orders-list" style="margin-top: 10px"></div>
-        <button class="add-order-btn" data-bs-toggle="modal" data-bs-target="#addOrderModal">➕</button>
+        <button class="add-order-btn" id="add-order-btn">➕</button>
     </div>
 
     <div class="map-block">
@@ -295,6 +230,8 @@
         </div>
 
         <div align="center" style="min-height: 40">
+            <button class="import-btn" onclick="document.getElementById('hiddenFileInput').click()"
+        style="width: 75px; font-weight: bold">импорт</button>
             <button class="export-btn" data-bs-toggle="modal" data-bs-target="#ExportModal" id="exportbtn"
                     style="width: 100px; font-weight: bold">экспорт</button>
             <button class="clustering-btn" id="clusteringbtn" style="width: 150px; font-weight: bold">распределить</button>

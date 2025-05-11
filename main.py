@@ -1,3 +1,4 @@
+from data.xls.serialize import unpack_orders_xls, create_couriers_excel, create_orders_excel
 from flask_login import LoginManager, logout_user, current_user, login_user
 from data.api.courier_relations_api import CourierRelationsListResource
 from data.api.projects_api import ProjectsResource, ProjectsListResource
@@ -5,11 +6,10 @@ from flask import Flask, render_template, redirect, request, jsonify
 from data.api.orders_api import OrdersResource, OrdersListResource
 from data.api.users_api import UsersResource, UsersListResource
 from data.sql.models.courier_relations import CourierRelations
-from data.blanks.orderform import OrderForm, OrderImportForm
 from data.sql.db_session import create_session, global_init
 from data.sql.models.user_relations import UserRelations
+from data.blanks.orderform import OrderImportForm
 from data.blanks.registerform import RegisterForm
-from data.xls.serialize import unpack_orders_xls, create_couriers_excel, create_orders_excel
 from data.sql.models.project import Project
 from data.blanks.loginform import LoginForm
 from data.py.clustering import clustering
@@ -112,26 +112,10 @@ def show_project(project_id):
                                session.query(CourierRelations).filter(CourierRelations.courier_id == b['id']).all()]
             couriers_d.append(b)
 
-        add_order_form = OrderForm()
         import_order_form = OrderImportForm()
         if request.method == 'POST':
             content_type = request.headers.get('Content-Type', '')
-
-            form_name = request.form.get('form_name')
-            if form_name == 'add_order':
-                # Обработка формы дял добавления заказов
-                if add_order_form.validate_on_submit():
-                    data = {'phone': add_order_form.phone.data,
-                            'name': add_order_form.name.data,
-                            'address': add_order_form.address.data,
-                            'analytics_id': add_order_form.analytics_id.data,
-                            'price': add_order_form.price.data,
-                            'comment': add_order_form.comment.data,
-                            'project_id': project_id}
-                    requests.post('http://127.0.0.1:5000/api/orders', json=data, cookies=request.cookies)
-                return redirect(f'/projects/{project_id}')
-
-            elif form_name == 'import_orders' and import_order_form.validate_on_submit():
+            if import_order_form.validate_on_submit():
                 # обработка импорта через таблицу
                 xls = import_order_form.xls_file.data
                 unpack_orders_xls(xls, project_id, request.cookies)
@@ -177,8 +161,7 @@ def show_project(project_id):
                         return create_orders_excel(project_id)
         # Если метод не POST рендерм страницу
         return render_template('homepage.html',
-                               add_order_form=add_order_form,
-                               import_order_form=import_order_form,
+                               import_form=import_order_form,
                                courier_data=courier_data,
                                courier_orders=courier_orders,
                                icon_id=project.icon,

@@ -1,5 +1,5 @@
+from data.sql.models.user_relations import UserRelations
 from data.py.geocoder import get_coords_from_geocoder
-from data.blanks.orderform import is_right_phone_number
 from flask_restful import abort, Resource, reqparse
 from data.sql.db_session import create_session
 from data.sql.__all_models import Project
@@ -8,15 +8,14 @@ from data.sql.__all_models import User
 from flask_login import current_user
 from wtforms import ValidationError
 from flask import jsonify
-
-from data.sql.models.user_relations import UserRelations
+import re
 
 order_parser = reqparse.RequestParser()
 order_parser.add_argument('phone', required=True, type=str)
 order_parser.add_argument('name', required=True, type=str)
 order_parser.add_argument('address', required=True, type=str)
 order_parser.add_argument('project_id', required=True, type=int)
-order_parser.add_argument('price', type=int)
+order_parser.add_argument('price', type=int, default=0)
 order_parser.add_argument('comment', type=str)
 order_parser.add_argument('analytics_id', type=str)
 order_parser.add_argument('who_delivers', type=int)
@@ -73,7 +72,7 @@ class OrdersResource(Resource):
                 args = put_order_parser.parse_args()
                 if args['phone']:
                     try:
-                        is_right_phone_number('', args['phone'])
+                        is_right_phone_number(args['phone'])
                         order.phone = args.phone
                     except ValidationError:
                         abort(400, message=f"Wrong phone number format")
@@ -119,7 +118,8 @@ class OrdersListResource(Resource):
             session.close()
             return jsonify({'orders':
                 [i.to_dict(
-                    only=('id', 'phone', 'name', 'address', 'project_id', 'price', 'comment', 'analytics_id', 'who_delivers'))
+                    only=('id', 'phone', 'name', 'address', 'project_id', 'price', 'comment', 'analytics_id',
+                          'who_delivers'))
                     for i in orders]})
         abort(401, message=f"You're not logged in")
 
@@ -130,6 +130,11 @@ class OrdersListResource(Resource):
                 session = create_session()
                 project = session.query(Project).filter(Project.id == args['project_id']).first()
                 if project:
+                    try:
+                        is_right_phone_number(args['phone'])
+                    except ValidationError:
+                        abort(400, message=f"Wrong phone number format")
+
                     order = Order(phone=args['phone'], name=args['name'], address=args['address'],
                                   project_id=args['project_id'])
                     try:
@@ -147,8 +152,9 @@ class OrdersListResource(Resource):
                     if project.admin_id == current_user.id:
                         session.add(order)
                         session.commit()
+                        order_id = order.id
                         session.close()
-                        return jsonify({'success': 'created!'})
+                        return jsonify({'success': 'created!', 'order_id': order_id})
                     session.close()
                 abort(404, message=f"This project is not exists")
             abort(403, message=f"You're not admin")
@@ -161,3 +167,21 @@ def abort_if_order_not_found(order_id):
     if not order:
         abort(404, message=f'Order {order_id} not found')
     session.close()
+
+
+def is_right_phone_number(number):
+    s = number
+    remainder = ''
+    if s.startswith('+7'):
+        remainder = s[2:]
+    elif s.startswith('8'):
+        remainder = s[1:]
+    else:
+        raise ValidationError('Телефон должен начинаться с +7 или 8')
+
+    remainder = re.sub(r'[ -]', '', remainder)
+    if re.match(r'^\(\d{3}\)', remainder):
+        remainder = re.sub(r'\(', '', remainder, 1)
+        remainder = re.sub(r'\)', '', remainder, 1)
+    if not re.match(r'^\d{10}$', remainder):
+        raise ValidationError('Неверный формат телефона')

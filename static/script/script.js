@@ -127,6 +127,34 @@ function createOrderItem(order, courierId, color) {
     return item;
 }
 
+// Новая функция для создания элемента нового заказа
+function createNewOrderItem() {
+    const item = document.createElement('div');
+    item.className = 'order-item new-order';
+    item.innerHTML = `
+        <div class="order-header">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-weight: bold;">Новый заказ</div>
+                <div style="display: flex; align-items: center;">
+                    <button class="cancel-new-order-btn" style="height: 24px; display: flex; align-items: center; justify-content: center; margin-right: 5px;">✖</button>
+                    <button class="save-new-order-btn" style="height: 24px; display: flex; align-items: center; justify-content: center;">✅</button>
+                </div>
+            </div>
+            <div class="order-address"><input type="text" placeholder="Адрес" class="new-order-input" style="width: 100%;"></div>
+        </div>
+        <div class="order-details">
+            <div><b>Имя:</b> <input type="text" placeholder="Имя" class="new-order-input" style="width: 70%;"></div>
+            <div><b>Телефон:</b> <input type="text" placeholder="Телефон" class="new-order-input" style="width: 70%;"></div>
+            <div><b>ID аналитики:</b> <input type="text" placeholder="Необязательно" class="new-order-input" style="width: 70%;"></div>
+            <div><b>Комментарий:</b> <input type="text" placeholder="Комментарий" class="new-order-input" style="width: 70%;"></div>
+        </div>
+        <div class="order-price" style="display: flex; justify-content: flex-end; align-items: center;">
+            <input type="number" placeholder="Цена" class="new-order-input" style="width: 30%; text-align: right;"> руб.
+        </div>
+    `;
+    return item;
+}
+
 function createOrderMarker(map, order, courierId, color) {
     if (courierId === 'no_courier') {
         const mark = new ymaps.Placemark(order.coords, {
@@ -626,10 +654,119 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// === Функция для обработки добавления нового заказа ===
+function setupAddOrderButton() {
+    const addOrderBtn = document.getElementById('add-order-btn');
+    const ordersList = document.getElementById('orders-list');
+
+    if (!addOrderBtn || !ordersList) return;
+
+    addOrderBtn.addEventListener('click', () => {
+        // Проверяем, нет ли уже создаваемого заказа
+        if (document.querySelector('.order-item.new-order') || currentEditingOrder) {
+            return;
+        }
+
+        // Блокируем другие заказы
+        document.querySelectorAll('.order-item').forEach(item => {
+            if (!item.classList.contains('new-order')) {
+                item.style.pointerEvents = 'none';
+                item.style.opacity = '0.7';
+            }
+        });
+
+        const newOrderItem = createNewOrderItem();
+        ordersList.prepend(newOrderItem);
+
+        // Фокусируемся на поле адреса
+        newOrderItem.querySelector('.new-order-input').focus();
+
+        // Обработчик сохранения
+        const saveBtn = newOrderItem.querySelector('.save-new-order-btn');
+        saveBtn.addEventListener('click', async () => {
+        const inputs = newOrderItem.querySelectorAll('.new-order-input');
+        const [addressInput, nameInput, phoneInput, analyticsIdInput, commentInput, priceInput] = inputs;
+
+        // Проверяем обязательные поля
+        if (!addressInput.value.trim() || !phoneInput.value.trim() || !nameInput.value.trim() || !priceInput.value.trim()) {
+            alert('Адрес, телефон, цена и имя обязательны для заполнения');
+            return;
+        }
+
+        // Получаем project_id из URL
+        const pathParts = window.location.pathname.split('/');
+        const projectId = pathParts[2];
+
+        // Формируем данные для отправки
+        const orderData = {
+            phone: phoneInput.value.trim(),
+            name: nameInput.value.trim(),
+            address: addressInput.value.trim(),
+            project_id: parseInt(projectId),
+            price: priceInput.value.trim() ? parseInt(priceInput.value.trim()) : 0,
+            comment: commentInput.value.trim() || null,
+            analytics_id: analyticsIdInput.value.trim() || null,
+            who_delivers: -1
+        };
+
+        try {
+            const response = await fetch('/api/orders', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRFToken()
+                },
+                body: JSON.stringify(orderData)
+            });
+
+            if (!response.ok) {
+                const error = await response.json();
+                alert(error.message || 'Ошибка при создании заказа');
+                return;
+            }
+
+            window.location.reload();
+        } catch (err) {
+            console.error('Ошибка:', err);
+            alert('Ошибка соединения. Проверьте интернет и попробуйте снова.');
+        }
+
+        document.querySelectorAll('.order-item').forEach(item => {
+                item.style.pointerEvents = '';
+                item.style.opacity = '';
+                });
+    });
+
+        // Обработчик отмены
+        const cancelBtn = newOrderItem.querySelector('.cancel-new-order-btn');
+        cancelBtn.addEventListener('click', () => {
+            newOrderItem.remove();
+            // Разблокируем заказы после отмены
+            document.querySelectorAll('.order-item').forEach(item => {
+                item.style.pointerEvents = '';
+                item.style.opacity = '';
+            });
+        });
+    });
+}
+
 // === Инициализация при загрузке ===
 document.addEventListener('DOMContentLoaded', () => {
+    setupAddOrderButton();
     if (window.location.hash === '#couriers') {
         switchToCouriersTab();
         history.replaceState(null, null, ' ');
+    }
+});
+
+document.getElementById('hiddenFileInput').addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        // Переносим выбранный файл в скрытую форму
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(e.target.files[0]);
+        document.getElementById('actualFileInput').files = dataTransfer.files;
+
+        // Отправляем форму
+        document.getElementById('importForm').submit();
     }
 });

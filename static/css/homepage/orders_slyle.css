@@ -171,3 +171,65 @@
     border: None;
     outline: None
 }
+
+.order-item.new-order {
+    background-color: #f0f8ff;
+    outline: 2px dashed #4d94ff;
+}
+
+.order-item.new-order:hover {
+    background-color: #e0f0ff;
+}
+
+.new-order-input {
+    border: none;
+    border-bottom: 1px solid #aaa;
+    outline: none;
+    background: none;
+    font-size: 14px;
+    padding: 2px 5px;
+}
+
+.new-order-input:focus {
+    border-bottom-color: #4d94ff;
+}
+
+.save-new-order-btn, .cancel-new-order-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    border-radius: 3px;
+    transition: background-color 0.2s;
+}
+
+.save-new-order-btn:hover {
+    background-color: rgba(40, 167, 69, 0.1) !important;
+}
+
+.cancel-new-order-btn:hover {
+    background-color: rgba(220, 53, 69, 0.1) !important;
+}
+
+.order-item.blocked {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.order-price {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.order-item.new-order {
+    background-color: #f0f8ff;
+    outline: 2px dashed #4d94ff;
+    pointer-events: auto;
+    opacity: 1;
+}
