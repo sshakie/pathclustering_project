@@ -1,9 +1,12 @@
 .orders-panel {
   width: 20%;
+  height: 100%;
+  overflow-y: auto;
   background-color: #f9f9f9;
   padding: 15px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
+  position: relative;
+  z-index: 950;
 }
 
 .orders-list {
