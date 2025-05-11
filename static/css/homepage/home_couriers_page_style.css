@@ -121,3 +121,18 @@
 .invite-btn.copied {
     color: 808080
 }
+
+#couriers {
+  margin-top: 0 !important;
+  transition: none !important
+}
+
+.tab-switch {
+  position: relative;
+  z-index: 10;
+}
+
+.couriers-page {
+  margin-top: 0;
+  padding-top: 0;
+}

@@ -105,12 +105,12 @@ def show_project(project_id):
         for courier in project.couriers:
             courier_data[str(courier.id)] = courier.to_dict(only=('id', 'name', 'telegram_tag', 'color'))
 
-        a = []  # TODO Написать зачем это надо и переименовать лист
+        couriers_d = []  # TODO Написать зачем это надо и переименовать лист
         for i in session.query(UserRelations).filter(UserRelations.admin_id == current_user.id).all():
             b = session.get(User, i.courier_id).to_dict(only=('id', 'name', 'telegram_tag', 'color'))
             b['project_id'] = [i.project_id for i in
                                session.query(CourierRelations).filter(CourierRelations.courier_id == b['id']).all()]
-            a.append(b)
+            couriers_d.append(b)
 
         add_order_form = OrderForm()
         import_order_form = OrderImportForm()
@@ -145,13 +145,13 @@ def show_project(project_id):
                         clusters = clustering(
                             orders_list=list(session.query(Order).filter(
                                 Order.project_id == project.id).all()),
-                            num_couriers=len([i for i in a if i['project_id']]),
+                            num_couriers=len([i for i in couriers_d if i['project_id']]),
                             depot_coords=[52.605003, 39.535107])  # TODO: Координаты склада
                     except ValueError:
                         return jsonify({'status': 'error',
                                         'message': 'Ошибка. Возможно, нет свободных заказов или курьеров'}), 400
                     try:
-                        ready_couriers = [i for i in a if i['project_id']]
+                        ready_couriers = [i for i in couriers_d if i['project_id']]
                         for cluster in clusters.keys():
                             for order_id in clusters[cluster]:
                                 requests.put(f'http://127.0.0.1:5000/api/orders/{order_id}',
@@ -183,8 +183,8 @@ def show_project(project_id):
                                courier_orders=courier_orders,
                                icon_id=project.icon,
                                invite_link=project.invite_link,
-                               courier_ready=[i for i in a if i['project_id']],
-                               courier_not_ready=[i for i in a if not i['project_id']],
+                               courier_ready=[i for i in couriers_d if i['project_id']],
+                               courier_not_ready=[i for i in couriers_d if not i['project_id']],
                                project_depot=[project.longitude, project.latitude])
     return redirect('/login')
 

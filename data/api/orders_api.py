@@ -82,6 +82,7 @@ class OrdersResource(Resource):
                 if args['address']:
                     try:
                         order.set_coords(get_coords_from_geocoder(args.address))
+                        order.address = args.address
                     except Exception:
                         abort(404, message=f"This address isn't exists or invalid")
                 if args['price']:
