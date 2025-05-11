@@ -1,4 +1,4 @@
-from data.xls.serialize import unpack_orders_xls, create_couriers_excel, create_orders_excel
+from data.py.serialize import unpack_orders_xls, create_couriers_excel, create_orders_excel
 from flask_login import LoginManager, logout_user, current_user, login_user
 from data.api.courier_relations_api import CourierRelationsListResource
 from data.api.projects_api import ProjectsResource, ProjectsListResource
@@ -115,11 +115,12 @@ def show_project(project_id):
         import_order_form = OrderImportForm()
         if request.method == 'POST':
             content_type = request.headers.get('Content-Type', '')
-            if import_order_form.validate_on_submit():
-                # обработка импорта через таблицу
-                xls = import_order_form.xls_file.data
-                unpack_orders_xls(xls, project_id, request.cookies)
-                return redirect(f'/projects/{project_id}')
+            if 'xls_file' in request.files:  # Проверяем наличие файла
+                file = request.files['xls_file']
+                if file.filename != '':
+                    # Обработка импорта через таблицу
+                    unpack_orders_xls(file, project_id, request.cookies)
+                    return redirect(f'/projects/{project_id}')
 
             elif 'application/json' in content_type:
                 # Обработка запроса на кластеризацию

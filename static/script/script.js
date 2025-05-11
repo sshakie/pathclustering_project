@@ -50,6 +50,7 @@ function switchToCouriersTab() {
     couriers.classList.remove("hidden");
     exportbtn.classList.add("hidden");
     clusteringbtn.classList.add("hidden");
+    document.querySelectorAll('.import-btn, .imp-title').forEach(el => el.classList.add("hidden"));
 }
 
 tabMap.addEventListener("click", () => {
@@ -59,6 +60,7 @@ tabMap.addEventListener("click", () => {
     couriers.classList.add("hidden");
     exportbtn.classList.remove("hidden");
     clusteringbtn.classList.remove("hidden");
+    document.querySelector('.import-btn')?.classList.remove("hidden");
 });
 
 tabCouriers.addEventListener("click", switchToCouriersTab);
@@ -750,23 +752,65 @@ function setupAddOrderButton() {
     });
 }
 
+
+document.addEventListener('DOMContentLoaded', function() {
+    const input = document.getElementById('hiddenFileInput');
+    if (input) {
+        input.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                const form = document.getElementById('importForm');
+                const fileInput = document.getElementById('actualFileInput');
+
+                // Передаем выбранный файл в форму
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(this.files[0]);
+                fileInput.files = dataTransfer.files;
+
+                form.submit();
+            }
+        });
+    }
+});
+
+
+document.addEventListener('DOMContentLoaded', function() {
+    const importBtn = document.querySelector('.import-btn');
+    const impTitle = document.querySelector('.imp-title');
+    let hideTimeout;
+
+    // Показываем при наведении
+    importBtn.addEventListener('mouseenter', function() {
+        clearTimeout(hideTimeout);
+        impTitle.classList.remove('hidden');
+    });
+
+    // Скрываем через 2 секунды после ухода курсора
+    importBtn.addEventListener('mouseleave', function() {
+        hideTimeout = setTimeout(() => {
+            impTitle.classList.add('hidden');
+        }, 2000);
+    });
+
+    // Если курсор перешел на подсказку - отменяем скрытие
+    impTitle.addEventListener('mouseenter', function() {
+        clearTimeout(hideTimeout);
+    });
+
+    // При уходе с подсказки - скрываем через 2 секунды
+    impTitle.addEventListener('mouseleave', function() {
+        hideTimeout = setTimeout(() => {
+            impTitle.classList.add('hidden');
+        }, 2000);
+    });
+});
+
+
+
 // === Инициализация при загрузке ===
 document.addEventListener('DOMContentLoaded', () => {
     setupAddOrderButton();
     if (window.location.hash === '#couriers') {
         switchToCouriersTab();
         history.replaceState(null, null, ' ');
-    }
-});
-
-document.getElementById('hiddenFileInput').addEventListener('change', function(e) {
-    if (e.target.files.length > 0) {
-        // Переносим выбранный файл в скрытую форму
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(e.target.files[0]);
-        document.getElementById('actualFileInput').files = dataTransfer.files;
-
-        // Отправляем форму
-        document.getElementById('importForm').submit();
     }
 });

@@ -27,6 +27,8 @@ def unpack_orders_xls(table, project_id, cookie):  # TODO: Добавить ко
                                        'price': price,
                                        'comment': comment,
                                        'project_id': project_id}, cookies=cookie)
+        if response.status_code != 200:
+            print(response.content)
         if not response:
             return False
     return True
