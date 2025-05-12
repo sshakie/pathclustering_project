@@ -41,8 +41,8 @@
 <input type="file" id="hiddenFileInput" accept=".xls,.xlsx" style="display: none;">
 
 <form id="importForm" method="post" enctype="multipart/form-data" style="display: none;">
-    <input type="hidden" name="form_name" value="import_orders">
-    <input type="file" name="xls_file" id="actualFileInput">
+    {{ import_form.hidden_tag() }}
+    {{ import_form.xls_file(id="actualFileInput") }}
 </form>
 
 <!-- Модальное окно экспорта -->
@@ -235,6 +235,11 @@
             <button class="export-btn" data-bs-toggle="modal" data-bs-target="#ExportModal" id="exportbtn"
                     style="width: 100px; font-weight: bold">экспорт</button>
             <button class="clustering-btn" id="clusteringbtn" style="width: 150px; font-weight: bold">распределить</button>
+        </div>
+        <div class="imp-title hidden"
+             style="border: 3px solid #dee2e6; border-radius: 12px; padding: 12px 20px; text-align: center; font-weight: bold; width: 500px; margin: 0 auto; margin-top: 10px">
+            <span>Импортированный файл должен следовать </span>
+            <a href="/static/xls/template.xlsx" download class="sample-link">образцу</a>
         </div>
     </div>
 
