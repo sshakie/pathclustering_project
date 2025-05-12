@@ -105,7 +105,7 @@ def show_project(project_id):
         for courier in project.couriers:
             courier_data[str(courier.id)] = courier.to_dict(only=('id', 'name', 'telegram_tag', 'color'))
 
-        couriers_d = []  # TODO Написать зачем это надо и переименовать лист
+        couriers_d = []
         for i in session.query(UserRelations).filter(UserRelations.admin_id == current_user.id).all():
             b = session.get(User, i.courier_id).to_dict(only=('id', 'name', 'telegram_tag', 'color'))
             b['project_id'] = [i.project_id for i in

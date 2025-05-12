@@ -174,15 +174,17 @@ function createOrderMarker(map, order, courierId, color) {
     }
 
     const glowSvg = `
-        <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80">
+        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
             <defs>
-                <radialGradient id="grad" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stop-color="${color}" stop-opacity="0.6"/>
-                    <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+                <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="${color}" stop-opacity="0.4" />
+                    <stop offset="100%" stop-color="${color}" stop-opacity="0" />
                 </radialGradient>
             </defs>
-            <circle cx="40" cy="40" r="30" fill="url(#grad)"/>
-            <circle cx="40" cy="40" r="8" fill="${color}"/>
+            <!-- Свечение -->
+            <circle cx="50" cy="50" r="40" fill="url(#glow)" />
+            <!-- Наружный цветной круг с белой серединой -->
+            <circle cx="50" cy="50" r="10" fill="white" stroke="${color}" stroke-width="4"/>
         </svg>
     `;
 
@@ -193,8 +195,8 @@ function createOrderMarker(map, order, courierId, color) {
     }, {
         iconLayout: 'default#image',
         iconImageHref: encodedSvg,
-        iconImageSize: [80, 80],
-        iconImageOffset: [-40, -40],
+        iconImageSize: [100, 100],
+        iconImageOffset: [-50, -50],
         balloonAutoPan: false,
         hideIconOnBalloonOpen: false
     });
@@ -203,6 +205,7 @@ function createOrderMarker(map, order, courierId, color) {
     map.geoObjects.add(mark);
     return mark;
 }
+
 
 // === Обработчики событий для заказов ===
 function setupOrderClickHandler(item, order, mark, map) {
