@@ -9,11 +9,14 @@
 <div class="project-wrapper" align="center">
     <h2>Выбрать проект</h2>
     <div class="project-list" id="projects"></div>
-    <button class="add-project-btn" id="add-project-btn">➕</button>
+    {% if current_user.status == 'admin' %}
+        <button class="add-project-btn" id="add-project-btn">➕</button>
+    {% endif %}
 </div>
 
 <script>
     const data = {{ projects | tojson | safe }};
     const current_user_id = {{ current_user.id | tojson | safe }};
+    const current_user_status = {{ current_user.status | tojson | safe }};
 </script>
 {% endblock %}

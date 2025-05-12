@@ -59,21 +59,16 @@ def load_user(user_id):
 def show_projects():
     """Роут для показа проектов"""
     if current_user.is_authenticated:
-        if current_user.status == 'admin':
-            session = create_session()
-            projects = [{'id': i.id, 'name': i.name, 'icon': i.icon, 'admin_id': i.admin_id} for i in
-                        session.query(Project).filter(Project.admin_id == current_user.id).all()]
-            return render_template('projects.html', projects=projects)
-        return redirect('/')
+        projects = requests.get('http://127.0.0.1:5000/api/projects', cookies=request.cookies).json()['projects']
+        print(projects)
+        return render_template('projects.html', projects=projects)
     return redirect('/login')
 
 
 @app.route('/')
 def homepage():
     if current_user.is_authenticated:
-        if current_user.status == 'admin':
-            return redirect('/projects')
-        return render_template('base.html')
+        return redirect('/projects')
     return redirect('/login')
 
 
@@ -81,18 +76,18 @@ def homepage():
 def show_project(project_id):
     """Главная страница, где происходит работа логиста с заказами"""
     if current_user.is_authenticated:
-
-        if current_user.status != 'admin':  # Если пользователь не логист, то выкидываем с этой страницы
-            return redirect('/')
-
         session = create_session()
-        if not session.get(Project, project_id) or session.get(Project, project_id).admin_id != current_user.id:
-            return redirect('/projects')
-
         project = session.get(Project, project_id)
+        if current_user.status == 'admin':
+            if not project or session.get(Project, project_id).admin_id != current_user.id:
+                return redirect('/projects')
+        else:
+            checking = session.query(CourierRelations).filter(CourierRelations.project_id == project_id).all()
+            if not project or not [i for i in checking if i.courier_id == current_user.id]:
+                return redirect('/projects')
 
+        ###### Собираем всё нужное сначала для курьера, чтобы отобразить ему страницу ######
         courier_orders = {}  # Данные о заказах в формате ключ - id курьера, значение - список заказов
-        courier_data = {}  # данные о курьерах в формате ключ - id курьера, значение - словарь с полями из бд
 
         # заполнение courier_orders
         for order in session.query(Order).filter(Order.project_id == project.id).all():
@@ -100,6 +95,18 @@ def show_project(project_id):
             order_dict['coords'] = order.get_coords()
             deliver = order.who_delivers if order.who_delivers != -1 else 'no_courier'
             courier_orders[str(deliver)] = courier_orders.get(str(deliver), []) + [order_dict]
+
+        print(courier_orders)
+
+        if current_user.status != 'admin':
+            return render_template('courier_homepage.html',
+                                   courier_orders=courier_orders[str(current_user.id)],
+                                   icon_id=project.icon,
+                                   project_depot=[project.longitude, project.latitude])
+
+
+        ###### Дальше собираем данные, которые нужны уже логисту ######
+        courier_data = {}  # данные о курьерах в формате ключ - id курьера, значение - словарь с полями из бд
 
         # заполнение courier_data
         for courier in project.couriers:

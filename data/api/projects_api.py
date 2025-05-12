@@ -1,6 +1,7 @@
-from flask_restful import abort, Resource, reqparse
-from data.sql.db_session import create_session
 from data.py.geocoder import get_coords_from_geocoder
+from flask_restful import abort, Resource, reqparse
+from data.sql.__all_models import CourierRelations
+from data.sql.db_session import create_session
 from data.sql.__all_models import Project
 from data.sql.__all_models import Order
 from flask_login import current_user
@@ -29,7 +30,7 @@ class ProjectsResource(Resource):
                     abort(403, message=f"This is not your project")
                 return jsonify(
                     {'project': project.to_dict(
-                        only=('id', 'name', 'icon', 'storage'))})
+                        only=('id', 'name', 'icon'))})
             finally:
                 session.close()
         abort(401, message=f"You're not logged in")
@@ -82,10 +83,13 @@ class ProjectsListResource(Resource):
     def get(self):
         if current_user.is_authenticated:
             session = create_session()
-            projects = session.query(Project).filter(Project.admin_id == current_user.id).all()
+            if current_user.status == 'admin':
+                projects = session.query(Project).filter(Project.admin_id == current_user.id).all()
+            else:
+                prj_ids = session.query(CourierRelations).filter(CourierRelations.courier_id == current_user.id).all()
+                projects = [session.get(Project, i.project_id) for i in prj_ids]
             session.close()
-            return jsonify({'projects': [i.to_dict(
-                only=('id', 'name', 'icon', 'storage')) for i in projects]})
+            return jsonify({'projects': [i.to_dict(only=('id', 'name', 'icon', 'admin_id')) for i in projects]})
         abort(401, message=f"You're not logged in")
 
     def post(self):
