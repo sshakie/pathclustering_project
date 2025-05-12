@@ -95,3 +95,8 @@
 .courier-btn:focus {
     outline: None
 }
+
+.courier-btn.selected {
+    background-color: rgba(0, 123, 255, 0.1);
+    border: 1px solid rgba(0, 123, 255, 0.3);
+}

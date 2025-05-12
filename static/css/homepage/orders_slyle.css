@@ -1,12 +1,46 @@
 .orders-panel {
   width: 20%;
   height: 100%;
-  overflow-y: auto;
   background-color: #f9f9f9;
-  padding: 15px;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   position: relative;
   z-index: 950;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+/* Контейнер для заголовка и поиска (непрокручиваемая часть) */
+.orders-fixed-header {
+  background-color: #f9f9f9;
+  padding: 15px;
+  z-index: 960;
+}
+
+/* Контейнер для прокручиваемого списка */
+.orders-scrollable {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 15px 15px;
+}
+
+/* Стили для заголовка */
+.orders-header {
+  display: flex;
+  align-items: center;
+  margin: 0;
+  gap: 5px;
+  padding: 0 5px;
+}
+
+/* Стили для поля поиска */
+#order-search {
+  padding: 8px;
+  border: 1px solid #ccc;
+  width: calc(100% - 10px);
+  font-size: 14px;
+  border-radius: 4px;
+  margin: 10px 5px 0;
 }
 
 .orders-list {
@@ -15,20 +49,28 @@
   gap: 10px;
 }
 
-#order-search {
-    padding: 8px;
-    border: 1px solid #ccc;
-    width: 100%;
-    margin-bottom: 15px;
-    font-size: 14px;
-    border-radius: 4px;
+.add-order-btn {
+  position: fixed;
+  bottom: 15px;
+  left: 15px;
+  width: 40px;
+  border: none;
+  padding: 8px;
+  background-color:rgba(0, 0, 0, 0);
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 970;
+  transition: background-color 0.2s;
+  margin-left: 140px
 }
 
-.orders-header {
-  display: flex;
-  align-items: center;
-  margin: 0;
-  gap: 5px;
+.add-order-btn:hover {
+    background-color:rgba(0, 0, 0, 0.15);
+}
+
+.add-order-btn:focus {
+  outline: none;
 }
 
 .orders-text {
@@ -66,35 +108,35 @@
 }
 
 .edit-btn, .delete-order-btn {
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 0 5px;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 24px;
-    border-radius: 3px;
-    transition: background-color 0.2s;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0 5px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
 }
 
 .edit-btn:hover, .delete-order-btn:hover {
-    background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.1);
 }
 
 .edit-btn:active, .delete-order-btn:active {
-    background-color: rgba(0, 0, 0, 0.2);
+  background-color: rgba(0, 0, 0, 0.2);
 }
 
 .edit-btn:focus {
-    border: none;
-    outline: none
+  border: none;
+  outline: none
 }
 
 .delete-order-btn:focus {
-    border: none;
-    outline: none
+  border: none;
+  outline: none
 }
 
 /* Показываем кнопку, когда details открыты */
@@ -106,7 +148,7 @@
 }
 
 .order-item.unassigned {
-   outline: 2px solid #E55050;
+  outline: 3px solid #E55050;
 }
 
 .order-item.unassigned:hover {
@@ -114,7 +156,7 @@
 }
 
 .order-item.unassigned.active {
-    background-color: #E8E8E8
+  background-color: #E8E8E8;
 }
 
 .order-header {
@@ -151,85 +193,80 @@
   margin-top: auto;
 }
 
-
-.add-order-btn {
-  display: block;
-  margin: 20px auto;
-  background-color: #FFFFFF;
-  border: None;
-}
-
-.add-order-btn:hover {
-    background-color: #FFFFFF
-}
-
-.add-order-btn:focus {
-    outline: None
-}
-
 .btn-close {
-    border: None;
-    outline: None
+  border: none;
+  outline: none
 }
 
 .order-item.new-order {
-    background-color: #f0f8ff;
-    outline: 2px dashed #4d94ff;
+  background-color: #f0f8ff;
+  outline: 2px dashed #4d94ff;
 }
 
 .order-item.new-order:hover {
-    background-color: #e0f0ff;
+  background-color: #e0f0ff;
 }
 
 .new-order-input {
-    border: none;
-    border-bottom: 1px solid #aaa;
-    outline: none;
-    background: none;
-    font-size: 14px;
-    padding: 2px 5px;
+  border: none;
+  border-bottom: 1px solid #aaa;
+  outline: none;
+  background: none;
+  font-size: 14px;
+  padding: 2px 5px;
 }
 
 .new-order-input:focus {
-    border-bottom-color: #4d94ff;
+  border-bottom-color: #4d94ff;
 }
 
 .save-new-order-btn, .cancel-new-order-btn {
-    border: none;
-    background: none;
-    cursor: pointer;
-    padding: 0 5px;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 24px;
-    border-radius: 3px;
-    transition: background-color 0.2s;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0 5px;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
 }
 
 .save-new-order-btn:hover {
-    background-color: rgba(40, 167, 69, 0.1) !important;
+  background-color: rgba(40, 167, 69, 0.1) !important;
 }
 
 .cancel-new-order-btn:hover {
-    background-color: rgba(220, 53, 69, 0.1) !important;
+  background-color: rgba(220, 53, 69, 0.1) !important;
 }
 
 .order-item.blocked {
-    pointer-events: none;
-    opacity: 0.7;
+  pointer-events: none;
+  opacity: 0.7;
 }
 
 .order-price {
-    display: flex;
-    justify-content: flex-end;
-    align-items: center;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
 }
 
 .order-item.new-order {
-    background-color: #f0f8ff;
-    outline: 2px dashed #4d94ff;
-    pointer-events: auto;
-    opacity: 1;
+  background-color: #f0f8ff;
+  outline: 2px dashed #4d94ff;
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.order-btn-add-to-courier {
+    cursor: pointer;
+    padding: 2px 6px;
+    borderRadius: 3px;
+    color: #28a745;
+    font-size: 18px;
+    lineHeight: 1;
+    lineHeight: 1;
+    font-weight: bold
 }

@@ -127,11 +127,12 @@ def show_project(project_id):
                 data = request.get_json()
                 if data and data.get('start_clustering'):
                     try:
+                        project = session.get(Project, project_id)
                         clusters = clustering(
                             orders_list=list(session.query(Order).filter(
                                 Order.project_id == project.id).all()),
-                            num_couriers=len([i for i in couriers_d if i['project_id']]),
-                            depot_coords=[52.605003, 39.535107])  # TODO: Координаты склада
+                            num_couriers=len([i for i in couriers_d if project_id in i['project_id']]),
+                            depot_coords=project.get_depot_coords())
                     except ValueError:
                         return jsonify({'status': 'error',
                                         'message': 'Ошибка. Возможно, нет свободных заказов или курьеров'}), 400
@@ -167,8 +168,8 @@ def show_project(project_id):
                                courier_orders=courier_orders,
                                icon_id=project.icon,
                                invite_link=project.invite_link,
-                               courier_ready=[i for i in couriers_d if i['project_id']],
-                               courier_not_ready=[i for i in couriers_d if not i['project_id']],
+                               courier_ready=[i for i in couriers_d if project_id in i['project_id']],
+                               courier_not_ready=[i for i in couriers_d if project_id not in i['project_id']],
                                project_depot=[project.longitude, project.latitude])
     return redirect('/login')
 

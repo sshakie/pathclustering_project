@@ -257,10 +257,156 @@ function setupEditButtonHandler(item, order, mark, map) {
     const details = item.querySelector('.order-details');
     const addressEl = item.querySelector('.order-address');
     const priceEl = item.querySelector('.order-price');
+    const filterBlock = document.getElementById('courier-filter-buttons');
+    let originalFilterButtons = null;
+    let selectedCourierId = null; // Для хранения выбранного курьера во время редактирования
+
+    // Функция для отображения всех курьеров с возможностью удаления
+    function showAllCouriers() {
+    originalFilterButtons = Array.from(filterBlock.children).map(btn => btn.cloneNode(true));
+    filterBlock.innerHTML = '';
+
+    // Кнопка "Снять назначение" (только если заказ уже назначен)
+    if (order.who_delivers && order.who_delivers !== -1) {
+        const removeBtn = document.createElement('button');
+        removeBtn.className = 'courier-btn remove-assignment';
+        removeBtn.innerHTML = `
+            <span style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                <span>Снять назначение</span>
+                <span class="order-btn-add-to-courier">✓</span>
+            </span>
+        `;
+
+        removeBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectedCourierId = -1;
+            document.querySelectorAll('.courier-btn:not(.remove-assignment)').forEach(b => {
+                b.classList.remove('selected');
+                if (b.dataset.courier != order.who_delivers) {
+                    b.querySelector('.order-btn-add-to-courier').textContent = '+';
+                }
+            });
+            removeBtn.classList.add('selected');
+        });
+
+        filterBlock.appendChild(removeBtn);
+    }
+
+    // Кнопка "Все"
+    const allBtn = document.createElement('button');
+    allBtn.className = 'courier-btn active';
+    allBtn.textContent = 'Все';
+    allBtn.dataset.courier = 'all';
+    allBtn.addEventListener('click', () => {
+        document.querySelectorAll('.courier-btn').forEach(b => b.classList.remove('active', 'selected'));
+        allBtn.classList.add('active');
+        selectedCourierId = null;
+    });
+    filterBlock.appendChild(allBtn);
+
+    // Кнопки для каждого курьера
+    Object.entries(courierData).forEach(([courierId, data]) => {
+        const btn = document.createElement('button');
+        btn.className = 'courier-btn';
+        btn.dataset.courier = courierId;
+
+        // Проверяем, является ли этот курьер текущим для заказа
+        const isCurrentCourier = order.who_delivers == courierId;
+        if (isCurrentCourier) {
+            btn.classList.add('selected');
+        }
+
+        const container = document.createElement('span');
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.justifyContent = 'space-between';
+        container.style.width = '100%';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = data.name || `Курьер ${courierId}`;
+        container.appendChild(nameSpan);
+
+        const actionBtn = document.createElement('span');
+        actionBtn.textContent = isCurrentCourier ? '✓' : '+';
+        actionBtn.className = 'order-btn-add-to-courier';
+        container.appendChild(actionBtn);
+
+        btn.appendChild(container);
+
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            // Не позволяем изменить выбор текущего курьера заказа
+            if (isCurrentCourier) return;
+
+            selectedCourierId = parseInt(courierId);
+
+            // Снимаем выделение со всех кнопок, кроме текущего курьера заказа
+            document.querySelectorAll('.courier-btn:not(.remove-assignment)').forEach(b => {
+                if (b.dataset.courier != order.who_delivers) {
+                    b.classList.remove('selected');
+                    const otherActionBtn = b.querySelector('.order-btn-add-to-courier');
+                    if (otherActionBtn && b.dataset.courier != order.who_delivers) {
+                        otherActionBtn.textContent = '+';
+                    }
+                }
+            });
+
+            // Подсвечиваем выбранную кнопку
+            btn.classList.add('selected');
+            actionBtn.textContent = '✓';
+
+            // Снимаем выделение с кнопки снятия назначения
+            const removeBtn = document.querySelector('.remove-assignment');
+            if (removeBtn) removeBtn.classList.remove('selected');
+        });
+
+        filterBlock.appendChild(btn);
+    });
+}
+
+    // Функция для восстановления исходных кнопок
+    function restoreFilterButtons() {
+        if (originalFilterButtons) {
+            filterBlock.innerHTML = '';
+            originalFilterButtons.forEach(btn => {
+                const newBtn = btn.cloneNode(true);
+                filterBlock.appendChild(newBtn);
+                if (newBtn.dataset.courier === 'all') {
+                    newBtn.addEventListener('click', () => {
+                        document.querySelectorAll('.courier-btn').forEach(b => b.classList.remove('active'));
+                        newBtn.classList.add('active');
+                        setActiveCourier('all');
+                    });
+                } else {
+                    newBtn.addEventListener('click', () => {
+                        document.querySelectorAll('.courier-btn').forEach(b => b.classList.remove('active'));
+                        newBtn.classList.add('active');
+                        setActiveCourier(newBtn.dataset.courier);
+                    });
+                }
+            });
+            originalFilterButtons = null;
+        }
+    }
+
+    // Функция для затемнения всех заказов, кроме текущего
+    function blockOtherOrders(currentItem) {
+        document.querySelectorAll('.order-item').forEach(orderItem => {
+            if (orderItem !== currentItem) {
+                orderItem.classList.add('blocked');
+            }
+        });
+    }
+
+    // Функция для снятия затемнения со всех заказов
+    function unblockAllOrders() {
+        document.querySelectorAll('.order-item').forEach(orderItem => {
+            orderItem.classList.remove('blocked');
+        });
+    }
 
     editBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
-
         const nameEl = details.querySelector('div:nth-child(1)');
         const phoneEl = details.querySelector('div:nth-child(2)');
         const commentEl = details.querySelector('div:nth-child(3)');
@@ -271,6 +417,11 @@ function setupEditButtonHandler(item, order, mark, map) {
             editBtn.textContent = '✅';
             deleteBtn.classList.remove('hidden');
             details.classList.remove('hidden');
+            blockOtherOrders(item);
+            showAllCouriers();
+
+            // Сбрасываем выбранного курьера при начале редактирования
+            selectedCourierId = null;
 
             // Сохраняем оригинальные значения
             const originalValues = {
@@ -278,17 +429,18 @@ function setupEditButtonHandler(item, order, mark, map) {
                 phone: phoneEl.textContent.replace('Телефон:', '').trim(),
                 comment: commentEl.textContent.replace('Комментарий:', '').trim(),
                 price: priceEl.textContent.replace('руб.', '').trim(),
-                address: addressEl.textContent.trim()
+                address: addressEl.textContent.trim(),
+                who_delivers: order.who_delivers
             };
 
-            // Создаем поля ввода с сохранением стилей
+            // Создаем поля ввода
             nameEl.innerHTML = `<b>Имя:</b> <input type="text" value="${originalValues.name}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:70%;">`;
             phoneEl.innerHTML = `<b>Телефон:</b> <input type="text" value="${originalValues.phone}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:70%;">`;
             commentEl.innerHTML = `<b>Комментарий:</b> <input type="text" value="${originalValues.comment}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:70%;">`;
             priceEl.innerHTML = `<input type="number" value="${parseInt(originalValues.price)}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-weight:700; text-align:right; width:30%;"> руб.`;
             addressEl.innerHTML = `<input type="text" value="${originalValues.address}" style="border:none; border-bottom: 1px solid #aaa; outline:none; background:none; font-size:14px; width:100%;">`;
 
-            // Сохраняем оригинальный адрес для сравнения
+            // Сохраняем оригинальный адрес
             addressEl.dataset.originalAddress = originalValues.address;
         } else {
             // Завершение редактирования
@@ -301,19 +453,27 @@ function setupEditButtonHandler(item, order, mark, map) {
             };
 
             try {
+                // Формируем данные для отправки
+                const requestData = {
+                    name: currentValues.name,
+                    phone: currentValues.phone,
+                    comment: currentValues.comment,
+                    price: parseInt(currentValues.price),
+                    address: currentValues.address
+                };
+
+                // Если был выбран курьер (или удаление назначения), добавляем в запрос
+                if (selectedCourierId !== null) {
+                    requestData.who_delivers = selectedCourierId;
+                }
+
                 const res = await fetch(`/api/orders/${order.id}`, {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-CSRFToken': getCSRFToken()
                     },
-                    body: JSON.stringify({
-                        name: currentValues.name,
-                        phone: currentValues.phone,
-                        comment: currentValues.comment,
-                        price: parseInt(currentValues.price),
-                        address: currentValues.address
-                    }),
+                    body: JSON.stringify(requestData),
                 });
 
                 if (res.ok) {
@@ -327,22 +487,29 @@ function setupEditButtonHandler(item, order, mark, map) {
                     // Обновляем маркер на карте
                     mark.properties.set('balloonContent', currentValues.address);
 
-                    // Выходим из режима редактирования
+                    // Восстанавливаем кнопки курьеров
+                    restoreFilterButtons();
+                    unblockAllOrders();
                     editBtn.textContent = '✏️';
                     deleteBtn.classList.add('hidden');
                     currentEditingOrder = null;
 
-                    // Перезагружаем только если изменился адрес
-                    if (currentValues.address.trim() !== addressEl.dataset.originalAddress?.trim()) {
+                    // Перезагружаем при изменении адреса или назначения курьера
+                    if (currentValues.address.trim() !== addressEl.dataset.originalAddress?.trim() ||
+                        selectedCourierId !== null) {
                         window.location.reload();
                     }
                 } else {
                     const error = await res.json();
                     alert(error.message || 'Ошибка при сохранении');
+                    restoreFilterButtons();
+                    unblockAllOrders();
                 }
             } catch (e) {
                 console.error(e);
                 alert('Ошибка соединения. Проверьте интернет и попробуйте снова.');
+                restoreFilterButtons();
+                unblockAllOrders();
             }
         }
     });
@@ -364,13 +531,21 @@ function setupEditButtonHandler(item, order, mark, map) {
                     item.remove();
                     const ordersCount = document.getElementById('orders-count');
                     ordersCount.textContent = parseInt(ordersCount.textContent) - 1;
+                    // Восстанавливаем кнопки и снимаем затемнение
+                    restoreFilterButtons();
+                    unblockAllOrders();
                 } else {
                     const error = await res.json();
                     alert(error.message || 'Ошибка при удалении заказа');
+                    // Снимаем затемнение в случае ошибки
+                    unblockAllOrders();
                 }
             } catch (err) {
                 console.error('Ошибка удаления:', err);
                 alert(`Ошибка при удалении заказа: ${err.message}`);
+                // Восстанавливаем кнопки и снимаем затемнение
+                restoreFilterButtons();
+                unblockAllOrders();
             }
         }
     });
@@ -791,7 +966,7 @@ document.addEventListener('DOMContentLoaded', function() {
     importBtn.addEventListener('mouseleave', function() {
         hideTimeout = setTimeout(() => {
             impTitle.classList.add('hidden');
-        }, 1000);
+        }, 250);
     });
 
     // Если курсор перешел на подсказку - отменяем скрытие
@@ -803,7 +978,7 @@ document.addEventListener('DOMContentLoaded', function() {
     impTitle.addEventListener('mouseleave', function() {
         hideTimeout = setTimeout(() => {
             impTitle.classList.add('hidden');
-        }, 1000);
+        }, 250);
     });
 });
 
