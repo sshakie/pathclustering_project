@@ -1,0 +1,86 @@
+body {
+    margin: 0
+    padding: 0;
+    overflow: hidden;
+}
+
+.main-wrapper {
+  display: flex;
+  height: calc(100vh - 60px);
+  min-height: calc(100vh - 60px);
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-switch {
+    display: inline-flex;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    overflow: hidden;
+    margin-left: auto;
+    order: 2
+}
+
+.top-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.search-and-tabs {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.tab {
+  padding: 6px 20px;
+  cursor: pointer;
+  background: #f0f0f0;
+  color: #888;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.tab.active {
+  background: #ddd;
+  color: #000;
+}
+
+.export-btn {
+    background: #66FF9F;
+    border: none;
+    border-radius: 6px;
+    color: #FFFFFF;
+    box-shadow: inset 0 0 0 2px #32FF7D;
+}
+
+.export-btn:focus {
+    outline: None
+}
+
+.import-btn {
+    background: #66FF9F;
+    border: none;
+    border-radius: 6px;
+    color: #FFFFFF;
+    box-shadow: inset 0 0 0 2px #32FF7D;
+}
+
+.import-btn:focus {
+    outline: None
+}
+
+.clustering-btn {
+    background: #4B95AF;
+    border: none;
+    border-radius: 6px;
+    margin-bottom: 10px;
+    color: #FFFFFF;
+    box-shadow: inset 0 0 0 2px #448399;
+
+.clustering-btn:focus {
+    outline: None
+}
+

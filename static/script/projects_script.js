@@ -26,26 +26,30 @@ data.forEach((project, index) => {
     project_index.className = 'panel-number';
     project_index.textContent = index + 1;
 
-    const close = document.createElement('span');
-    close.innerHTML = '&times;';
-    close.className = 'close-btn';
-
     panel.appendChild(left);
     panel.appendChild(project_index);
-    panel.appendChild(close);
-    container.appendChild(panel);
 
-    close.onclick = (e) => {
-        e.stopPropagation();
-        fetch(`/api/projects/${project.id}`, {
-            method: 'DELETE'
-        }).then(response => {
-            panel.remove();
-            updateProjectIndices();
-        }).catch(error => {
-            console.error('Ошибка сети:', error);
-        });
-    };
+    // Добавляем кнопку закрытия только для админов
+    if (current_user_status === 'admin') {
+        const close = document.createElement('span');
+        close.innerHTML = '&times;';
+        close.className = 'close-btn';
+        panel.appendChild(close);
+
+        close.onclick = (e) => {
+            e.stopPropagation();
+            fetch(`/api/projects/${project.id}`, {
+                method: 'DELETE'
+            }).then(response => {
+                panel.remove();
+                updateProjectIndices();
+            }).catch(error => {
+                console.error('Ошибка сети:', error);
+            });
+        };
+    }
+
+    container.appendChild(panel);
 });
 
 container.addEventListener('click', (e) => {

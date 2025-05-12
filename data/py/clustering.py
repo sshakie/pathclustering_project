@@ -1,5 +1,4 @@
-import aiohttp
-import asyncio
+from math import radians, sin, cos, atan2, sqrt
 from data.sql.models.order import Order
 import networkx as nx
 import numpy as np
@@ -17,22 +16,20 @@ class Depot:
 
 
 def cluster_orders(orders, edges, num_couriers, depot):
+    """Кластеризация"""
     G = nx.Graph()
     G.add_weighted_edges_from(edges)
 
     nodes = [node for node in orders if node != depot]
 
-    # Матрица кратчайших расстояний между заказами
     dist_matrix = nx.floyd_warshall_numpy(G, weight='weight')
     idx = [list(G.nodes).index(n) for n in nodes]
     reduced_matrix = dist_matrix[np.ix_(idx, idx)]
 
-    # Кластеризация
     condensed = squareform(reduced_matrix)
     z = linkage(condensed, method='average')
     labels = fcluster(z, t=num_couriers, criterion='maxclust')
 
-    # Сопоставляем точки с курьерами
     clusters = {}
     for node, label in zip(nodes, labels):
         clusters.setdefault(label, []).append(node)
@@ -40,30 +37,32 @@ def cluster_orders(orders, edges, num_couriers, depot):
     return clusters
 
 
-async def fetch_osrm_table(session: aiohttp.ClientSession, coords: list[tuple[float, float]]) -> dict:
-    """Запрашивает матрицу расстояний из OSRM."""
-    coordinates = ";".join([f"{lon},{lat}" for lon, lat in coords])
-    url = f"http://router.project-osrm.org/table/v1/driving/{coordinates}?annotations=distance"
+def haversine(coord1, coord2):
+    """расстояние между двумя точками"""
+    R = 6371000
 
-    async with session.get(url) as response:
-        if response.status != 200:
-            raise Exception(f"OSRM API error: {await response.text()}")
-        return await response.json()
+    lat1, lon1 = radians(coord1[0]), radians(coord1[1])
+    lat2, lon2 = radians(coord2[0]), radians(coord2[1])
+
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+
+    a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
+    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+
+    return R * c
 
 
-async def get_distance_matrix(orders: list[Order]) -> list[tuple[str, str, float]]:
+def get_distance_matrix(orders: list[Order]) -> list[tuple[str, str, float]]:
+    """Получение матрицы расстояний между всеми точками"""
     coords = [order.get_coords() for order in orders]
     ids = [order.id for order in orders]
 
-    async with aiohttp.ClientSession() as session:
-        data = await fetch_osrm_table(session, coords)
-        distances = data['distances']
-
-        result = []
-        for i in range(len(ids)):
-            for j in range(i + 1, len(ids)):
-                distance_meters = distances[i][j]
-                result.append((ids[i], ids[j], distance_meters))
+    result = []
+    for i in range(len(coords)):
+        for j in range(i + 1, len(coords)):
+            distance_meters = haversine(coords[i], coords[j])
+            result.append((ids[i], ids[j], distance_meters))
 
     return result
 
@@ -74,7 +73,7 @@ def clustering(orders_list: list[Order], num_couriers: int, depot_coords: list):
         :param depot_coords Координаты начальной точки'''
 
     orders_list.append(Depot(id=-1, coords=depot_coords))
-    matrix = asyncio.run(get_distance_matrix(orders_list))
+    matrix = get_distance_matrix(orders_list)
     ids = [order.id for order in orders_list]
     print(matrix)
     return cluster_orders(ids, matrix, num_couriers, -1)

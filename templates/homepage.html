@@ -3,15 +3,22 @@
 
 {% block content %}
 <script src="https://api-maps.yandex.ru/2.1/?apikey=048dcdc9-7eb0-4ab1-aee9-f00f7bd7547f&lang=ru_RU"></script>
-<link rel="stylesheet" href="/static/css/style.css">
-<script defer src="/static/script/script.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" defer></script>
+<link rel="stylesheet" href="/static/css/homepage/homepage_style.css">
+<link rel="stylesheet" href="/static/css/homepage/orders_style.css">
+<link rel="stylesheet" href="/static/css/homepage/map_style.css">
+<link rel="stylesheet" href="/static/css/homepage/couriers_style.css">
+<link rel="stylesheet" href="/static/css/homepage/home_couriers_page_style.css">
+<link rel="stylesheet" href="/static/css/homepage/export_style.css">
+<link rel="stylesheet" href="/static/css/homepage/storage_style.css">
+<script defer src="/static/script/script.js"></script>
 
 
 <!--  НЕ УБИРАТЬ!!!! БЕЗ ЭТОГО НЕ БУДУТ ПОРТИРОВАТЬСЯ ДАННЫЕ ИЗ ШАБЛОНА В JS-->
 <script>
     const courierData = {{ courier_data | tojson | safe }};
     const courierOrders = {{ courier_orders | tojson | safe }};
+    const depotCoords = {{ project_depot|tojson|safe }}
 </script>
 
 <script>
@@ -31,74 +38,14 @@
     });
 </script>
 
+<input type="file" id="hiddenFileInput" accept=".xls,.xlsx" style="display: none;">
 
-<!--Модальное окно создания заказа-->
-<div class="modal fade" id="addOrderModal" tabindex="-1" aria-labelledby="addOrderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable" style="margin-top: -36px">
-        <div class="modal-content">
-            <div class="modal-body">
-                <form action="" method="post">
-                    {{ add_order_form.hidden_tag() }}
-                    <div class="d-flex justify-content-end">
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть">✖</button>
-                    </div>
-                    <input type="hidden" name="form_name" value="add_order">
-                    <h2 align="center">Добавление заказа</h2>
-                    <p style="margin-top: 10px">
-                        {{ add_order_form.name.label }}<br>
-                        {{ add_order_form.name(class="form-control", style="margin-top: -10px") }}<br>
-                    </p>
-                    <p style="margin-top: -35px">
-                        {{ add_order_form.address.label }}<br>
-                        {{ add_order_form.address(class="form-control", style="margin-top: -10px") }}<br>
-                    </p>
-                    <p style="margin-top: -35px">
-                        {{ add_order_form.phone.label }}<br>
-                        {% if add_order_form.errors %}
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function () {
-                              const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('addOrderModal'));
-                              modal.show();});
-                        </script>
-                        {% endif %}
-                        {{ add_order_form.phone(class="form-control is-invalid" if add_order_form.phone.errors else
-                        "form-control", style="margin-top: -10px") }}
-                        {% for error in add_order_form.phone.errors %}
-                    <div class="invalid-feedback" style="display:block">{{ error }}</div>
-                    {% endfor %}
-                    </p>
-                    <p style="margin-top: -10px">
-                        {{ add_order_form.price.label }}<br>
-                        {{ add_order_form.price(class="form-control", style="margin-top: -10px") }}<br>
-                    </p>
-                    <p style="margin-top: -35px">
-                        {{ add_order_form.analytics_id.label }}<br>
-                        {{ add_order_form.analytics_id(class="form-control", style="margin-top: -10px") }}<br>
-                    </p>
-                    <p style="margin-top: -20px; margin-left: 61px">
-                        {{ add_order_form.submit(type="submit", class="btn btn-primary", style="width: 211px") }}
-                        <button class="btn btn-success" onclick="document.getElementById('xls-input').click()"
-                                type="button" style="width: 93px; margin: -1px">Импорт
-                        </button>
-                    <div align="center" style="color: #FF5C51">{{ message }}</div>
-                    </p>
-                </form>
+<form id="importForm" method="post" enctype="multipart/form-data" style="display: none;">
+    {{ import_form.hidden_tag() }}
+    {{ import_form.xls_file(id="actualFileInput") }}
+</form>
 
-                <!-- Скрытая форма для импорта -->
-                <form action="" enctype="multipart/form-data" id="import-form" method="post" style="display: none;">
-                    {{ import_order_form.hidden_tag() }} {{ import_order_form.xls_file(id="xls-input") }}
-                    <input type="hidden" name="form_name" value="import_orders">
-                    <button id="hidden-submit" type="submit"></button>
-                </form>
-
-            </div>
-            <span style="font-weight: bold; text-align: center; margin-top: -20px; color: #B7B7B7; font-size: 16px">при пакетном импорте следуйте <a
-                    href="/static/xls/template.xlsx" style="position: relative; z-index: 1000;"">образцу</a></span>
-            <div class="modal-footer" style="border-top: none"></div>
-        </div>
-    </div>
-</div>
-<!--Модальное окно экспорта-->
+<!-- Модальное окно экспорта -->
 <div class="modal fade" id="ExportModal" tabindex="-1" aria-labelledby="ExportModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -107,14 +54,105 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть">✖</button>
             </div>
             <div class="modal-body">
+                <form id="exportForm">
+                    <!-- Шаг 1: Выбор типа данных -->
+                    <div class="mb-3 step" id="step1">
+                        <label for="exportType" class="form-label">Что экспортировать?</label>
+                        <select class="form-select" id="exportType" required>
+                            <option value="" selected disabled>Выберите тип данных</option>
+                            <option value="orders">Заказы</option>
+                            <option value="couriers">Курьеры</option>
+                        </select>
+                    </div>
+
+                    <!-- Шаг 2a: Для заказов -->
+                    <div class="mb-3 step" id="step2-orders" style="display: none;">
+                        <div class="alert alert-info">
+                            Будут экспортированы все заказы
+                        </div>
+                        <button type="button" class="btn btn-primary w-100" id="exportOrdersBtn">Экспортировать заказы
+                        </button>
+                    </div>
+
+                    <!-- Шаг 2b: Для курьеров - выбор типа -->
+                    <div class="mb-3 step" id="step2-couriers" style="display: none;">
+                        <label for="couriersExportType" class="form-label">Каких курьеров экспортировать?</label>
+                        <select class="form-select" id="couriersExportType" required>
+                            <option value="" selected disabled>Выберите вариант</option>
+                            <option value="all">Все курьеры</option>
+                            <option value="selected">Только выбранные</option>
+                        </select>
+                    </div>
+
+                    <!-- Шаг 3a: Выбор конкретных курьеров -->
+                    <div class="mb-3 step" id="step3-couriers-select" style="display: none;">
+                        <label class="form-label">Выберите курьеров для экспорта:</label>
+                        <div id="couriersCheckboxList" class="border p-2" style="max-height: 200px; overflow-y: auto;">
+                            <!-- Список чекбоксов будет сгенерирован динамически -->
+                        </div>
+                    </div>
+
+                    <!-- Шаг 3b: Для курьеров - выбор формата -->
+                    <div class="mb-3 step" id="step3-couriers-format" style="display: none;">
+                        <label for="exportFormat" class="form-label">Формат экспорта</label>
+                        <select class="form-select" id="exportFormat" required>
+                            <option value="" selected disabled>Выберите вариант</option>
+                            <option value="single">В один файл</option>
+                            <option value="multiple">Отдельные файлы</option>
+                        </select>
+                    </div>
+
+                    <!-- Шаг 4: Кнопка экспорта для курьеров -->
+                    <div class="mb-3 step" id="step4-couriers" style="display: none;">
+                        <button type="button" class="btn btn-primary w-100" id="exportCouriersBtn">Экспортировать
+                            курьеров
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 </div>
 
+<!---Модальное окно статуса кластеризации-->
+<div class="modal fade" id="clusteringModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+     data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center p-4">
+
+            <!-- Блок загрузки -->
+            <div id="clustering-loading">
+                <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
+                <h5 class="mt-3">Идёт распределение заказов...</h5>
+                <p>Это может занять несколько минут. Пожалуйста, подождите.</p>
+            </div>
+
+            <!-- Блок успешного завершения -->
+            <div id="clustering-success" style="display: none;">
+                <div class="text-success" style="font-size: 2rem;">✔</div>
+                <h5 class="mt-3">Кластеризация завершена!</h5>
+                <p>Заказы успешно распределены между курьерами.</p>
+                <button type="button" class="btn btn-primary mt-2" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+
+            <!-- Блок ошибки -->
+            <div id="clustering-error" style="display: none;">
+                <div class="text-danger" style="font-size: 2rem;">⨯</div>
+                <h5 class="mt-3">Ошибка при распределении</h5>
+                <p id="clustering-error-message">Что-то пошло не так.</p>
+                <button type="button" class="btn btn-secondary mt-2" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
 
 <div class="main-wrapper">
     <div class="orders-panel">
+    <div class="orders-fixed-header">
         <h2 class="orders-header" style="margin-top: -4px">
             <span class="orders-text" style="font-weight: bold; color:7F7F7F">Orders Count</span>
             <span class="orders-count-wrapper"><span id="orders-count">0</span></span>
@@ -122,9 +160,11 @@
         <div class="order-search-wrapper" style="margin-bottom: 10px">
             <input type="text" id="order-search" placeholder="Найти заказ..."/>
         </div>
-
+    </div>
+    <div class="orders-scrollable">
         <div id="orders-list" class="orders-list" style="margin-top: 10px"></div>
-        <button class="add-order-btn" data-bs-toggle="modal" data-bs-target="#addOrderModal">➕</button>
+    </div>
+    <button class="add-order-btn" id="add-order-btn">➕</button>
     </div>
 
     <div class="map-block">
@@ -147,7 +187,7 @@
             <hr style="border: none; border-bottom: 3px solid #D3D3D3; margin: 0 0 20px 0;">
             <div class="couriers-page">
                 <div class="invite-row">
-                    <input type="text" readonly value="https://pathclustering.gg/register/{{invite_link}}"
+                    <input type="text" readonly value="sshakie.pythonanywhere.com/register/{{invite_link}}"
                            class="invite-link" id="inviteLinkInput"/>
                     <button class="invite-btn" onclick="copyInviteLink()">Пригласить</button>
                 </div>
@@ -193,9 +233,15 @@
         </div>
 
         <div align="center" style="min-height: 40">
+            <button class="import-btn" onclick="document.getElementById('hiddenFileInput').click()"
+        style="width: 75px; font-weight: bold">импорт</button>
             <button class="export-btn" data-bs-toggle="modal" data-bs-target="#ExportModal" id="exportbtn"
                     style="width: 100px; font-weight: bold">экспорт</button>
             <button class="clustering-btn" id="clusteringbtn" style="width: 150px; font-weight: bold">распределить</button>
+        </div>
+        <div class="imp-title hidden" style="border: 3px solid #dee2e6; border-radius: 12px; padding: 12px 20px; text-align: center; font-weight: bold; width: 500px; margin: 0 auto; margin-top: 10px">
+            <span>Импортированный файл должен следовать </span>
+            <a href="/static/xls/template.xlsx" download class="sample-link">образцу</a>
         </div>
     </div>
 
@@ -208,4 +254,14 @@
         </div>
     </div>
 </div>
+
+{% if project_depot is none or (project_depot is iterable and project_depot|select('none')|list == project_depot|list) %}
+<div class="storage-modal-overlay" id="storageModalOverlay">
+    <div class="storage-modal-content" style="margin-top: -170px">
+        <h4 style="font-size: 35px">Укажите адрес склада</h4>
+        <input type="text" id="storageInput" class="storage-input">
+        <button id="saveStorageBtn" class="storage-button">Готово</button>
+    </div>
+</div>
+{% endif %}
 {% endblock %}

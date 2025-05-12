@@ -12,6 +12,7 @@ class Order(SqlAlchemyBase, SerializerMixin):
     name = sqlalchemy.Column(sqlalchemy.String)
     address = sqlalchemy.Column(sqlalchemy.String)
     price = sqlalchemy.Column(sqlalchemy.Integer)
+    comment = sqlalchemy.Column(sqlalchemy.String)
     longitude = sqlalchemy.Column(sqlalchemy.Float)
     latitude = sqlalchemy.Column(sqlalchemy.Float)
     who_delivers = sqlalchemy.Column(sqlalchemy.Integer, sqlalchemy.ForeignKey('users.id'), default=-1)
