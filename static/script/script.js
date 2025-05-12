@@ -815,6 +815,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+document.getElementById('hiddenFileInput').addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        // Переносим выбранный файл в скрытую форму
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(e.target.files[0]);
+        document.getElementById('actualFileInput').files = dataTransfer.files;
+
+        // Отправляем форму
+        document.getElementById('importForm').submit();
+    }
+});
+
 document.addEventListener('DOMContentLoaded', function() {
     // Получаем текущий URL страницы без параметров запроса
     const currentPageUrl = window.location.origin + window.location.pathname;
