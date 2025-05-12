@@ -29,7 +29,11 @@
         </div>
     </div>
     <div class="orders-scrollable">
-        <div id="orders-list" class="orders-list" style="margin-top: 10px"></div>
+        {% if courier_orders %}
+            <div id="orders-list" class="orders-list" style="margin-top: 10px"></div>
+        {% else %}
+            <div style="text-align: center; font-size: 20px; font-weight: bold; color: #ccc">здесь пусто..</div>
+        {% endif %}
     </div>
     </div>
 
@@ -41,7 +45,7 @@
             </div>
         </div>
 
-        <div class="map-wrapper" id="map-wrapper" style="height: 885px">
+        <div class="map-wrapper" id="map-wrapper" style="height: 792px">
             <div id="map" class="map"></div>
         </div>
     </div>

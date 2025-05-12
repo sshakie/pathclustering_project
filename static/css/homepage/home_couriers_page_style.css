@@ -38,7 +38,7 @@
     border: 1px solid #ccc;
     padding: 8px 12px;
     width: 400px;
-    background: linear-gradient(90deg, black 0 39ch, #888 39ch 100%);
+    background: linear-gradient(90deg, black 0 40.5ch, #888 40.5ch 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent

@@ -1,6 +1,6 @@
 .orders-panel {
   width: 20%;
-  height: 100%;
+  height: 92vh;
   background-color: #f9f9f9;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
   position: relative;
@@ -8,23 +8,23 @@
   display: flex;
   flex-direction: column;
   padding: 0;
+  overflow: hidden;
 }
 
-/* Контейнер для заголовка и поиска (непрокручиваемая часть) */
 .orders-fixed-header {
   background-color: #f9f9f9;
   padding: 15px;
   z-index: 960;
+  flex-shrink: 0;
 }
 
-/* Контейнер для прокручиваемого списка */
 .orders-scrollable {
   flex: 1;
   overflow-y: auto;
   padding: 0 15px 15px;
+  min-height: 0;
 }
 
-/* Стили для заголовка */
 .orders-header {
   display: flex;
   align-items: center;
@@ -33,7 +33,6 @@
   padding: 0 5px;
 }
 
-/* Стили для поля поиска */
 #order-search {
   padding: 8px;
   border: 1px solid #ccc;
@@ -97,6 +96,7 @@
   user-select: none;
   width: 100%;
   line-height: 1.2;
+  box-sizing: border-box;
 }
 
 .order-item:hover {
@@ -139,7 +139,6 @@
   outline: none
 }
 
-/* Показываем кнопку, когда details открыты */
 .order-details:not(.hidden) + .order-price ~ .edit-btn,
 .order-details:not(.hidden) ~ .edit-btn {
   display: block;
@@ -269,4 +268,11 @@
     lineHeight: 1;
     lineHeight: 1;
     font-weight: bold
+}
+
+.orders-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-bottom: 15px;
 }

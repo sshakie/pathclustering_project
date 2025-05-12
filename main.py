@@ -59,8 +59,7 @@ def load_user(user_id):
 def show_projects():
     """Роут для показа проектов"""
     if current_user.is_authenticated:
-        projects = requests.get('http://127.0.0.1:5000/api/projects', cookies=request.cookies).json()['projects']
-        print(projects)
+        projects = requests.get(f'{request.host_url}api/projects', cookies=request.cookies).json()['projects']
         return render_template('projects.html', projects=projects)
     return redirect('/login')
 
@@ -96,11 +95,9 @@ def show_project(project_id):
             deliver = order.who_delivers if order.who_delivers != -1 else 'no_courier'
             courier_orders[str(deliver)] = courier_orders.get(str(deliver), []) + [order_dict]
 
-        print(courier_orders)
-
         if current_user.status != 'admin':
             return render_template('courier_homepage.html',
-                                   courier_orders=courier_orders[str(current_user.id)],
+                                   courier_orders=courier_orders[str(current_user.id)] if str(current_user.id) in courier_orders else [],
                                    icon_id=project.icon,
                                    project_depot=[project.longitude, project.latitude])
 
@@ -147,7 +144,7 @@ def show_project(project_id):
                         ready_couriers = [i for i in couriers_d if i['project_id']]
                         for cluster in clusters.keys():
                             for order_id in clusters[cluster]:
-                                requests.put(f'http://127.0.0.1:5000/api/orders/{order_id}',
+                                requests.put(f'{request.host_url}api/orders/{order_id}',
                                              json={'who_delivers': ready_couriers[int(cluster) - 1]['id']},
                                              cookies=request.cookies)
 
@@ -217,7 +214,7 @@ def invite_register(invite_link):
             session.close()
             return render_template('register.html', message='Данная почта уже зарегистрирована, попробуйте войти.',
                                    form=form, admin_name=admin.name)
-        user_id = requests.post('http://127.0.0.1:5000/api/users', json={'name': form.name.data,
+        user_id = requests.post(f'{request.host_url}api/users', json={'name': form.name.data,
                                                                          'email': form.email.data,
                                                                          'telegram_tag': form.telegram_tag.data,
                                                                          'password': form.password.data,
@@ -268,18 +265,18 @@ def logout():
 @app.route('/test')
 def test():
     # ТЕСТ ПРОЕКТ - КУРЬЕРЫ
-    print(requests.post('http://127.0.0.1:5000/api/projects',
+    print(requests.post(f'{request.host_url}api/projects',
                         json={'name': 'test', 'admin_id': 1}, cookies=request.cookies).json())
-    print(requests.post('http://127.0.0.1:5000/api/users',
+    print(requests.post(f'{request.host_url}api/users',
                         json={'name': 'Samantha Wood', 'email': 'samantha_wood@mail.ru', 'password': '123',
                               'telegram_tag': '@dropmeapart03', 'project_id': 1}).json())
-    print(requests.post('http://127.0.0.1:5000/api/users',
+    print(requests.post(f'{request.host_url}api/users',
                         json={'name': 'Roger Di', 'email': 'roger_di@mail.ru', 'admin_id': 1,
                               'password': '123'}).json())
-    print(requests.post('http://127.0.0.1:5000/api/users',
+    print(requests.post(f'{request.host_url}api/users',
                         json={'name': 'Dave Carlson', 'email': 'dave_carlson@mail.ru', 'password': '123',
                               'telegram_tag': '@captain1928', 'project_id': 1}).json())
-    print(requests.post('http://127.0.0.1:5000/api/orders',
+    print(requests.post(f'{request.host_url}api/orders',
                         json={'name': 'Jone', 'phone': '+79009897520', 'address': 'Lipetsk, ul. Moskovskaya, 92',
                               'project_id': 1, 'price': 1512, 'comment': 'бобер мне снес квартиру', 'who_delivers': 2}, cookies=request.cookies).json())
     session = create_session()
