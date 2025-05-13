@@ -119,12 +119,28 @@ def show_project(project_id):
         import_order_form = OrderImportForm()
         if request.method == 'POST':
             content_type = request.headers.get('Content-Type', '')
-            if 'xls_file' in request.files:  # Проверяем наличие файла
+            if 'xls_file' in request.files:
                 file = request.files['xls_file']
                 if file.filename != '':
-                    # Обработка импорта через таблицу
-                    unpack_orders_xls(file, project_id, request.cookies)
-                    return redirect(f'/projects/{project_id}')
+                    try:
+                        success = unpack_orders_xls(file, project_id, request.cookies)
+                        if not success:
+                            response = jsonify({
+                                'status': 'error',
+                                'message': 'Ошибка при обработке файла. Проверьте формат данных.'
+                            })
+                            response.status_code = 400
+                            return response
+
+                        # Успешный ответ без содержимого
+                        return '', 204
+                    except Exception as e:
+                        response = jsonify({
+                            'status': 'error',
+                            'message': f'Ошибка импорта: {str(e)}'
+                        })
+                        response.status_code = 500
+                        return response
 
             elif 'application/json' in content_type:
                 # Обработка запроса на кластеризацию

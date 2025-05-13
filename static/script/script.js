@@ -924,27 +924,6 @@ function setupAddOrderButton() {
     });
 }
 
-
-document.addEventListener('DOMContentLoaded', function() {
-    const input = document.getElementById('hiddenFileInput');
-    if (input) {
-        input.addEventListener('change', function() {
-            if (this.files.length > 0) {
-                const form = document.getElementById('importForm');
-                const fileInput = document.getElementById('actualFileInput');
-
-                // Передаем выбранный файл в форму
-                const dataTransfer = new DataTransfer();
-                dataTransfer.items.add(this.files[0]);
-                fileInput.files = dataTransfer.files;
-
-                form.submit();
-            }
-        });
-    }
-});
-
-
 document.addEventListener('DOMContentLoaded', function() {
     const importBtn = document.querySelector('.import-btn');
     const impTitle = document.querySelector('.imp-title');
@@ -987,17 +966,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-document.getElementById('hiddenFileInput').addEventListener('change', function(e) {
-    if (e.target.files.length > 0) {
-        // Переносим выбранный файл в скрытую форму
-        const dataTransfer = new DataTransfer();
-        dataTransfer.items.add(e.target.files[0]);
-        document.getElementById('actualFileInput').files = dataTransfer.files;
-
-        // Отправляем форму
-        document.getElementById('importForm').submit();
-    }
-});
 
 document.addEventListener('DOMContentLoaded', function() {
     // Получаем текущий URL страницы без параметров запроса
@@ -1169,5 +1137,62 @@ document.addEventListener('DOMContentLoaded', function() {
         console.error('Ошибка экспорта:', error);
     });
 }
+});
 
+// Добавляем обработчик события change для скрытого input
+document.getElementById('hiddenFileInput').addEventListener('change', function(e) {
+    if (e.target.files.length > 0) {
+        const importModal = new bootstrap.Modal(document.getElementById('importModal'));
+        const loadingBlock = document.getElementById('import-loading');
+        const successBlock = document.getElementById('import-success');
+        const errorBlock = document.getElementById('import-error');
+        const errorMessage = document.getElementById('import-error-message');
+
+        loadingBlock.style.display = 'block';
+        successBlock.style.display = 'none';
+        errorBlock.style.display = 'none';
+        importModal.show();
+
+        const dataTransfer = new DataTransfer();
+        dataTransfer.items.add(e.target.files[0]);
+        document.getElementById('actualFileInput').files = dataTransfer.files;
+
+        const form = document.getElementById('importForm');
+        fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form),
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(async (response) => {
+            if (response.status === 204) {
+                // Успешный импорт
+                loadingBlock.style.display = 'none';
+                successBlock.style.display = 'block';
+
+                importModal._element.addEventListener('hidden.bs.modal', () => {
+                    window.location.reload();
+                });
+            } else {
+                // Обработка JSON с ошибкой
+                const data = await response.json();
+                throw new Error(data.message || 'Неизвестная ошибка сервера');
+            }
+        })
+        .catch(error => {
+            loadingBlock.style.display = 'none';
+            errorMessage.textContent = error.message;
+            errorBlock.style.display = 'block';
+            console.error('Import error:', error);
+
+            // Сброс input'а
+            e.target.value = '';
+        });
+    }
+});
+
+
+document.getElementById('importForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // 🚫 отменяем обычную отправку
 });
