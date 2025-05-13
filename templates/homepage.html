@@ -148,7 +148,8 @@
 </div>
 
 <!-- Модальное окно статуса импорта -->
-<div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+<div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static"
+     data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content text-center p-4">
             <!-- Блок загрузки -->
@@ -178,22 +179,21 @@
 </div>
 
 
-
 <div class="main-wrapper">
     <div class="orders-panel">
-    <div class="orders-fixed-header">
-        <h2 class="orders-header" style="margin-top: -4px">
-            <span class="orders-text" style="font-weight: bold; color:7F7F7F">Orders Count</span>
-            <span class="orders-count-wrapper"><span id="orders-count">0</span></span>
-        </h2>
-        <div class="order-search-wrapper" style="margin-bottom: 10px">
-            <input type="text" id="order-search" placeholder="Найти заказ..."/>
+        <div class="orders-fixed-header">
+            <h2 class="orders-header" style="margin-top: -4px">
+                <span class="orders-text" style="font-weight: bold; color:7F7F7F">Orders Count</span>
+                <span class="orders-count-wrapper"><span id="orders-count">0</span></span>
+            </h2>
+            <div class="order-search-wrapper" style="margin-bottom: 10px">
+                <input type="text" id="order-search" placeholder="Найти заказ..."/>
+            </div>
         </div>
-    </div>
-    <div class="orders-scrollable">
-        <div id="orders-list" class="orders-list" style="margin-top: 10px"></div>
-    </div>
-    <button class="add-order-btn" id="add-order-btn">➕</button>
+        <div class="orders-scrollable">
+            <div id="orders-list" class="orders-list" style="margin-top: 10px"></div>
+        </div>
+        <button class="add-order-btn" id="add-order-btn">➕</button>
     </div>
 
     <div class="map-block">
@@ -224,38 +224,38 @@
                 <div class="courier-empty-text">похоже здесь пусто..</div>
                 {% else %}
                 {% if courier_not_ready %}
-                    {% for i in courier_not_ready %}
-                    <div class="table-row">
-                        <div></div>
-                        <div class="courier-name" style="margin-left: -25px">{{i.name}}</div>
-                        <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
-                        <div class="clstr-courier add" data-id="{{i.id}}" data-action="add">+</div>
-                        <div class="clstr-courier kick" data-id="{{i.id}}" data-action="kick">⨉</div>
-                    </div>
-                    {% if not loop.last %}
-                    <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
-                    {% endif %}
-                    {% endfor %}
+                {% for i in courier_not_ready %}
+                <div class="table-row">
+                    <div></div>
+                    <div class="courier-name" style="margin-left: -25px">{{i.name}}</div>
+                    <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
+                    <div class="clstr-courier add" data-id="{{i.id}}" data-action="add">+</div>
+                    <div class="clstr-courier kick" data-id="{{i.id}}" data-action="kick">⨉</div>
+                </div>
+                {% if not loop.last %}
+                <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0;">
+                {% endif %}
+                {% endfor %}
                 {% endif %}
 
                 {% if courier_ready %}
-                    <div style="text-align: center;font-size:26px;margin-top:25px">
-                        <span style="color:#B0B0B0">──────────</span>
-                        <span style="color: #000000">Участники</span>
-                        <span style="color:#B0B0B0">──────────</span>
-                    </div>
-                    {% for i in courier_ready %}
-                    <div class="table-row">
-                        <div class="courier-number" style="color: {{i.color}}">{{loop.index}}</div>
-                        <div class="courier-name" style="color: {{i.color}}; filter: brightness(1.5)">{{i.name}}</div>
-                        <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
-                        <div class="clstr-courier remove" data-id="{{i.id}}" data-action="remove">-</div>
-                        <div class="clstr-courier kick" data-id="{{i.id}}" data-action="kick">⨉</div>
-                    </div>
-                    {% if not loop.last %}
-                    <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0">
-                    {% endif %}
-                    {% endfor %}
+                <div style="text-align: center;font-size:26px;margin-top:25px">
+                    <span style="color:#B0B0B0">──────────</span>
+                    <span style="color: #000000">Участники</span>
+                    <span style="color:#B0B0B0">──────────</span>
+                </div>
+                {% for i in courier_ready %}
+                <div class="table-row">
+                    <div class="courier-number" style="color: {{i.color}}">{{loop.index}}</div>
+                    <div class="courier-name" style="color: {{i.color}}; filter: brightness(1.5)">{{i.name}}</div>
+                    <div class="tg-tag">{% if i.telegram_tag %}{{i.telegram_tag}}{% endif %}</div>
+                    <div class="clstr-courier remove" data-id="{{i.id}}" data-action="remove">-</div>
+                    <div class="clstr-courier kick" data-id="{{i.id}}" data-action="kick">⨉</div>
+                </div>
+                {% if not loop.last %}
+                <hr style="border: none; border-bottom: 2px solid #D3D3D3; margin: 0 0 20px 0">
+                {% endif %}
+                {% endfor %}
                 {% endif %}
                 {% endif %}
             </div>
@@ -263,22 +263,28 @@
 
         <div align="center" style="min-height: 40">
             <button class="import-btn" onclick="document.getElementById('hiddenFileInput').click()"
-        style="width: 75px; font-weight: bold">импорт</button>
+                    style="width: 75px; font-weight: bold">импорт
+            </button>
             <button class="export-btn" data-bs-toggle="modal" data-bs-target="#ExportModal" id="exportbtn"
-                    style="width: 100px; font-weight: bold">экспорт</button>
-            <button class="clustering-btn" id="clusteringbtn" style="width: 150px; font-weight: bold">распределить</button>
+                    style="width: 100px; font-weight: bold">экспорт
+            </button>
+            <button class="clustering-btn" id="clusteringbtn" style="width: 150px; font-weight: bold">распределить
+            </button>
         </div>
-        <div class="imp-title hidden" style="border: 3px solid #dee2e6; border-radius: 12px; padding: 12px 20px; text-align: center; font-weight: bold; width: 500px; margin: 0 auto; margin-top: 10px">
+        <div class="imp-title hidden"
+             style="border: 3px solid #dee2e6; border-radius: 12px; padding: 12px 20px; text-align: center; font-weight: bold; width: 500px; margin: 0 auto; margin-top: 10px">
             <span>Импортированный файл должен следовать </span>
             <a href="/static/xls/template.xlsx" download class="sample-link">образцу</a>
         </div>
     </div>
 
     <div class="courier-panel" id="courier-panel">
-        <div class="courier-filter-wrapper" style="margin-top: -6px">
+        <div class="courier-filter-wrapper">
             <input type="text" id="courier-search" placeholder="Найти курьера..."/>
-            <div id="courier-filter-buttons" class="courier-filters-scroll" style="margin-top: -4px">
-                <button class="courier-btn active" data-courier="all">Все</button>
+            <div class="courier-filters-scroll">
+                <div id="courier-filter-buttons">
+                    <button class="courier-btn active" data-courier="all">Все</button>
+                </div>
             </div>
         </div>
     </div>

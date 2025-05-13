@@ -60,12 +60,33 @@ function createOrderItem(order) {
 }
 
 function createOrderMarker(map, order) {
+    const color = '#4dd2ff'; // Стандартный синий цвет
+
+    const glowSvg = `
+        <svg xmlns="http://www.w3.org/2000/svg" width="100" height="100">
+            <defs>
+                <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stop-color="${color}" stop-opacity="0.4" />
+                    <stop offset="100%" stop-color="${color}" stop-opacity="0" />
+                </radialGradient>
+            </defs>
+            <!-- Свечение -->
+            <circle cx="50" cy="50" r="40" fill="url(#glow)" />
+            <!-- Наружный цветной круг с белой серединой -->
+            <circle cx="50" cy="50" r="10" fill="white" stroke="${color}" stroke-width="4"/>
+        </svg>
+    `;
+
+    const encodedSvg = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent(glowSvg);
+
     const mark = new ymaps.Placemark(order.coords, {
         balloonContent: order.address,
         hintContent: order.address
     }, {
-        preset: 'islands#circleIcon',
-        iconColor: '#4dd2ff',
+        iconLayout: 'default#image',
+        iconImageHref: encodedSvg,
+        iconImageSize: [100, 100],
+        iconImageOffset: [-50, -50],
         balloonAutoPan: false,
         hideIconOnBalloonOpen: false
     });

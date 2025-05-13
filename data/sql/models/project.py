@@ -15,9 +15,7 @@ class Project(SqlAlchemyBase, SerializerMixin):
     latitude = sqlalchemy.Column(sqlalchemy.Float)
 
     couriers = sqlalchemy.orm.relationship('User', secondary='courier_relations', backref='projects')
-    invite_link = sqlalchemy.Column(sqlalchemy.String,
-                                    default=''.join(['0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'[
-                                                         random.randint(1, 61)] for i in range(11)]))
+    invite_link = sqlalchemy.Column(sqlalchemy.String)
 
     def set_depot_coords(self, data):
         if isinstance(data, str):

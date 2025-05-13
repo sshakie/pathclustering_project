@@ -321,6 +321,7 @@ function setupEditButtonHandler(item, order, mark, map) {
             const btn = document.createElement('button');
             btn.className = 'courier-btn';
             btn.dataset.courier = courierId;
+            btn.classList.add('editing');
 
             const isCurrent = parseInt(courierId) === currentSelectedCourierId;
             if (isCurrent) {
@@ -432,6 +433,7 @@ function setupEditButtonHandler(item, order, mark, map) {
             // Сохраняем оригинальный адрес
             addressEl.dataset.originalAddress = originalValues.address;
         } else {
+            document.getElementById('add-order-btn').style.display = 'block';
             // Завершение редактирования
             const currentValues = {
                 name: nameEl.querySelector('input').value,
@@ -504,41 +506,38 @@ function setupEditButtonHandler(item, order, mark, map) {
         }
     });
 
-    deleteBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        if (confirm('Вы уверены, что хотите удалить этот заказ?')) {
-            try {
-                const res = await fetch(`/api/orders/${order.id}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCSRFToken()
-                    }
-                });
+    // В обработчике удаления заказа
+deleteBtn.addEventListener('click', async (e) => {
+    e.stopPropagation();
+    if (confirm('Вы уверены, что хотите удалить этот заказ?')) {
+        try {
+            const res = await fetch(`/api/orders/${order.id}`, {
+                method: 'DELETE',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRFToken() }
+            });
 
-                if (res.ok) {
-                    map.geoObjects.remove(mark);
-                    item.remove();
-                    const ordersCount = document.getElementById('orders-count');
-                    ordersCount.textContent = parseInt(ordersCount.textContent) - 1;
-                    // Восстанавливаем кнопки и снимаем затемнение
-                    restoreFilterButtons();
-                    unblockAllOrders();
-                } else {
-                    const error = await res.json();
-                    alert(error.message || 'Ошибка при удалении заказа');
-                    // Снимаем затемнение в случае ошибки
-                    unblockAllOrders();
-                }
-            } catch (err) {
-                console.error('Ошибка удаления:', err);
-                alert(`Ошибка при удалении заказа: ${err.message}`);
-                // Восстанавливаем кнопки и снимаем затемнение
+            if (res.ok) {
+                map.geoObjects.remove(mark);
+                item.remove();
+                document.getElementById('orders-count').textContent = parseInt(document.getElementById('orders-count').textContent) - 1;
                 restoreFilterButtons();
                 unblockAllOrders();
+                window.location.reload();
+            } else {
+                const error = await res.json();
+                alert(error.message || 'Ошибка при удалении заказа');
+                unblockAllOrders();
+                window.location.reload();
             }
+        } catch (err) {
+            console.error('Ошибка удаления:', err);
+            alert(`Ошибка при удалении заказа: ${err.message}`);
+            restoreFilterButtons();
+            unblockAllOrders();
+            window.location.reload();
         }
-    });
+    }
+});
 }
 
 // === Инициализация карты и заказов ===
@@ -912,7 +911,7 @@ function setupAddOrderButton() {
 
         // Обработчик отмены
         const cancelBtn = newOrderItem.querySelector('.cancel-new-order-btn');
-        cancelBtn.addEventListener('click', () => {
+                cancelBtn.addEventListener('click', () => {
             newOrderItem.remove();
             document.getElementById('add-order-btn').style.display = 'block';
             // Разблокируем заказы после отмены

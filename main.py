@@ -284,13 +284,13 @@ def test():
     print(requests.post(f'{request.host_url}api/projects',
                         json={'name': 'test', 'admin_id': 1}, cookies=request.cookies).json())
     print(requests.post(f'{request.host_url}api/users',
-                        json={'name': 'Samantha Wood', 'email': 'samantha_wood@mail.ru', 'password': '123',
+                        json={'name': 'Samantha Wood', 'email': 'samantha_wood1@mail.ru', 'password': '123',
                               'telegram_tag': '@dropmeapart03', 'project_id': 1}).json())
     print(requests.post(f'{request.host_url}api/users',
-                        json={'name': 'Roger Di', 'email': 'roger_di@mail.ru', 'admin_id': 1,
+                        json={'name': 'Roger Di', 'email': 'roger_di1@mail.ru', 'admin_id': 1,
                               'password': '123'}).json())
     print(requests.post(f'{request.host_url}api/users',
-                        json={'name': 'Dave Carlson', 'email': 'dave_carlson@mail.ru', 'password': '123',
+                        json={'name': 'Dave Carlson', 'email': 'dave_carlson1@mail.ru', 'password': '123',
                               'telegram_tag': '@captain1928', 'project_id': 1}).json())
     print(requests.post(f'{request.host_url}api/orders',
                         json={'name': 'Jone', 'phone': '+79009897520', 'address': 'Lipetsk, ul. Moskovskaya, 92',

@@ -6,6 +6,7 @@ from data.sql.__all_models import Project
 from data.sql.__all_models import Order
 from flask_login import current_user
 from flask import jsonify
+import random
 
 project_parser = reqparse.RequestParser()
 project_parser.add_argument('name', required=True, type=str)
@@ -103,6 +104,8 @@ class ProjectsListResource(Resource):
                         project.icon = args['icon']
                     if args['invite_link']:
                         project.invite_link = args['invite_link']
+                    else:
+                        project.invite_link = ''.join(['0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz'[random.randint(1, 61)] for i in range(11)])
                     session.add(project)
                     session.commit()
                     return jsonify({'success': 'created!', 'id': project.id, 'icon': project.icon})
