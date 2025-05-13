@@ -35,7 +35,7 @@ api.add_resource(ProjectsResource, '/api/projects/<project_id>')
 api.add_resource(CourierRelationsListResource, '/api/courier_relations')
 
 session = create_session()
-if not session.query(User).filter(User.name == 'admin').first():
+if not session.query(User).filter(User.name == 'admin').first(): # создаем админа, если sql только создался
     user = User()
     user.name = 'admin'
     user.email = 'admin@admin.py'
@@ -46,7 +46,7 @@ if not session.query(User).filter(User.name == 'admin').first():
 session.close()
 
 
-@lm.user_loader
+@lm.user_loader # загрузка данных о пользователе
 def load_user(user_id):
     session = create_session()
     try:
@@ -65,7 +65,7 @@ def show_projects():
 
 
 @app.route('/')
-def homepage():
+def homepage(): # перебрасываем с этой ссылки, так как не используется
     if current_user.is_authenticated:
         return redirect('/projects')
     return redirect('/login')
@@ -181,7 +181,7 @@ def show_project(project_id):
                         return create_couriers_excel(project_id, couriers, one_file)
                     elif data['type'] == 'orders':
                         return create_orders_excel(project_id)
-        # Если метод не POST рендерм страницу
+        # Если метод не POST рендерим страницу
         return render_template('homepage.html',
                                import_form=import_order_form,
                                courier_data=courier_data,
