@@ -6,10 +6,7 @@ import requests, zipfile
 from io import BytesIO
 
 
-def unpack_orders_xls(table, project_id, cookie):
-    with open('data/config', encoding='UTF-8') as file:
-        link = file.read().split('\n')[2].split()[1]
-
+def unpack_orders_xls(table, project_id, cookie, host_url):
     # Читаем всю таблицу и проходимся по ней
     data_tuples = [tuple(x) for x in read_excel(table).values]
     for analytics_id, address, name, phone, comment, price in data_tuples:
@@ -23,7 +20,7 @@ def unpack_orders_xls(table, project_id, cookie):
             comment = None
 
         # Запрос на добавление заказов из таблицы
-        response = requests.post(f'{link}api/orders',
+        response = requests.post(f'{host_url}api/orders',
                                  json={'phone': phone,
                                        'name': name,
                                        'address': address,

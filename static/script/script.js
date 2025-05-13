@@ -19,12 +19,14 @@ function getCSRFToken() {
     return meta ? meta.content : '';
 }
 
+// === Подсветка заказа ===
 function highlightOrder(id) {
     document.querySelectorAll('.order-item').forEach(el => {
         el.classList.toggle('active', el.dataset.id == id);
     });
 }
 
+// === Копирование ссылки приглашения ===
 function copyInviteLink() {
     const input = document.getElementById('inviteLinkInput');
     input.select();
@@ -35,7 +37,7 @@ function copyInviteLink() {
     setTimeout(() => btn.classList.remove('copied'), 1000);
 }
 
-// Добавляем обработчик для кнопки копирования
+
 document.querySelector('.invite-btn')?.addEventListener('click', copyInviteLink);
 
 // === Управление вкладками ===
@@ -44,6 +46,7 @@ function activateTab(tab) {
     tab.classList.add("active");
 }
 
+// === Переключатель карта/**курьеры** ===
 function switchToCouriersTab() {
     activateTab(tabCouriers);
     addressWrapper.classList.add("hidden");
@@ -67,6 +70,7 @@ tabMap.addEventListener("click", () => {
 tabCouriers.addEventListener("click", switchToCouriersTab);
 
 // === Функции для работы с картой ===
+// === Добавление метки на карту ===
 function addWarehouseToMap(map, coords) {
     const warehousePlacemark = new ymaps.Placemark(
         coords,
@@ -83,6 +87,7 @@ function addWarehouseToMap(map, coords) {
     return warehousePlacemark;
 }
 
+// === Поиск по адресу ===
 function searchAddress(map, address) {
     if (!address.trim()) return;
 
@@ -100,6 +105,7 @@ function searchAddress(map, address) {
 }
 
 // === Функции для работы с заказами ===
+// === Создание панели заказа ===
 function createOrderItem(order, courierId, color) {
     const orderNumber = order.analytics_id ? order.analytics_id : order.id;
     const item = document.createElement('div');
@@ -130,7 +136,7 @@ function createOrderItem(order, courierId, color) {
     return item;
 }
 
-// Новая функция для создания элемента нового заказа
+// === Создание нового заказа ===
 function createNewOrderItem() {
     const item = document.createElement('div');
     item.className = 'order-item new-order';
@@ -158,6 +164,7 @@ function createNewOrderItem() {
     return item;
 }
 
+// === Создание метки заказа ===
 function createOrderMarker(map, order, courierId, color) {
     if (courierId === 'no_courier') {
         const mark = new ymaps.Placemark(order.coords, {
@@ -208,7 +215,6 @@ function createOrderMarker(map, order, courierId, color) {
 }
 
 
-// === Обработчики событий для заказов ===
 function setupOrderClickHandler(item, order, mark, map) {
     item.addEventListener('click', (e) => {
         const editBtn = item.querySelector('.edit-btn');
@@ -261,10 +267,9 @@ function setupEditButtonHandler(item, order, mark, map) {
     const filterBlock = document.getElementById('courier-filter-buttons');
     let originalFilterButtons = null;
 
-    // Используем глобальную переменную currentSelectedCourierId
     currentSelectedCourierId = order.who_delivers;
 
-    // Функция для отображения всех курьеров
+    // === Функция отображения всех курьеров ===
     function showAllCouriers() {
         originalFilterButtons = Array.from(filterBlock.children).map(btn => btn.cloneNode(true));
         filterBlock.innerHTML = '';
@@ -302,7 +307,7 @@ function setupEditButtonHandler(item, order, mark, map) {
         });
         filterBlock.appendChild(allBtn);
 
-        // Функция обновления состояния кнопок
+        // === Функция обновления состояния кнопок ===
         function updateCourierButtons() {
             document.querySelectorAll('.courier-btn[data-courier]').forEach(btn => {
                 if (btn.dataset.courier === 'all') return;
@@ -353,7 +358,7 @@ function setupEditButtonHandler(item, order, mark, map) {
         });
     }
 
-    // Функция для восстановления исходных кнопок
+    // === Функция для восстановления исходных кнопок ===
     function restoreFilterButtons() {
         if (originalFilterButtons) {
             filterBlock.innerHTML = '';
@@ -378,7 +383,7 @@ function setupEditButtonHandler(item, order, mark, map) {
         }
     }
 
-    // Функция для затемнения всех заказов, кроме текущего
+    // === Функция для затемнения всех заказов, кроме текущего ===
     function blockOtherOrders(currentItem) {
         document.querySelectorAll('.order-item').forEach(orderItem => {
             if (orderItem !== currentItem) {
@@ -387,7 +392,7 @@ function setupEditButtonHandler(item, order, mark, map) {
         });
     }
 
-    // Функция для снятия затемнения со всех заказов
+    // === Функция для снятия затемнения со всех заказов ===
     function unblockAllOrders() {
         document.querySelectorAll('.order-item').forEach(orderItem => {
             orderItem.classList.remove('blocked');
@@ -456,7 +461,6 @@ function setupEditButtonHandler(item, order, mark, map) {
                 };
 
 
-
                 const res = await fetch(`/api/orders/${order.id}`, {
                     method: 'PUT',
                     headers: {
@@ -506,7 +510,7 @@ function setupEditButtonHandler(item, order, mark, map) {
         }
     });
 
-    // В обработчике удаления заказа
+
 deleteBtn.addEventListener('click', async (e) => {
     e.stopPropagation();
     if (confirm('Вы уверены, что хотите удалить этот заказ?')) {
@@ -549,6 +553,7 @@ function initializeOrders(map, courierOrders, courierData) {
     const allPlacemarks = [];
     const courierPlacemarks = {};
 
+    // === Постановка выбранного курьера ===
     function setActiveCourier(id) {
         if (id === 'all') {
             allPlacemarks.forEach(({ mark }) => mark.options.set('visible', true));
@@ -588,7 +593,6 @@ function initializeOrders(map, courierOrders, courierData) {
         const data = courierData[courierId] || {};
         const color = courierColors[colorIndex++ % courierColors.length];
 
-        // Создание кнопки фильтра для курьера
         const btn = document.createElement('button');
         btn.className = 'courier-btn';
         btn.textContent = data.name || courierId;
@@ -934,7 +938,6 @@ document.addEventListener('DOMContentLoaded', function() {
         impTitle.classList.remove('hidden');
     });
 
-    // Скрываем через 2 секунды после ухода курсора
     importBtn.addEventListener('mouseleave', function() {
         hideTimeout = setTimeout(() => {
             impTitle.classList.add('hidden');
@@ -946,7 +949,6 @@ document.addEventListener('DOMContentLoaded', function() {
         clearTimeout(hideTimeout);
     });
 
-    // При уходе с подсказки - скрываем через 2 секунды
     impTitle.addEventListener('mouseleave', function() {
         hideTimeout = setTimeout(() => {
             impTitle.classList.add('hidden');
@@ -967,10 +969,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Получаем текущий URL страницы без параметров запроса
     const currentPageUrl = window.location.origin + window.location.pathname;
 
-    // Используем courierData для данных о курьерах
     const exportType = document.getElementById('exportType');
     const steps = {
         'initial': document.getElementById('step1'),
@@ -1000,7 +1000,6 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // Сортируем курьеров по имени
         const sortedCouriers = Object.entries(courierData).sort((a, b) => {
             const nameA = a[1].name || '';
             const nameB = b[1].name || '';
@@ -1109,7 +1108,6 @@ document.addEventListener('DOMContentLoaded', function() {
     .then(response => {
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return response.blob().then(blob => {
-            // Попробуем вытащить имя файла из заголовка
             const disposition = response.headers.get('Content-Disposition');
             let fileName = 'exported_file.xlsx';
 
@@ -1166,7 +1164,6 @@ document.getElementById('hiddenFileInput').addEventListener('change', function(e
         })
         .then(async (response) => {
             if (response.status === 204) {
-                // Успешный импорт
                 loadingBlock.style.display = 'none';
                 successBlock.style.display = 'block';
 
@@ -1174,7 +1171,6 @@ document.getElementById('hiddenFileInput').addEventListener('change', function(e
                     window.location.reload();
                 });
             } else {
-                // Обработка JSON с ошибкой
                 const data = await response.json();
                 throw new Error(data.message || 'Неизвестная ошибка сервера');
             }
@@ -1185,7 +1181,6 @@ document.getElementById('hiddenFileInput').addEventListener('change', function(e
             errorBlock.style.display = 'block';
             console.error('Import error:', error);
 
-            // Сброс input'а
             e.target.value = '';
         });
     }
@@ -1193,5 +1188,5 @@ document.getElementById('hiddenFileInput').addEventListener('change', function(e
 
 
 document.getElementById('importForm').addEventListener('submit', function(e) {
-    e.preventDefault(); // 🚫 отменяем обычную отправку
+    e.preventDefault();
 });

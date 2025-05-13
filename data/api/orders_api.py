@@ -70,6 +70,7 @@ class OrdersResource(Resource):
             project = session.query(Project).filter(Project.id == order.project_id).first()
             if project.admin_id == current_user.id:
                 args = put_order_parser.parse_args()
+
                 # Проверяем наличие не обяхательных аргументов в парсере
                 if args['phone']:
                     try:
@@ -110,7 +111,6 @@ class OrdersResource(Resource):
         abort(401, message="You're not logged in")
 
 
-# Класс для списка заказов и создания новых
 class OrdersListResource(Resource):
     def get(self):
         """Получение всех заказов, связанных с проектами текущего админа"""
@@ -177,8 +177,7 @@ class OrdersListResource(Resource):
         abort(401, message="You're not logged in")
 
 
-# Проверка наличия заказа по ID
-def abort_if_order_not_found(order_id):
+def abort_if_order_not_found(order_id):  # Проверка наличия заказа по ID
     session = create_session()
     order = session.get(Order, order_id)
     if not order:
@@ -186,8 +185,7 @@ def abort_if_order_not_found(order_id):
     session.close()
 
 
-# Проверка корректности формата номера телефона
-def is_right_phone_number(number):
+def is_right_phone_number(number):  # Проверка корректности формата номера телефона
     s = number
     remainder = ''
     if s.startswith('+7'):

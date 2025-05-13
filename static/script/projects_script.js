@@ -1,5 +1,7 @@
+// === Глобальные переменные и константы ===
 const container = document.getElementById('projects');
 
+// Создаем панели проектов из данных
 data.forEach((project, index) => {
     const panel = document.createElement('div');
     panel.className = 'panel';
@@ -64,6 +66,7 @@ container.addEventListener('click', (e) => {
     }
 });
 
+// Обновление номеров проектов после удаления
 function updateProjectIndices() {
     const container = document.getElementById('projects');
     const panels = container.querySelectorAll('.panel');
@@ -75,6 +78,7 @@ function updateProjectIndices() {
     });
 }
 
+// Проверка на дублирование имени проекта
 function isProjectNameExists(name) {
     const projects = document.querySelectorAll('.panel:not(.temp-panel)');
     for (const project of projects) {
@@ -86,6 +90,7 @@ function isProjectNameExists(name) {
     return false;
 }
 
+// Обработчик добавления нового проекта
 document.getElementById('add-project-btn').addEventListener('click', () => {
     const tempPanel = document.createElement('div');
     tempPanel.className = 'panel temp-panel';

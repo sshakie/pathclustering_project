@@ -4,7 +4,7 @@
 #ExportModal .modal-content {
     border-radius: 12px;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.25);
-    border: none;
+    border: none
 }
 
 #ExportModal .modal-header {
@@ -13,13 +13,13 @@
     padding: 16px 24px;
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: space-between
 }
 
 #ExportModal .modal-title {
     font-size: 1.25rem;
     font-weight: 600;
-    color: #343a40;
+    color: #343a40
 }
 
 #ExportModal .btn-close {
@@ -28,19 +28,20 @@
     border: none;
     color: #6c757d;
     cursor: pointer;
-    transition: color 0.2s ease;
+    transition: color 0.2s ease
 }
+
 #ExportModal .btn-close:hover {
-    color: #dc3545;
+    color: #dc3545
 }
 
 #ExportModal .modal-body {
     padding: 24px;
-    background-color: #ffffff;
+    background-color: #ffffff
 }
 
 #ExportModal .step {
-    margin-bottom: 20px;
+    margin-bottom: 20px
 }
 
 #ExportModal .form-select {
@@ -48,11 +49,12 @@
     font-size: 1rem;
     border-radius: 8px;
     border: 1px solid #ced4da;
-    transition: border-color 0.3s ease;
+    transition: border-color 0.3s ease
 }
+
 #ExportModal .form-select:focus {
     border-color: #0d6efd;
-    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25)
 }
 
 #ExportModal .btn-primary {
@@ -62,16 +64,17 @@
     border-radius: 8px;
     font-weight: 600;
     font-size: 1rem;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease
 }
+
 #ExportModal .btn-primary:hover {
-    background-color: #0b5ed7;
+    background-color: #0b5ed7
 }
 
 #couriersCheckboxList {
     border: 1px solid #dee2e6;
     border-radius: 6px;
-    background-color: #f8f9fa;
+    background-color: #f8f9fa
 }
 
 #couriersCheckboxList label {
@@ -79,8 +82,9 @@
     padding: 4px 8px;
     margin-bottom: 2px;
     font-size: 0.95rem;
-    cursor: pointer;
+    cursor: pointer
 }
+
 #couriersCheckboxList input[type="checkbox"] {
-    margin-right: 6px;
+    margin-right: 6px
 }

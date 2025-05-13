@@ -18,12 +18,11 @@
 <script>
     const courierData = {{ courier_data | tojson | safe }};
     const courierOrders = {{ courier_orders | tojson | safe }};
-    const depotCoords = {{ project_depot|tojson|safe }}
+    const depotCoords = {{ project_depot|tojson|safe }};
 </script>
 
-
+<!-- Невидимое окно импорта -->
 <input type="file" id="hiddenFileInput" accept=".xls,.xlsx" style="display: none;">
-
 <form id="importForm" onsubmit="return false;" method="post" enctype="multipart/form-data" style="display: none;">
     {{ import_form.hidden_tag() }}
     {{ import_form.xls_file(id="actualFileInput") }}
@@ -126,7 +125,6 @@
                 <p id="clustering-error-message">Что-то пошло не так.</p>
                 <button type="button" class="btn btn-secondary mt-2" data-bs-dismiss="modal">Закрыть</button>
             </div>
-
         </div>
     </div>
 </div>
@@ -136,6 +134,7 @@
      data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content text-center p-4">
+
             <!-- Блок загрузки -->
             <div id="import-loading">
                 <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;"></div>
@@ -162,9 +161,11 @@
     </div>
 </div>
 
-
+<!-- Интерфейс сайта -->
 <div class="main-wrapper">
+    <!-- Панель заказов -->
     <div class="orders-panel">
+        <!-- Фиксированные элементы над списком заказов  -->
         <div class="orders-fixed-header">
             <h2 class="orders-header" style="margin-top: -4px">
                 <span class="orders-text" style="font-weight: bold; color:7F7F7F">Orders Count</span>
@@ -174,13 +175,17 @@
                 <input type="text" id="order-search" placeholder="Найти заказ..."/>
             </div>
         </div>
+
+        <!-- Список заказов -->
         <div class="orders-scrollable">
             <div id="orders-list" class="orders-list" style="margin-top: 10px"></div>
         </div>
         <button class="add-order-btn" id="add-order-btn">➕</button>
     </div>
 
+    <!-- Блок с картой -->
     <div class="map-block">
+        <!-- Переключатель + поиск по адресу -->
         <div class="top-controls">
             <div class="address-search-wrapper" id="address-search-wrapper" style="margin-top: -1px">
                 <input type="text" id="address-search" placeholder="Введите адрес..."/>
@@ -192,22 +197,29 @@
             </div>
         </div>
 
+        <!-- Сама интерактиваная карта -->
         <div class="map-wrapper" id="map-wrapper">
             <div id="map" class="map"></div>
         </div>
+
+        <!-- Вкладка карта/**курьеры** -->
         <div style="max-height: 5"><br></div>
         <div class="couriers hidden" id="couriers">
             <hr style="border: none; border-bottom: 3px solid #D3D3D3; margin: 0 0 20px 0;">
             <div class="couriers-page">
+                <!-- Реферальная ссылка элементы -->
                 <div class="invite-row">
-                    <input type="text" readonly value="sshakie.pythonanywhere.com/register/{{invite_link}}"
+                    <input type="text" readonly value="{{link}}register/{{invite_link}}"
                            class="invite-link" id="inviteLinkInput"/>
                     <button class="invite-btn" onclick="copyInviteLink()">Пригласить</button>
                 </div>
+
+                <!-- Таблица курьеров -->
                 {% if not courier_not_ready and not courier_ready %}
                 <div class="courier-empty-text">похоже здесь пусто..</div>
                 {% else %}
                 {% if courier_not_ready %}
+                <!-- Список курьеров, которые не в проекте -->
                 {% for i in courier_not_ready %}
                 <div class="table-row">
                     <div></div>
@@ -222,6 +234,7 @@
                 {% endfor %}
                 {% endif %}
 
+                <!-- Список курьеров, которые участники проекта -->
                 {% if courier_ready %}
                 <div style="text-align: center;font-size:26px;margin-top:25px">
                     <span style="color:#B0B0B0">──────────</span>
@@ -245,6 +258,7 @@
             </div>
         </div>
 
+        <!-- Нижняя панель взаимодействия (кнопки) во вкладке **карта**/курьеры -->
         <div align="center" style="min-height: 40">
             <button class="import-btn" onclick="document.getElementById('hiddenFileInput').click()"
                     style="width: 75px; font-weight: bold">импорт
@@ -255,6 +269,8 @@
             <button class="clustering-btn" id="clusteringbtn" style="width: 150px; font-weight: bold">распределить
             </button>
         </div>
+
+        <!-- Уведомление с помощником (образец для импорта) -->
         <div class="imp-title hidden"
              style="border: 3px solid #dee2e6; border-radius: 12px; padding: 12px 20px; text-align: center; font-weight: bold; width: 500px; margin: 0 auto; margin-top: 10px">
             <span>Импортированный файл должен следовать </span>
@@ -262,9 +278,13 @@
         </div>
     </div>
 
+    <!-- Блок со списком курьеров -->
     <div class="courier-panel" id="courier-panel">
         <div class="courier-filter-wrapper">
+            <!-- Поиск по курьерам -->
             <input type="text" id="courier-search" placeholder="Найти курьера..."/>
+
+            <!-- Сам список -->
             <div class="courier-filters-scroll">
                 <div id="courier-filter-buttons">
                     <button class="courier-btn active" data-courier="all">Все</button>
@@ -274,6 +294,7 @@
     </div>
 </div>
 
+<!-- Окно с вводом адреса склада при первом открытии проекта -->
 {% if project_depot is none or (project_depot is iterable and project_depot|select('none')|list == project_depot|list) %}
 <div class="storage-modal-overlay" id="storageModalOverlay">
     <div class="storage-modal-content" style="margin-top: -170px">

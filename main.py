@@ -22,9 +22,7 @@ app = Flask(__name__)
 lm = LoginManager()
 
 with open('data/config', encoding='UTF-8') as file:  # API-ключ для карт
-    file = file.read()
-    api_key_js = file.split('\n')[0].split()[1]
-    link = file.split('\n')[2].split()[1]
+    api_key = file.read().split('\n')[0].split()[1]
 
 
 def main():
@@ -66,7 +64,7 @@ def load_user(user_id):
 def show_projects():
     """Роут для показа проектов"""
     if current_user.is_authenticated:  # Проверка авторизирован ли человек
-        projects = requests.get(f'{link}api/projects', cookies=request.cookies).json()['projects']
+        projects = requests.get(f'{request.host_url}api/projects', cookies=request.cookies).json()['projects']
         return render_template('projects.html', projects=projects)
     return redirect('/login')
 
@@ -111,7 +109,8 @@ def show_project(project_id):
                                            current_user.id) in courier_orders else [],
                                        icon_id=project.icon,
                                        project_depot=[project.longitude, project.latitude],
-                                       api_key=api_key_js)
+                                       api_key=api_key,
+                                       link=request.host_url)
 
             ###############################################################
             ###### Дальше собираем данные, которые нужны уже логисту ######
@@ -138,7 +137,8 @@ def show_project(project_id):
 
                 if 'xls_file' in request.files:  # Обработка запроса на импорт
                     try:
-                        is_success = unpack_orders_xls(request.files['xls_file'], project_id, request.cookies)
+                        is_success = unpack_orders_xls(request.files['xls_file'], project_id, request.cookies,
+                                                       request.host_url)
                         if not is_success:  # Если таблица имела ошибки / не подходит образцу
                             return jsonify(
                                 {'status': 'error',
@@ -162,7 +162,7 @@ def show_project(project_id):
                             # Отдаем полученные кластеры курьеров в заказы
                             for cluster in clusters.keys():
                                 for order_id in clusters[cluster]:
-                                    requests.put(f'{link}api/orders/{order_id}',
+                                    requests.put(f'{request.host_url}api/orders/{order_id}',
                                                  json={'who_delivers': ready_couriers[int(cluster) - 1]['id']},
                                                  cookies=request.cookies)
                         except ValueError:
@@ -193,7 +193,8 @@ def show_project(project_id):
                                    courier_ready=ready_couriers,
                                    courier_not_ready=[i for i in couriers_d if project_id not in i['project_id']],
                                    project_depot=[project.longitude, project.latitude],
-                                   api_key=api_key_js)
+                                   api_key=api_key,
+                                   link=request.host_url)
         finally:
             session.close()
     return redirect('/login')
@@ -245,13 +246,19 @@ def invite_register(invite_link):
                                        form=form, admin_name=admin.name)
 
             # Создаем аккаунт
-            user_id = requests.post(f'{link}api/users', json={'name': form.name.data,
-                                                              'email': form.email.data,
-                                                              'telegram_tag': form.telegram_tag.data,
-                                                              'password': form.password.data,
-                                                              'project_id': project.id}).json()
-            login_user(session.get(User, user_id['user_id']), remember=form.remember_me.data)
-            return redirect('/')
+            user_id = requests.post(f'{request.host_url}api/users', json={'name': form.name.data,
+                                                                          'email': form.email.data,
+                                                                          'telegram_tag': form.telegram_tag.data,
+                                                                          'password': form.password.data,
+                                                                          'project_id': project.id})
+
+            if user_id.status_code == 200:  # Если данные введены под формат
+                login_user(session.get(User, user_id.json()['user_id']), remember=form.remember_me.data)
+                return redirect('/')
+
+            # Иначе пишем ошибку
+            return render_template('register.html', title=f'Данные введены некорректно: {user_id.json()['message']}',
+                                   form=form, admin_name=admin.name)
 
         # Иначе отображаем просто страницу
         return render_template('register.html', title='Присоединение к проекту', form=form, admin_name=admin.name)
@@ -275,12 +282,17 @@ def register():
                                        message='Данная почта уже зарегистрирована, попробуйте войти')
 
             # Создаем аккаунт
-            user_id = requests.post(f'{link}api/users', json={'name': form.name.data,
-                                                              'email': form.email.data,
-                                                              'telegram_tag': form.telegram_tag.data,
-                                                              'password': form.password.data}).json()
-            login_user(session.get(User, user_id['user_id']), remember=form.remember_me.data)
-            return redirect('/')
+            user_id = requests.post(f'{request.host_url}api/users', json={'name': form.name.data,
+                                                                          'email': form.email.data,
+                                                                          'telegram_tag': form.telegram_tag.data,
+                                                                          'password': form.password.data})
+            if user_id.status_code == 200:  # Если данные введены под формат
+                login_user(session.get(User, user_id.json()['user_id']), remember=form.remember_me.data)
+                return redirect('/')
+
+            # Иначе пишем ошибку
+            return render_template('register.html', form=form,
+                                   message=f'Данные введены некорректно: {user_id.json()['message']}')
         return render_template('register.html', title='Стать логистом', form=form)
     finally:
         session.close()
@@ -295,18 +307,18 @@ def logout():  # Выход из аккаунта
 @app.route('/test')
 def test():  # Создан для быстрого тестирования сайта
     if current_user.is_authenticated and current_user.status == 'admin':
-        print(requests.post(f'{link}api/projects',
+        print(requests.post(f'{request.host_url}api/projects',
                             json={'name': 'test', 'admin_id': 1}, cookies=request.cookies).json())
-        print(requests.post(f'{link}api/users',
+        print(requests.post(f'{request.host_url}api/users',
                             json={'name': 'Samantha Wood', 'email': 'samantha_wood1@mail.ru', 'password': '123',
                                   'telegram_tag': '@dropmeapart03', 'project_id': 1}).json())
-        print(requests.post(f'{link}api/users',
+        print(requests.post(f'{request.host_url}api/users',
                             json={'name': 'Roger Di', 'email': 'roger_di1@mail.ru', 'admin_id': 1,
                                   'password': '123'}).json())
-        print(requests.post(f'{link}api/users',
+        print(requests.post(f'{request.host_url}api/users',
                             json={'name': 'Dave Carlson', 'email': 'dave_carlson1@mail.ru', 'password': '123',
                                   'telegram_tag': '@captain1928', 'project_id': 1}).json())
-        print(requests.post(f'{link}api/orders',
+        print(requests.post(f'{request.host_url}api/orders',
                             json={'name': 'Jone', 'phone': '+79009897520', 'address': 'Lipetsk, ul. Moskovskaya, 92',
                                   'project_id': 1, 'price': 1512, 'comment': 'бобер мне снес квартиру',
                                   'who_delivers': 2}, cookies=request.cookies).json())

@@ -53,7 +53,7 @@ h2 {
 }
 
 .close-btn:hover {
-    color: red;
+    color: red
 }
 
 .icon-wrapper {
@@ -65,16 +65,16 @@ h2 {
 }
 
 @keyframes boldRedFade {
-  0% {
-    color: red;
-  }
-  100% {
-    color: inherit;
-    font-weight: normal;
-  }
+    0% {
+        color: red;
+    }
+    100% {
+        color: inherit;
+        font-weight: normal;
+    }
 }
 
 .flash-duplicate {
-  color: red;
-  animation: boldRedFade 2s
+    color: red;
+    animation: boldRedFade 2s
 }

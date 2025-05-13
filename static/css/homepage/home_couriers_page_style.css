@@ -1,12 +1,13 @@
 /* Стили для вкладки курьеры */
 
+
 .hidden {
-  display: none !important;
+    display: none !important
 }
 
 .couriers-page {
     margin: 0 auto;
-    width: fit-content;
+    width: fit-content
 }
 
 .invite-row {
@@ -33,14 +34,14 @@
 }
 
 .invite-btn:active {
-  transform: scale(0.95);
+    transform: scale(0.95)
 }
 
 .invite-link {
     border: 1px solid #ccc;
     padding: 8px 12px;
     width: 400px;
-    background: linear-gradient(90deg, black 0 40.5ch, #888 40.5ch 100%);
+    background: linear-gradient(90deg, black 0 35ch, #888 35ch 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent
@@ -54,8 +55,8 @@
 
 .members {
     text-align: center;
-    font-size:22px;
-    margin-top:25px
+    font-size: 22px;
+    margin-top: 25px
 }
 
 .tg-tag {
@@ -125,17 +126,17 @@
 }
 
 #couriers {
-  margin-top: 0 !important;
-  transition: none !important
+    margin-top: 0 !important;
+    transition: none !important
 }
 
 .tab-switch {
-  position: relative;
-  z-index: 10;
+    position: relative;
+    z-index: 10
 }
 
 .couriers-page {
     overflow-y: auto;
     max-height: calc(100vh - 150px);
-    padding-bottom: 20px;
+    padding-bottom: 20px
 }

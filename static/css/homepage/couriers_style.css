@@ -1,94 +1,95 @@
 /* Правая колонка */
 
+
 #courier-search {
-  padding: 5px;
-  border: 1px solid #ccc;
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 15px;
-  font-size: 14px;
-  border-radius: 4px;
-  border: 1px solid #ccc;
+    padding: 5px;
+    border: 1px solid #ccc;
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 15px;
+    font-size: 14px;
+    border-radius: 4px;
+    border: 1px solid #ccc
 }
 
 .courier-panel {
-  width: 300px;
-  background-color: #f9f9f9;
-  padding: 15px;
-  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    width: 300px;
+    background-color: #f9f9f9;
+    padding: 15px;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px
 }
 
 .courier-filter-wrapper {
     flex: 1;
-  display: flex;
-  flex-direction: column;
-  margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 20px
 }
 
 .courier-filters-scroll {
-  max-height: 795px;
-  overflow-y: auto;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  padding-right: 5px;
-  flex-direction: column;
+    max-height: 795px;
+    overflow-y: auto;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding-right: 5px;
+    flex-direction: column
 }
 
 #courier-search {
-  width: 100%;
-  padding: 7px;
-  font-size: 14px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
+    width: 100%;
+    padding: 7px;
+    font-size: 14px;
+    border-radius: 5px;
+    border: 1px solid #ccc
 }
 
 .courier-list-scroll {
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px
 }
 
 .courier-btn {
-  border-radius: 6px;
-  background-color: #e6e6e6;
-  cursor: pointer;
-  font-size: 15px;
-  transition: background-color 0.2s ease;
-  user-select: none;
-  width: 100%;
-  line-height: 1;
-  border: none;
-  min-height: 38px;
-  min-width: 0;
-  flex-shrink: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 10px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  text-align: center;
+    border-radius: 6px;
+    background-color: #e6e6e6;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background-color 0.2s ease;
+    user-select: none;
+    width: 100%;
+    line-height: 1;
+    border: none;
+    min-height: 38px;
+    min-width: 0;
+    flex-shrink: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center
 }
 
 .courier-btn.editing {
-  justify-content: space-between;
-  text-align: left;
+    justify-content: space-between;
+    text-align: left
 }
 
 .courier-btn:hover {
-  background-color: #dcdcdc;
+    background-color: #dcdcdc
 }
 
 .courier-btn.active {
-  background-color: #2196f3;
-  color: white;
+    background-color: #2196f3;
+    color: white
 }
 
 .courier-btn:focus {
@@ -101,16 +102,16 @@
 }
 
 #courier-filter-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  max-height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    max-height: 100%
 }
 
 .order-btn-add-to-courier {
-  flex-shrink: 0;
-  min-width: 20px;
-  text-align: center;
+    flex-shrink: 0;
+    min-width: 20px;
+    text-align: center
 }

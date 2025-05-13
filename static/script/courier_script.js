@@ -2,6 +2,7 @@
 let activeOrderId = null;
 
 // === Функции для работы с картой ===
+// === Добавление метки на карту ===
 function addWarehouseToMap(map, coords) {
     const warehousePlacemark = new ymaps.Placemark(
         coords,
@@ -18,6 +19,7 @@ function addWarehouseToMap(map, coords) {
     return warehousePlacemark;
 }
 
+// === Поиск по адресу ===
 function searchAddress(map, address) {
     if (!address.trim()) return;
 
@@ -35,6 +37,7 @@ function searchAddress(map, address) {
 }
 
 // === Функции для работы с заказами ===
+// === Создание панели заказа ===
 function createOrderItem(order) {
     const orderNumber = order.analytics_id ? order.analytics_id : order.id;
     const item = document.createElement('div');
@@ -59,6 +62,7 @@ function createOrderItem(order) {
     return item;
 }
 
+// === Создание метки заказа ===
 function createOrderMarker(map, order) {
     const color = '#4dd2ff'; // Стандартный синий цвет
 
@@ -95,13 +99,13 @@ function createOrderMarker(map, order) {
     return mark;
 }
 
+// === Подсветка заказа ===
 function highlightOrder(id) {
     document.querySelectorAll('.order-item').forEach(el => {
         el.classList.toggle('active', el.dataset.id == id);
     });
 }
 
-// === Обработчики событий для заказов ===
 function setupOrderClickHandler(item, order, mark, map) {
     item.addEventListener('click', (e) => {
         // Закрываем предыдущие открытые детали
@@ -139,10 +143,8 @@ function initializeOrders(map, orders) {
     const ordersList = document.getElementById('orders-list');
     const allPlacemarks = [];
 
-    // Очищаем список перед добавлением новых заказов
     ordersList.innerHTML = '';
 
-    // Обновляем счетчик заказов
     document.getElementById('orders-count').textContent = orders.length;
 
     // Инициализация заказов
@@ -172,7 +174,6 @@ ymaps.ready(() => {
     const allOrders = Object.values(courierOrders).flat();
     initializeOrders(map, allOrders);
 
-    // Поиск адресов
     const addressInput = document.getElementById('address-search');
     const addressBtn = document.getElementById('address-search-btn');
 
@@ -195,7 +196,6 @@ ymaps.ready(() => {
                 if (isVisible) visibleCount++;
             });
 
-            // Обновляем счетчик видимых заказов
             document.getElementById('orders-count').textContent = visibleCount;
         });
     }

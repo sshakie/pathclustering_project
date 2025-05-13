@@ -50,7 +50,6 @@ class CourierRelationsListResource(Resource):
             abort(403, message=f"You're not admin")  # Пользователь не админ — доступ запрещён
         abort(401, message=f"You're not logged in")  # Пользователь не авторизован — доступ запрещён
 
-
     def delete(self):
         if current_user.is_authenticated:  # Проверяем, авторизован ли пользователь
             if current_user.status == 'admin':  # Проверяем, является ли пользователь админом

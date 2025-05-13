@@ -2,264 +2,264 @@
 
 
 .orders-panel {
-  width: 20%;
-  height: 92vh;
-  background-color: #f9f9f9;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  position: relative;
-  z-index: 950;
-  display: flex;
-  flex-direction: column;
-  padding: 0;
-  overflow: hidden;
+    width: 20%;
+    height: 92vh;
+    background-color: #f9f9f9;
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 950;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    overflow: hidden
 }
 
 .orders-fixed-header {
-  background-color: #f9f9f9;
-  padding: 15px;
-  z-index: 960;
-  flex-shrink: 0;
+    background-color: #f9f9f9;
+    padding: 15px;
+    z-index: 960;
+    flex-shrink: 0
 }
 
 .orders-scrollable {
-  flex: 1;
-  overflow-y: auto;
-  padding: 0 15px 15px;
-  min-height: 0;
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 15px 15px;
+    min-height: 0
 }
 
 .orders-header {
-  display: flex;
-  align-items: center;
-  margin: 0;
-  gap: 5px;
-  padding: 0 5px;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    gap: 5px;
+    padding: 0 5px
 }
 
 #order-search {
-  padding: 8px;
-  border: 1px solid #ccc;
-  width: calc(100% - 10px);
-  font-size: 14px;
-  border-radius: 4px;
-  margin: 10px 5px 0;
+    padding: 8px;
+    border: 1px solid #ccc;
+    width: calc(100% - 10px);
+    font-size: 14px;
+    border-radius: 4px;
+    margin: 10px 5px 0
 }
 
 .orders-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px
 }
 
 .add-order-btn {
-  position: fixed;
-  bottom: 15px;
-  left: 15px;
-  width: 40px;
-  border: none;
-  padding: 8px;
-  background-color:rgba(0, 0, 0, 0);
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 16px;
-  z-index: 970;
-  transition: background-color 0.2s;
-  margin-left: 140px
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    width: 40px;
+    border: none;
+    padding: 8px;
+    background-color:rgba(0, 0, 0, 0);
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    z-index: 970;
+    transition: background-color 0.2s;
+    margin-left: 140px
 }
 
 .add-order-btn:hover {
-    background-color:rgba(0, 0, 0, 0.15);
+    background-color:rgba(0, 0, 0, 0.15)
 }
 
 .add-order-btn:focus {
-  outline: none;
+    outline: none
 }
 
 .orders-text {
-  text-align: left;
+    text-align: left
 }
 
 .orders-count-wrapper {
-  margin-left: auto;
-  text-align: right;
+    margin-left: auto;
+    text-align: right
 }
 
 #orders-count {
-  font-weight: bold;
+    font-weight: bold
 }
 
 .order-item {
-  padding: 15px;
-  border-radius: 6px;
-  outline: 1px solid #000000;
-  background-color: #FFFFFF;
-  cursor: pointer;
-  font-size: 15px;
-  transition: background-color 0.2s ease;
-  user-select: none;
-  width: 100%;
-  line-height: 1.2;
-  box-sizing: border-box;
+    padding: 15px;
+    border-radius: 6px;
+    outline: 1px solid #000000;
+    background-color: #FFFFFF;
+    cursor: pointer;
+    font-size: 15px;
+    transition: background-color 0.2s ease;
+    user-select: none;
+    width: 100%;
+    line-height: 1.2;
+    box-sizing: border-box
 }
 
 .order-item:hover {
-  background-color: #FFE2CC;
+    background-color: #FFE2CC
 }
 
 .order-item.active {
-  background-color: #FFE2CC;
+    background-color: #FFE2CC
 }
 
 .edit-btn, .delete-order-btn {
-  border: none;
-  background: none;
-  cursor: pointer;
-  padding: 0 5px;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 24px;
-  border-radius: 3px;
-  transition: background-color 0.2s;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    border-radius: 3px;
+    transition: background-color 0.2s
 }
 
 .edit-btn:hover, .delete-order-btn:hover {
-  background-color: rgba(0, 0, 0, 0.1);
+    background-color: rgba(0, 0, 0, 0.1)
 }
 
 .edit-btn:active, .delete-order-btn:active {
-  background-color: rgba(0, 0, 0, 0.2);
+    background-color: rgba(0, 0, 0, 0.2)
 }
 
 .edit-btn:focus {
-  border: none;
-  outline: none
+    border: none;
+    outline: none
 }
 
 .delete-order-btn:focus {
-  border: none;
-  outline: none
+    border: none;
+    outline: none
 }
 
 .order-details:not(.hidden) + .order-price ~ .edit-btn,
 .order-details:not(.hidden) ~ .edit-btn {
-  display: block;
-  border: none;
-  outline: none;
+    display: block;
+    border: none;
+    outline: none
 }
 
 .order-item.unassigned {
-  outline: 3px solid #E55050;
+    outline: 3px solid #E55050
 }
 
 .order-item.unassigned:hover {
-  background-color: #E8E8E8
+    background-color: #E8E8E8
 }
 
 .order-item.unassigned.active {
-  background-color: #E8E8E8;
+    background-color: #E8E8E8
 }
 
 .order-header {
-  display: flex;
-  flex-direction: column;
-  cursor: pointer;
+    display: flex;
+    flex-direction: column;
+    cursor: pointer
 }
 
 .order-details {
-  margin-top: 6px;
-  font-size: 14px;
-  max-height: 0;
-  opacity: 0;
-  overflow: hidden;
-  transition:
-    max-height 0.3s ease-in-out,
-    opacity 0.3s ease-in-out,
-    margin-top 0.3s ease-in-out;
+    margin-top: 6px;
+    font-size: 14px;
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition:
+        max-height 0.3s ease-in-out,
+        opacity 0.3s ease-in-out,
+        margin-top 0.3s ease-in-out
 }
 
 .order-details.hidden {
-  display: block !important;
-  max-height: 0;
-  opacity: 0;
-  margin-top: 0;
+    display: block !important;
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0
 }
 
 .order-details:not(.hidden) {
-  max-height: 200px;
-  opacity: 1;
+    max-height: 200px;
+    opacity: 1
 }
 
 .order-price {
-  margin-top: auto;
+    margin-top: auto
 }
 
 .btn-close {
-  border: none;
-  outline: none
+    border: none;
+    outline: none
 }
 
 .order-item.new-order {
-  background-color: #f0f8ff;
-  outline: 2px dashed #4d94ff;
+    background-color: #f0f8ff;
+    outline: 2px dashed #4d94ff
 }
 
 .order-item.new-order:hover {
-  background-color: #e0f0ff;
+    background-color: #e0f0ff
 }
 
 .new-order-input {
-  border: none;
-  border-bottom: 1px solid #aaa;
-  outline: none;
-  background: none;
-  font-size: 14px;
-  padding: 2px 5px;
+    border: none;
+    border-bottom: 1px solid #aaa;
+    outline: none;
+    background: none;
+    font-size: 14px;
+    padding: 2px 5px
 }
 
 .new-order-input:focus {
-  border-bottom-color: #4d94ff;
+    border-bottom-color: #4d94ff
 }
 
 .save-new-order-btn, .cancel-new-order-btn {
-  border: none;
-  background: none;
-  cursor: pointer;
-  padding: 0 5px;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 24px;
-  border-radius: 3px;
-  transition: background-color 0.2s;
+    border: none;
+    background: none;
+    cursor: pointer;
+    padding: 0 5px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 24px;
+    border-radius: 3px;
+    transition: background-color 0.2s
 }
 
 .save-new-order-btn:hover {
-  background-color: rgba(40, 167, 69, 0.1) !important;
+    background-color: rgba(40, 167, 69, 0.1) !important
 }
 
 .cancel-new-order-btn:hover {
-  background-color: rgba(220, 53, 69, 0.1) !important;
+    background-color: rgba(220, 53, 69, 0.1) !important
 }
 
 .order-item.blocked {
-  pointer-events: none;
-  opacity: 0.7;
+    pointer-events: none;
+    opacity: 0.7
 }
 
 .order-price {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center
 }
 
 .order-item.new-order {
-  background-color: #f0f8ff;
-  outline: 2px dashed #4d94ff;
-  pointer-events: auto;
-  opacity: 1;
+    background-color: #f0f8ff;
+    outline: 2px dashed #4d94ff;
+    pointer-events: auto;
+    opacity: 1
 }
 
 .order-btn-add-to-courier {
@@ -274,8 +274,8 @@
 }
 
 .orders-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding-bottom: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 15px
 }

@@ -3,7 +3,7 @@ import requests
 
 def get_coords_from_geocoder(toponym_to_find):
     with open('data/config', encoding='UTF-8') as file:  # API-ключ для геокодера
-        api_key = file.read().split('\n')[1].split()[1]
+        api_key = file.read().split('\n')[0].split()[1]
         
     # Запрос к геокодеру
     response = requests.get('http://geocode-maps.yandex.ru/1.x/',
