@@ -113,14 +113,17 @@ class OrdersListResource(Resource):
     def get(self):
         if current_user.is_authenticated:
             session = create_session()
-            projects = session.query(Project).filter(Project.admin_id == current_user.id).all()
-            orders = [session.query(Order).filter(Order.project_id == i).all() for i in projects]
-            session.close()
-            return jsonify({'orders':
-                [i.to_dict(
-                    only=('id', 'phone', 'name', 'address', 'project_id', 'price', 'comment', 'analytics_id',
-                          'who_delivers'))
-                    for i in orders]})
+            try:
+                projects = session.query(Project).filter(Project.admin_id == current_user.id).all()
+                orders = []
+                for project in projects:
+                    orders.extend(session.query(Order).filter(Order.project_id == project.id).all())
+                return jsonify({'orders':
+                    [i.to_dict(
+                        only=('id', 'phone', 'name', 'address', 'project_id', 'price', 'comment', 'analytics_id', 'who_delivers'))
+                        for i in orders]})
+            finally:
+                session.close()
         abort(401, message=f"You're not logged in")
 
     def post(self):

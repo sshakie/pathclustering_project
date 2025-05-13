@@ -2,13 +2,16 @@
 {% block title %} Стань логистом {% endblock %}
 
 {% block content %}
+<!-- Форма регистрации для двух ролей одновременно -->
 <div style="display: flex; justify-content: center; align-items: center; height: 100vh">
     <div style="width: 100%; max-width: 400px">
         {% if admin_name %}
-            <h2 align="center">Присоединиться курьером к {{admin_name}}</h2>
+        <h2 align="center">Присоединиться курьером к {{admin_name}}</h2>
         {% else %}
-            <h2 align="center">Стань логистом</h2>
+        <h2 align="center">Стань логистом</h2>
         {% endif %}
+
+        <!-- Поля для заполнения -->
         <form action="" method="post">
             {{ form.hidden_tag() }}
             <p>

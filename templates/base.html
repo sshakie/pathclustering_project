@@ -7,6 +7,7 @@
 </head>
 
 <body>
+<!-- Навигационная панель -->
 <nav class="navbar navbar-light bg-light" style="position: fixed; top: 0; width: 100%;">
     {% if icon_id %}
     <a class="navbar-brand" href="/projects" style="margin-left: 15px"> <img src="/static/icon/{{icon_id}}.png"> </a>
@@ -30,6 +31,7 @@
     </div>
 </nav>
 
+<!-- Загружаем остальное -->
 <div class="main-container" style="padding-top: 70px;">
     {% block content %} {% endblock %}
 </div>

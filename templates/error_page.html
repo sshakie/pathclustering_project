@@ -2,11 +2,13 @@
 {% block title %} Ошибка {{error_code}}! {% endblock %}
 
 {% block content %}
+<!-- Страница с кодовыми ошибками -->
 <div align=center style="font-family: 'Courier New', monospace;margin-top:150px">
     {% if error_code == 404 %}
     <h1>Похоже вы заблудились, ведь такой страницы нет!</h1>
     <h2>Может, вы неверно ввели ссылку?</h2><br>
     <h4 style="color: red">404</h4>
+
     {% else %}
     <h1>Похоже, вы наткнулись на какую-то ошибку..</h1><br>
     <h2>Её код: {{error_code}}!</h2>

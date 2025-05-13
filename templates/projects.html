@@ -6,17 +6,19 @@
 <link rel="stylesheet" href="/static/css/projects_style.css">
 <script defer src="/static/script/projects_script.js"></script>
 
-<div class="project-wrapper" align="center">
-    <h2>Выбрать проект</h2>
-    <div class="project-list" id="projects"></div>
-    {% if current_user.status == 'admin' %}
-        <button class="add-project-btn" id="add-project-btn">➕</button>
-    {% endif %}
-</div>
-
+<!-- Импорт для js -->
 <script>
     const data = {{ projects | tojson | safe }};
     const current_user_id = {{ current_user.id | tojson | safe }};
     const current_user_status = {{ current_user.status | tojson | safe }};
 </script>
+
+<!-- Список проектов -->
+<div class="project-wrapper" align="center">
+    <h2>Выбрать проект</h2>
+    <div class="project-list" id="projects"></div>
+    {% if current_user.status == 'admin' %}
+    <button class="add-project-btn" id="add-project-btn">➕</button>
+    {% endif %}
+</div>
 {% endblock %}

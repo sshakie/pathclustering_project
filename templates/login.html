@@ -2,9 +2,12 @@
 {% block title %} Вход в аккаунт {% endblock %}
 
 {% block content %}
+<!-- Форма авторизации для двух ролей одновременно -->
 <div style="display: flex; justify-content: center; align-items: center; height: 100vh">
     <div style="width: 100%; max-width: 400px">
         <h2 align="center">Вход в аккаунт</h2>
+
+        <!-- Поля для заполнения -->
         <form action="" method="post">
             {{ form.hidden_tag() }}
             <p>

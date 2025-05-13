@@ -1,13 +1,14 @@
+from scipy.cluster.hierarchy import linkage, fcluster
 from math import radians, sin, cos, atan2, sqrt
+from scipy.spatial.distance import squareform
 from data.sql.models.order import Order
 import networkx as nx
 import numpy as np
-from scipy.cluster.hierarchy import linkage, fcluster
-from scipy.spatial.distance import squareform
 
 
 class Depot:
     """Класс склада, используется как специальный заказ с координатами."""
+
     def __init__(self, id, coords):
         self.id = id
         self.coords = coords

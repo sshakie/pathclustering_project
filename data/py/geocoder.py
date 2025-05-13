@@ -2,27 +2,22 @@ import requests
 
 
 def get_coords_from_geocoder(toponym_to_find):
-    geocoder_api_server = "http://geocode-maps.yandex.ru/1.x/"
+    with open('data/config', encoding='UTF-8') as file:  # API-ключ для геокодера
+        api_key = file.read().split('\n')[1].split()[1]
+        
+    # Запрос к геокодеру
+    response = requests.get('http://geocode-maps.yandex.ru/1.x/',
+                            params={'apikey': api_key,
+                                    'geocode': toponym_to_find,
+                                    'format': 'json'})
 
-    geocoder_params = {
-        "apikey": "8013b162-6b42-4997-9691-77b7074026e0",
-        "geocode": toponym_to_find,
-        "format": "json"}
-
-    response = requests.get(geocoder_api_server, params=geocoder_params)
-
-    if not response:
-        # обработка ошибочной ситуации
+    if not response:  # Обработка ошибочной ситуации
         pass
 
-    # Преобразуем ответ в json-объект
-    json_response = response.json()
-    # Получаем первый топоним из ответа геокодера.
-    toponym = json_response["response"]["GeoObjectCollection"]["featureMember"][0]["GeoObject"]
-    # Координаты центра топонима:
-    toponym_coodrinates = toponym["Point"]["pos"]
+    # Получаем первый топоним из ответа геокодера
+    toponym = response.json()['response']['GeoObjectCollection']['featureMember'][0]['GeoObject']
 
-    # Долгота и широта:
-    toponym_longitude, toponym_lattitude = toponym_coodrinates.split(" ")
+    # Долгота и широта
+    toponym_longitude, toponym_lattitude = toponym['Point']['pos'].split(' ')
     self_point = f'{toponym_longitude},{toponym_lattitude}'
     return self_point
