@@ -157,7 +157,7 @@ def show_project(project_id):
                         return jsonify({'status': 'error',
                                         'message': 'Ошибка. Возможно, нет свободных заказов или курьеров'}), 400
                     try:
-                        ready_couriers = [i for i in couriers_d if i['project_id']]
+                        ready_couriers = [i for i in couriers_d if project_id in i['project_id']]
                         for cluster in clusters.keys():
                             for order_id in clusters[cluster]:
                                 requests.put(f'{request.host_url}api/orders/{order_id}',
