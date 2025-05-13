@@ -19,7 +19,7 @@ def unpack_orders_xls(table, project_id, cookie):
         if str(comment) == 'nan':
             comment = None
 
-        response = requests.post(f'{request.host_url}api/orders',
+        response = requests.post(f'http://127.0.0.1:5000/api/orders',
                                  json={'phone': phone,
                                        'name': name,
                                        'address': address,

@@ -7,6 +7,7 @@ from data.sql.__all_models import Order
 from data.sql.__all_models import User
 from flask_login import current_user
 from flask import jsonify
+import random
 
 user_parser = reqparse.RequestParser()
 user_parser.add_argument('name', required=True, type=str)
@@ -133,6 +134,8 @@ class UsersListResource(Resource):
                     user.telegram_tag = args['telegram_tag']
             if not args['project_id'] and not args['admin_id']:  # проверка принадлежности пользователя, иначе - админ
                 user.status = 'admin'
+
+            user.color = random.choice(['#FF6A00', '#AA00FF', '#D45564', '#31AF7D', '#BE8737', '#7F7F7F', '#698239'])
             user.set_password(args['password'])
             session.add(user)
             session.commit()
